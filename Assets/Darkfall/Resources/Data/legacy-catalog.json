@@ -1,0 +1,945 @@
+{
+  "characters": [
+    {
+      "id": "dimon",
+      "name": "Dimon",
+      "description": "Маг дальнего боя с автонацеливанием снарядов",
+      "hp": 80,
+      "maxHp": 80,
+      "damage": 15,
+      "moveSpeed": 70,
+      "attackSpeed": 1.2,
+      "attackRadius": 200,
+      "defense": 2,
+      "crit": 5,
+      "type": "ranged",
+      "projectileSpeed": 300,
+      "color": "#9b59b6",
+      "sprite": "✦",
+      "hasBlast": true,
+      "blastCooldown": 12,
+      "blastRadius": 120,
+      "blastDamage": 40,
+      "heroClass": "mage"
+    },
+    {
+      "id": "andre",
+      "name": "Andre",
+      "description": "Мощный воин ближнего боя с высокими HP и защитой",
+      "hp": 140,
+      "maxHp": 140,
+      "damage": 18,
+      "moveSpeed": 75,
+      "attackSpeed": 1,
+      "attackRadius": 64,
+      "defense": 8,
+      "crit": 0,
+      "type": "melee",
+      "color": "#e74c3c",
+      "sprite": "⚔",
+      "hasShield": true,
+      "shieldCooldown": 8,
+      "shieldDuration": 4,
+      "shieldDefenseBonus": 15,
+      "heroClass": "warrior"
+    },
+    {
+      "id": "tim",
+      "name": "Tim",
+      "description": "Быстрый разбойник с dash способностью",
+      "hp": 85,
+      "maxHp": 85,
+      "damage": 25,
+      "moveSpeed": 110,
+      "attackSpeed": 0.7,
+      "attackRadius": 56,
+      "defense": 2,
+      "crit": 15,
+      "type": "melee",
+      "hasDash": true,
+      "dashCooldown": 3,
+      "dashDistance": 80,
+      "color": "#27ae60",
+      "sprite": "†",
+      "heroClass": "rogue"
+    }
+  ],
+  "enemies": [
+    {
+      "type": "Skeleton",
+      "hp": 30,
+      "damage": 18,
+      "speed": 60,
+      "attackRange": 48,
+      "color": "#bdc3c7",
+      "reward": 10,
+      "sprite": "☠"
+    },
+    {
+      "type": "Skeleton Archer",
+      "hp": 25,
+      "damage": 15,
+      "speed": 55,
+      "attackRange": 180,
+      "color": "#95a5a6",
+      "reward": 15,
+      "sprite": "➵",
+      "projectileSpeed": 250,
+      "hasBow": true
+    },
+    {
+      "type": "Dark Mage",
+      "hp": 25,
+      "damage": 12,
+      "speed": 45,
+      "attackRange": 150,
+      "color": "#8e44ad",
+      "reward": 15,
+      "sprite": "✦",
+      "projectileSpeed": 200
+    },
+    {
+      "type": "Frost Mage",
+      "hp": 30,
+      "damage": 10,
+      "speed": 40,
+      "attackRange": 160,
+      "color": "#3498db",
+      "reward": 20,
+      "sprite": "❄",
+      "projectileSpeed": 180,
+      "canFreeze": true,
+      "freezeChance": 0.3,
+      "freezeDuration": 3
+    },
+    {
+      "type": "Poison Spitter",
+      "hp": 35,
+      "damage": 8,
+      "speed": 50,
+      "attackRange": 140,
+      "color": "#27ae60",
+      "reward": 18,
+      "sprite": "◈",
+      "projectileSpeed": 150,
+      "canPoison": true,
+      "poisonChance": 0.4,
+      "poisonDamage": 5,
+      "poisonDuration": 8
+    },
+    {
+      "type": "Stun Warrior",
+      "hp": 45,
+      "damage": 20,
+      "speed": 55,
+      "attackRange": 48,
+      "color": "#f39c12",
+      "reward": 22,
+      "sprite": "⚡",
+      "canStun": true,
+      "stunChance": 0.25,
+      "stunDuration": 2.5
+    },
+    {
+      "type": "Orc Warrior",
+      "hp": 45,
+      "damage": 22,
+      "speed": 50,
+      "attackRange": 48,
+      "color": "#27ae60",
+      "reward": 20,
+      "sprite": "⚔"
+    },
+    {
+      "type": "Shadow Assassin",
+      "hp": 35,
+      "damage": 25,
+      "speed": 80,
+      "attackRange": 48,
+      "color": "#2c3e50",
+      "reward": 25,
+      "sprite": "■",
+      "levelRequirement": 5
+    },
+    {
+      "type": "Demon Lord",
+      "hp": 80,
+      "damage": 35,
+      "speed": 40,
+      "attackRange": 200,
+      "color": "#e74c3c",
+      "reward": 50,
+      "sprite": "☯",
+      "projectileSpeed": 250,
+      "levelRequirement": 10
+    },
+    {
+      "type": "Ancient Guardian",
+      "hp": 120,
+      "damage": 30,
+      "speed": 35,
+      "attackRange": 48,
+      "color": "#f39c12",
+      "reward": 40,
+      "sprite": "◆",
+      "levelRequirement": 8
+    },
+    {
+      "type": "Void Wraith",
+      "hp": 50,
+      "damage": 28,
+      "speed": 70,
+      "attackRange": 120,
+      "color": "#9b59b6",
+      "reward": 35,
+      "sprite": "□",
+      "levelRequirement": 6,
+      "projectileSpeed": 220,
+      "canTeleport": true,
+      "teleportChance": 0.15
+    },
+    {
+      "type": "Crystal Golem",
+      "hp": 90,
+      "damage": 32,
+      "speed": 30,
+      "attackRange": 48,
+      "color": "#e67e22",
+      "reward": 45,
+      "sprite": "◇",
+      "levelRequirement": 7,
+      "canReflect": true,
+      "reflectChance": 0.2
+    }
+  ],
+  "bosses": [
+    {
+      "type": "Skeleton King",
+      "hp": 500,
+      "damage": 40,
+      "speed": 35,
+      "attackRange": 64,
+      "color": "#fff",
+      "reward": 200,
+      "sprite": "☠",
+      "levelTier": 1,
+      "abilities": [
+        "summon",
+        "charge"
+      ],
+      "summonCount": 3,
+      "chargeDistance": 120,
+      "chargeDamage": 60
+    },
+    {
+      "type": "Dragon",
+      "hp": 800,
+      "damage": 55,
+      "speed": 30,
+      "attackRange": 200,
+      "color": "#e74c3c",
+      "reward": 350,
+      "sprite": "⛩",
+      "levelTier": 2,
+      "abilities": [
+        "firebreath",
+        "stomp"
+      ],
+      "projectileSpeed": 300,
+      "firebreathDamage": 35,
+      "stompRadius": 100,
+      "stompDamage": 45
+    },
+    {
+      "type": "Lich",
+      "hp": 600,
+      "damage": 45,
+      "speed": 40,
+      "attackRange": 180,
+      "color": "#8e44ad",
+      "reward": 300,
+      "sprite": "□",
+      "levelTier": 3,
+      "abilities": [
+        "teleport",
+        "curse",
+        "summon"
+      ],
+      "projectileSpeed": 250,
+      "summonCount": 2,
+      "curseDuration": 5
+    }
+  ],
+  "items": [
+    {
+      "name": "Меч",
+      "icon": "SWD",
+      "color": "#e67e22",
+      "type": "weapon",
+      "slot": "weapon",
+      "minRadius": 56,
+      "maxRadius": 72,
+      "baseId": "sword",
+      "requiredClass": "warrior"
+    },
+    {
+      "name": "Топор",
+      "icon": "AXE",
+      "color": "#b87333",
+      "type": "weapon",
+      "slot": "weapon",
+      "minRadius": 56,
+      "maxRadius": 72,
+      "baseId": "axe",
+      "requiredClass": "warrior"
+    },
+    {
+      "name": "Посох",
+      "icon": "STF",
+      "color": "#8e44ad",
+      "type": "weapon",
+      "slot": "weapon",
+      "minRadius": 120,
+      "maxRadius": 180,
+      "baseId": "staff",
+      "requiredClass": "mage"
+    },
+    {
+      "name": "Жезл",
+      "icon": "WND",
+      "color": "#9b59b6",
+      "type": "weapon",
+      "slot": "weapon",
+      "minRadius": 100,
+      "maxRadius": 160,
+      "baseId": "wand",
+      "requiredClass": "mage"
+    },
+    {
+      "name": "Кинжал",
+      "icon": "DGR",
+      "color": "#27ae60",
+      "type": "weapon",
+      "slot": "weapon",
+      "minRadius": 40,
+      "maxRadius": 56,
+      "baseId": "dagger",
+      "requiredClass": "rogue"
+    },
+    {
+      "name": "Арбалет",
+      "icon": "CRB",
+      "color": "#34495e",
+      "type": "weapon",
+      "slot": "weapon",
+      "minRadius": 80,
+      "maxRadius": 120,
+      "baseId": "crossbow",
+      "requiredClass": "rogue"
+    },
+    {
+      "name": "Щит",
+      "icon": "SHD",
+      "color": "#95a5a6",
+      "type": "shield",
+      "slot": "shield",
+      "baseId": "shield",
+      "requiredClass": "warrior"
+    },
+    {
+      "name": "Мантия",
+      "icon": "RBE",
+      "color": "#6c3483",
+      "type": "armor",
+      "slot": "armor",
+      "baseId": "robe",
+      "requiredClass": "mage"
+    },
+    {
+      "name": "Кожаная броня",
+      "icon": "LTH",
+      "color": "#d35400",
+      "type": "armor",
+      "slot": "armor",
+      "baseId": "leather",
+      "requiredClass": "rogue"
+    },
+    {
+      "name": "Латная броня",
+      "icon": "PLT",
+      "color": "#7f8c8d",
+      "type": "armor",
+      "slot": "armor",
+      "baseId": "plate",
+      "requiredClass": "warrior"
+    },
+    {
+      "name": "Шлем",
+      "icon": "HLM",
+      "color": "#95a5a6",
+      "type": "head",
+      "slot": "head",
+      "baseId": "helmet",
+      "requiredClass": "warrior"
+    },
+    {
+      "name": "Капюшон",
+      "icon": "HUD",
+      "color": "#6c3483",
+      "type": "head",
+      "slot": "head",
+      "baseId": "hood",
+      "requiredClass": "mage"
+    },
+    {
+      "name": "Кепка",
+      "icon": "CAP",
+      "color": "#34495e",
+      "type": "head",
+      "slot": "head",
+      "baseId": "cap",
+      "requiredClass": "rogue"
+    },
+    {
+      "name": "Перчатки",
+      "icon": "GLV",
+      "color": "#95a5a6",
+      "type": "gloves",
+      "slot": "gloves",
+      "baseId": "gloves",
+      "requiredClass": null
+    },
+    {
+      "name": "Пояс",
+      "icon": "BLT",
+      "color": "#d35400",
+      "type": "belt",
+      "slot": "belt",
+      "baseId": "belt",
+      "requiredClass": null
+    },
+    {
+      "name": "Ботинки",
+      "icon": "BTS",
+      "color": "#8b4513",
+      "type": "boots",
+      "slot": "boots",
+      "baseId": "boots",
+      "requiredClass": null
+    },
+    {
+      "name": "Амулет",
+      "icon": "AMT",
+      "color": "#f39c12",
+      "type": "accessory",
+      "slot": "accessory",
+      "baseId": "amulet",
+      "requiredClass": null
+    },
+    {
+      "name": "Кольцо",
+      "icon": "RNG",
+      "color": "#e67e22",
+      "type": "accessory",
+      "slot": "accessory",
+      "baseId": "ring",
+      "requiredClass": null
+    },
+    {
+      "name": "Зелье здоровья",
+      "icon": "HP1",
+      "color": "#e74c3c",
+      "type": "consumable",
+      "slot": "consumable",
+      "baseId": "potion",
+      "requiredClass": null
+    },
+    {
+      "name": "Зелье скорости",
+      "icon": "SPD",
+      "color": "#3498db",
+      "type": "consumable",
+      "slot": "consumable",
+      "baseId": "speed_potion",
+      "requiredClass": null
+    },
+    {
+      "name": "Зелье силы",
+      "icon": "STR",
+      "color": "#e67e22",
+      "type": "consumable",
+      "slot": "consumable",
+      "baseId": "strength_potion",
+      "requiredClass": null
+    },
+    {
+      "name": "Зелье защиты",
+      "icon": "DEF",
+      "color": "#95a5a6",
+      "type": "consumable",
+      "slot": "consumable",
+      "baseId": "defense_potion",
+      "requiredClass": null
+    },
+    {
+      "name": "Зелье регенерации",
+      "icon": "REG",
+      "color": "#27ae60",
+      "type": "consumable",
+      "slot": "consumable",
+      "baseId": "regen_potion",
+      "requiredClass": null
+    },
+    {
+      "name": "Комплексное зелье",
+      "icon": "CMB",
+      "color": "#9b59b6",
+      "type": "consumable",
+      "slot": "consumable",
+      "baseId": "combo_potion",
+      "requiredClass": null
+    },
+    {
+      "name": "Зелье очищения",
+      "icon": "PUR",
+      "color": "#f39c12",
+      "type": "consumable",
+      "slot": "consumable",
+      "baseId": "purification_potion",
+      "requiredClass": null
+    },
+    {
+      "name": "Тайная банка",
+      "icon": "MYS",
+      "color": "#8e44ad",
+      "type": "consumable",
+      "slot": "consumable",
+      "baseId": "mystery_potion",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток оборотня",
+      "icon": "WRW",
+      "color": "#8b4513",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Превращает в волка: скорость +50%, урон +30%, защита -20% на 15 сек",
+      "baseId": "scroll_werewolf",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток камня",
+      "icon": "STN",
+      "color": "#7f8c8d",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Превращает в голема: защита +100%, скорость -60% на 12 сек",
+      "baseId": "scroll_stone",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток огненного взрыва",
+      "icon": "FIR",
+      "color": "#e74c3c",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Взрывная волна огня: урон 40, радиус 120, поджигает врагов",
+      "baseId": "scroll_fire_explosion",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток ледяной бури",
+      "icon": "ICE",
+      "color": "#3498db",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Замораживает всех врагов в радиусе 150 на 5 сек",
+      "baseId": "scroll_ice_storm",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток молнии",
+      "icon": "LTN",
+      "color": "#f1c40f",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Цепная молния между врагами: урон 25, до 5 целей",
+      "baseId": "scroll_lightning",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток землетрясения",
+      "icon": "QKE",
+      "color": "#8b4513",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Создает трещины, замедляющие врагов на 8 сек",
+      "baseId": "scroll_earthquake",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток клонирования",
+      "icon": "CLN",
+      "color": "#9b59b6",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Создает временного клона игрока: урон 50% на 20 сек",
+      "baseId": "scroll_clone",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток телепортации",
+      "icon": "TLP",
+      "color": "#e67e22",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Случайный телепорт в пределах карты",
+      "baseId": "scroll_teleport",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток невидимости",
+      "icon": "INV",
+      "color": "#95a5a6",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Невидимость для врагов на 8 сек",
+      "baseId": "scroll_invisibility",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток времени",
+      "icon": "TME",
+      "color": "#34495e",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Замедляет всех врагов на 60% на 10 сек",
+      "baseId": "scroll_time",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток проклятия",
+      "icon": "CRS",
+      "color": "#2c3e50",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Накладывает случайный дебафф на всех врагов в радиусе 200",
+      "baseId": "scroll_curse",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток хаоса",
+      "icon": "CHS",
+      "color": "#e74c3c",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Заставляет врагов атаковать друг друга на 15 сек",
+      "baseId": "scroll_chaos",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток страха",
+      "icon": "FEA",
+      "color": "#8e44ad",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Заставляет врагов убегать от игрока на 12 сек",
+      "baseId": "scroll_fear",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток дыма",
+      "icon": "SMK",
+      "color": "#7f8c8d",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Создает дымовую завесу, скрывающую игрока на 10 сек",
+      "baseId": "scroll_smoke",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток метеорита",
+      "icon": "MET",
+      "color": "#e67e22",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Вызывает падение метеорита в случайную точку карты",
+      "baseId": "scroll_meteor",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток барьера",
+      "icon": "BAR",
+      "color": "#3498db",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Создает энергетический щит, абсорбирующий 100 урона",
+      "baseId": "scroll_barrier",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток ярости",
+      "icon": "RAG",
+      "color": "#e74c3c",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Урон +100%, но игрок получает урон при атаке на 12 сек",
+      "baseId": "scroll_rage",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток неуязвимости",
+      "icon": "IMN",
+      "color": "#f1c40f",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Полная неуязвимость к урону на 5 сек",
+      "baseId": "scroll_invulnerability",
+      "requiredClass": null
+    },
+    {
+      "name": "Свиток вампиризма",
+      "icon": "VMP",
+      "color": "#8e44ad",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "50% урона от атак восстанавливает здоровье на 15 сек",
+      "baseId": "scroll_vampirism",
+      "requiredClass": null
+    },
+    {
+      "name": "Тайный свиток",
+      "icon": "TSC",
+      "color": "#8e44ad",
+      "type": "consumable",
+      "slot": "consumable",
+      "description": "Случайный эффект из всех возможных свитков",
+      "baseId": "mystery_scroll",
+      "requiredClass": null
+    }
+  ],
+  "affixes": [
+    {
+      "key": "damage",
+      "name": "Урон",
+      "min": 5,
+      "max": 30
+    },
+    {
+      "key": "crit",
+      "name": "Крит",
+      "min": 2,
+      "max": 15
+    },
+    {
+      "key": "defense",
+      "name": "Защита",
+      "min": 2,
+      "max": 15
+    },
+    {
+      "key": "maxHp",
+      "name": "HP",
+      "min": 10,
+      "max": 60
+    },
+    {
+      "key": "moveSpeed",
+      "name": "Скорость",
+      "min": 5,
+      "max": 30
+    },
+    {
+      "key": "attackSpeed",
+      "name": "Скорость атаки",
+      "min": 5,
+      "max": 25
+    },
+    {
+      "key": "attackRadius",
+      "name": "Дальность атаки",
+      "min": 10,
+      "max": 50
+    },
+    {
+      "key": "fire",
+      "name": "Огонь",
+      "min": 5,
+      "max": 20
+    },
+    {
+      "key": "ice",
+      "name": "Лёд",
+      "min": 5,
+      "max": 20
+    }
+  ],
+  "rarities": [
+    {
+      "key": "common",
+      "name": "Обычный",
+      "color": "#95a5a6",
+      "chance": 0.68
+    },
+    {
+      "key": "rare",
+      "name": "Редкий",
+      "color": "#3498db",
+      "chance": 0.21
+    },
+    {
+      "key": "epic",
+      "name": "Эпик",
+      "color": "#e67e22",
+      "chance": 0.07
+    },
+    {
+      "key": "legendary",
+      "name": "Легендарный",
+      "color": "#e74c3c",
+      "chance": 0.04
+    }
+  ],
+  "shop": [
+    {
+      "id": "max_hp",
+      "name": "Укрепление тела",
+      "description": "+20 к максимальному здоровью",
+      "icon": "+",
+      "stat": "maxHp",
+      "value": 20,
+      "basePrice": 50,
+      "maxPurchases": 10
+    },
+    {
+      "id": "damage",
+      "name": "Острота клинка",
+      "description": "+4 к урону",
+      "icon": "X",
+      "stat": "damage",
+      "value": 4,
+      "basePrice": 60,
+      "maxPurchases": 10
+    },
+    {
+      "id": "defense",
+      "name": "Закалка брони",
+      "description": "+3 к защите",
+      "icon": "O",
+      "stat": "defense",
+      "value": 3,
+      "basePrice": 45,
+      "maxPurchases": 10
+    },
+    {
+      "id": "speed",
+      "name": "Лёгкость шага",
+      "description": "+8 к скорости",
+      "icon": ">",
+      "stat": "moveSpeed",
+      "value": 8,
+      "basePrice": 40,
+      "maxPurchases": 8
+    },
+    {
+      "id": "crit",
+      "name": "Меткий глаз",
+      "description": "+3% к шансу крита",
+      "icon": "*",
+      "stat": "crit",
+      "value": 3,
+      "basePrice": 55,
+      "maxPurchases": 10
+    },
+    {
+      "id": "attack_speed",
+      "name": "Быстрые руки",
+      "description": "Ускорение атаки",
+      "icon": "!",
+      "stat": "attackSpeed",
+      "value": 0.05,
+      "basePrice": 65,
+      "maxPurchases": 6
+    },
+    {
+      "id": "heal_full",
+      "name": "Полное исцеление",
+      "description": "Восстановить всё здоровье",
+      "icon": "+",
+      "stat": "hp",
+      "value": 0,
+      "basePrice": 30,
+      "maxPurchases": 99
+    },
+    {
+      "id": "attack_radius",
+      "name": "Длинная рука",
+      "description": "+15 к радиусу атаки",
+      "icon": "^",
+      "stat": "attackRadius",
+      "value": 15,
+      "basePrice": 50,
+      "maxPurchases": 6
+    }
+  ],
+  "loot": {
+    "ENEMY_DROP_CHANCE": {
+      "LEVELS_1_4": 0.15,
+      "LEVELS_5_10": 0.2,
+      "LEVELS_11_PLUS": 0.25
+    },
+    "BASE_DROP_RATES": {
+      "EQUIPMENT": 0.3,
+      "SCROLLS": 0.2,
+      "POTIONS": 0.25,
+      "MISC": 0.1
+    },
+    "RARITY_RATES": {
+      "LEVELS_1_4": {
+        "COMMON": 0.7,
+        "RARE": 0.2,
+        "EPIC": 0.08,
+        "LEGENDARY": 0.02
+      },
+      "LEVELS_5_10": {
+        "COMMON": 0.6,
+        "RARE": 0.25,
+        "EPIC": 0.1,
+        "LEGENDARY": 0.05
+      },
+      "LEVELS_11_PLUS": {
+        "COMMON": 0.5,
+        "RARE": 0.3,
+        "EPIC": 0.15,
+        "LEGENDARY": 0.05
+      }
+    },
+    "PITY_TIMER": {
+      "BASE_EPIC_CHANCE": 0.1,
+      "BASE_LEGENDARY_CHANCE": 0.03,
+      "INCREASE_PER_FAILURE": 0.02,
+      "MAX_BONUS_CHANCE": 0.5
+    },
+    "CLASS_WEIGHTS": {
+      "WARRIOR": {
+        "WEAPONS": 0.5,
+        "POTIONS": 0.3,
+        "SCROLLS": 0.2
+      },
+      "MAGE": {
+        "WEAPONS": 0.2,
+        "POTIONS": 0.3,
+        "SCROLLS": 0.5
+      },
+      "ROGUE": {
+        "WEAPONS": 0.4,
+        "POTIONS": 0.35,
+        "SCROLLS": 0.25
+      }
+    },
+    "SPECIAL_ITEMS": {
+      "SYNERGY_CHEST_CHANCE": 0.05,
+      "UNIQUE_ITEM_CHANCE": 0.01
+    }
+  }
+}

@@ -1,0 +1,1261 @@
+fileFormatVersion: 2
+guid: 2714af9849da64519b4c4e84a79fbe5b
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5150981432279605968
+    second: enemy-caster-v2_0
+  - first:
+      213: 3819757044317790171
+    second: enemy-caster-v2_1
+  - first:
+      213: 8006185820293021045
+    second: enemy-caster-v2_2
+  - first:
+      213: -2857790529684111159
+    second: enemy-caster-v2_3
+  - first:
+      213: 3789788188104483479
+    second: enemy-caster-v2_4
+  - first:
+      213: 8676947080970778361
+    second: enemy-caster-v2_5
+  - first:
+      213: -4327641046918091510
+    second: enemy-caster-v2_6
+  - first:
+      213: -7212887876312727534
+    second: enemy-caster-v2_7
+  - first:
+      213: -8467579257542573217
+    second: enemy-caster-v2_8
+  - first:
+      213: -6449654944715899290
+    second: enemy-caster-v2_9
+  - first:
+      213: 8064963762017138747
+    second: enemy-caster-v2_10
+  - first:
+      213: 3563441340343213434
+    second: enemy-caster-v2_11
+  - first:
+      213: 8000559969580696846
+    second: enemy-caster-v2_12
+  - first:
+      213: 6554223174466869018
+    second: enemy-caster-v2_13
+  - first:
+      213: 2310801183893086375
+    second: enemy-caster-v2_14
+  - first:
+      213: 2167310835246487017
+    second: enemy-caster-v2_15
+  - first:
+      213: 1678632974708272043
+    second: enemy-caster-v2_16
+  - first:
+      213: -7189813277356384775
+    second: enemy-caster-v2_17
+  - first:
+      213: -1780641985824073262
+    second: enemy-caster-v2_18
+  - first:
+      213: -3598931839107382858
+    second: enemy-caster-v2_19
+  - first:
+      213: -8343033870409180418
+    second: enemy-caster-v2_20
+  - first:
+      213: 8667726528842555321
+    second: enemy-caster-v2_21
+  - first:
+      213: 3347982156276289415
+    second: enemy-caster-v2_22
+  - first:
+      213: -6659609983389824590
+    second: enemy-caster-v2_23
+  - first:
+      213: -7785890940398897124
+    second: enemy-caster-v2_24
+  - first:
+      213: -8340664056487335864
+    second: enemy-caster-v2_25
+  - first:
+      213: -8420755946621043174
+    second: enemy-caster-v2_26
+  - first:
+      213: -5794754679673811113
+    second: enemy-caster-v2_27
+  - first:
+      213: -8591625243403397557
+    second: enemy-caster-v2_28
+  - first:
+      213: -2848714731826939984
+    second: enemy-caster-v2_29
+  - first:
+      213: 7467123910971799485
+    second: enemy-caster-v2_30
+  - first:
+      213: -2428623907281571711
+    second: enemy-caster-v2_31
+  - first:
+      213: -4087342348118887874
+    second: enemy-caster-v2_32
+  - first:
+      213: 4177217272746461815
+    second: enemy-caster-v2_33
+  - first:
+      213: 2680751866030125573
+    second: enemy-caster-v2_34
+  - first:
+      213: -1116232747511130308
+    second: enemy-caster-v2_35
+  - first:
+      213: 4659421798381859522
+    second: enemy-caster-v2_36
+  - first:
+      213: 5103158741016305282
+    second: enemy-caster-v2_37
+  - first:
+      213: -1161270680700774994
+    second: enemy-caster-v2_38
+  - first:
+      213: 5689148406716181091
+    second: enemy-caster-v2_39
+  - first:
+      213: 1147403660694989775
+    second: enemy-caster-v2_40
+  - first:
+      213: -1200877105986086196
+    second: enemy-caster-v2_41
+  - first:
+      213: -5352423163679412316
+    second: enemy-caster-v2_42
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: enemy-caster-v2_0
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 674
+        width: 131
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03d575cada90488b0800000000000000
+      internalID: -5150981432279605968
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_1
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 674
+        width: 133
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bdf9bda3bc0820530800000000000000
+      internalID: 3819757044317790171
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_2
+      rect:
+        serializedVersion: 2
+        x: 498
+        y: 672
+        width: 124
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57db550c59fab1f60800000000000000
+      internalID: 8006185820293021045
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_3
+      rect:
+        serializedVersion: 2
+        x: 713
+        y: 673
+        width: 126
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c004bb87a61758d0800000000000000
+      internalID: -2857790529684111159
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_4
+      rect:
+        serializedVersion: 2
+        x: 936
+        y: 674
+        width: 126
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79260f52748089430800000000000000
+      internalID: 3789788188104483479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_5
+      rect:
+        serializedVersion: 2
+        x: 1126
+        y: 676
+        width: 226
+        height: 163
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f63020d565ba6870800000000000000
+      internalID: 8676947080970778361
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_6
+      rect:
+        serializedVersion: 2
+        x: 1386
+        y: 676
+        width: 129
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0d2c0b856121f3c0800000000000000
+      internalID: -4327641046918091510
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_7
+      rect:
+        serializedVersion: 2
+        x: 1630
+        y: 831
+        width: 12
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21088a721bca6eb90800000000000000
+      internalID: -7212887876312727534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_8
+      rect:
+        serializedVersion: 2
+        x: 1585
+        y: 680
+        width: 148
+        height: 144
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5385b6478d1d7a80800000000000000
+      internalID: -8467579257542573217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_9
+      rect:
+        serializedVersion: 2
+        x: 1675
+        y: 817
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66efd50eff83e76a0800000000000000
+      internalID: -6449654944715899290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_10
+      rect:
+        serializedVersion: 2
+        x: 1583
+        y: 769
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b38fd61cfc18cef60800000000000000
+      internalID: 8064963762017138747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_11
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 463
+        width: 107
+        height: 169
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7d5915e403e37130800000000000000
+      internalID: 3563441340343213434
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_12
+      rect:
+        serializedVersion: 2
+        x: 276
+        y: 462
+        width: 109
+        height: 169
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e05411f47e2b70f60800000000000000
+      internalID: 8000559969580696846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_13
+      rect:
+        serializedVersion: 2
+        x: 496
+        y: 462
+        width: 119
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a171bbc504745fa50800000000000000
+      internalID: 6554223174466869018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_14
+      rect:
+        serializedVersion: 2
+        x: 711
+        y: 462
+        width: 123
+        height: 169
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a0ef700f6d911020800000000000000
+      internalID: 2310801183893086375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_15
+      rect:
+        serializedVersion: 2
+        x: 928
+        y: 462
+        width: 122
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e5d8b4c8b5d31e10800000000000000
+      internalID: 2167310835246487017
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_16
+      rect:
+        serializedVersion: 2
+        x: 1126
+        y: 463
+        width: 226
+        height: 161
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bab6eb5fbc3bb4710800000000000000
+      internalID: 1678632974708272043
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_17
+      rect:
+        serializedVersion: 2
+        x: 1383
+        y: 463
+        width: 128
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fd19c1eae6a83c90800000000000000
+      internalID: -7189813277356384775
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_18
+      rect:
+        serializedVersion: 2
+        x: 1632
+        y: 605
+        width: 10
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d95fc25c83e947e0800000000000000
+      internalID: -1780641985824073262
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_19
+      rect:
+        serializedVersion: 2
+        x: 1581
+        y: 461
+        width: 120
+        height: 143
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b1492f6f860e0ec0800000000000000
+      internalID: -3598931839107382858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_20
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 251
+        width: 109
+        height: 169
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efa553de5e6973c80800000000000000
+      internalID: -8343033870409180418
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_21
+      rect:
+        serializedVersion: 2
+        x: 271
+        y: 251
+        width: 116
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9bfd3e9ba53f94870800000000000000
+      internalID: 8667726528842555321
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_22
+      rect:
+        serializedVersion: 2
+        x: 487
+        y: 251
+        width: 114
+        height: 169
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78fc133680c667e20800000000000000
+      internalID: 3347982156276289415
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_23
+      rect:
+        serializedVersion: 2
+        x: 696
+        y: 251
+        width: 118
+        height: 169
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b9876511005493a0800000000000000
+      internalID: -6659609983389824590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_24
+      rect:
+        serializedVersion: 2
+        x: 934
+        y: 252
+        width: 116
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c18779de075f2f390800000000000000
+      internalID: -7785890940398897124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_25
+      rect:
+        serializedVersion: 2
+        x: 1131
+        y: 250
+        width: 221
+        height: 161
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 848243a3b32004c80800000000000000
+      internalID: -8340664056487335864
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_26
+      rect:
+        serializedVersion: 2
+        x: 1375
+        y: 251
+        width: 117
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1ef465e417732b80800000000000000
+      internalID: -8420755946621043174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_27
+      rect:
+        serializedVersion: 2
+        x: 1608
+        y: 391
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 75f828d1255e49fa0800000000000000
+      internalID: -5794754679673811113
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_28
+      rect:
+        serializedVersion: 2
+        x: 1650
+        y: 399
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4659ab8c5a64c880800000000000000
+      internalID: -8591625243403397557
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_29
+      rect:
+        serializedVersion: 2
+        x: 1564
+        y: 252
+        width: 136
+        height: 136
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b778076b055778d0800000000000000
+      internalID: -2848714731826939984
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_30
+      rect:
+        serializedVersion: 2
+        x: 1692
+        y: 368
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db7bc4f62ad80a760800000000000000
+      internalID: 7467123910971799485
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_31
+      rect:
+        serializedVersion: 2
+        x: 1700
+        y: 351
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 180f5797c6bcb4ed0800000000000000
+      internalID: -2428623907281571711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_32
+      rect:
+        serializedVersion: 2
+        x: 1700
+        y: 337
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3276f04ac7d647c0800000000000000
+      internalID: -4087342348118887874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_33
+      rect:
+        serializedVersion: 2
+        x: 1696
+        y: 322
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77acdab4af478f930800000000000000
+      internalID: 4177217272746461815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_34
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 39
+        width: 118
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 502f0b17e91f33520800000000000000
+      internalID: 2680751866030125573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_35
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 39
+        width: 119
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c37d0fdea385280f0800000000000000
+      internalID: -1116232747511130308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_36
+      rect:
+        serializedVersion: 2
+        x: 483
+        y: 38
+        width: 112
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c2334f507799a040800000000000000
+      internalID: 4659421798381859522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_37
+      rect:
+        serializedVersion: 2
+        x: 691
+        y: 38
+        width: 118
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28ed4b656df02d640800000000000000
+      internalID: 5103158741016305282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_38
+      rect:
+        serializedVersion: 2
+        x: 930
+        y: 38
+        width: 116
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea511c4f77652efe0800000000000000
+      internalID: -1161270680700774994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_39
+      rect:
+        serializedVersion: 2
+        x: 1127
+        y: 34
+        width: 130
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36a2cc0655ae3fe40800000000000000
+      internalID: 5689148406716181091
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_40
+      rect:
+        serializedVersion: 2
+        x: 1367
+        y: 36
+        width: 116
+        height: 174
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcb25b9dc856cef00800000000000000
+      internalID: 1147403660694989775
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_41
+      rect:
+        serializedVersion: 2
+        x: 1642
+        y: 189
+        width: 13
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ccadcc672a0a55fe0800000000000000
+      internalID: -1200877105986086196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-caster-v2_42
+      rect:
+        serializedVersion: 2
+        x: 1590
+        y: 45
+        width: 119
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4afe051bd7f58b5b0800000000000000
+      internalID: -5352423163679412316
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      enemy-caster-v2_0: -5150981432279605968
+      enemy-caster-v2_1: 3819757044317790171
+      enemy-caster-v2_10: 8064963762017138747
+      enemy-caster-v2_11: 3563441340343213434
+      enemy-caster-v2_12: 8000559969580696846
+      enemy-caster-v2_13: 6554223174466869018
+      enemy-caster-v2_14: 2310801183893086375
+      enemy-caster-v2_15: 2167310835246487017
+      enemy-caster-v2_16: 1678632974708272043
+      enemy-caster-v2_17: -7189813277356384775
+      enemy-caster-v2_18: -1780641985824073262
+      enemy-caster-v2_19: -3598931839107382858
+      enemy-caster-v2_2: 8006185820293021045
+      enemy-caster-v2_20: -8343033870409180418
+      enemy-caster-v2_21: 8667726528842555321
+      enemy-caster-v2_22: 3347982156276289415
+      enemy-caster-v2_23: -6659609983389824590
+      enemy-caster-v2_24: -7785890940398897124
+      enemy-caster-v2_25: -8340664056487335864
+      enemy-caster-v2_26: -8420755946621043174
+      enemy-caster-v2_27: -5794754679673811113
+      enemy-caster-v2_28: -8591625243403397557
+      enemy-caster-v2_29: -2848714731826939984
+      enemy-caster-v2_3: -2857790529684111159
+      enemy-caster-v2_30: 7467123910971799485
+      enemy-caster-v2_31: -2428623907281571711
+      enemy-caster-v2_32: -4087342348118887874
+      enemy-caster-v2_33: 4177217272746461815
+      enemy-caster-v2_34: 2680751866030125573
+      enemy-caster-v2_35: -1116232747511130308
+      enemy-caster-v2_36: 4659421798381859522
+      enemy-caster-v2_37: 5103158741016305282
+      enemy-caster-v2_38: -1161270680700774994
+      enemy-caster-v2_39: 5689148406716181091
+      enemy-caster-v2_4: 3789788188104483479
+      enemy-caster-v2_40: 1147403660694989775
+      enemy-caster-v2_41: -1200877105986086196
+      enemy-caster-v2_42: -5352423163679412316
+      enemy-caster-v2_5: 8676947080970778361
+      enemy-caster-v2_6: -4327641046918091510
+      enemy-caster-v2_7: -7212887876312727534
+      enemy-caster-v2_8: -8467579257542573217
+      enemy-caster-v2_9: -6449654944715899290
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

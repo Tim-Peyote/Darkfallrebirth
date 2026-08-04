@@ -1,0 +1,1193 @@
+fileFormatVersion: 2
+guid: 8d476a3a613584eecb126d4b59ffbbd4
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2331119437688886888
+    second: projectiles-alpha_0
+  - first:
+      213: -7900877624354536435
+    second: projectiles-alpha_1
+  - first:
+      213: -2929676510216711475
+    second: projectiles-alpha_2
+  - first:
+      213: -6657963367263341642
+    second: projectiles-alpha_3
+  - first:
+      213: -4023515389218392744
+    second: projectiles-alpha_4
+  - first:
+      213: -2487381714269060890
+    second: projectiles-alpha_5
+  - first:
+      213: -231900673312942839
+    second: projectiles-alpha_6
+  - first:
+      213: 7507571929176044831
+    second: projectiles-alpha_7
+  - first:
+      213: -6713866908259934393
+    second: projectiles-alpha_8
+  - first:
+      213: 8373175250080166491
+    second: projectiles-alpha_9
+  - first:
+      213: 7820785631763770615
+    second: projectiles-alpha_10
+  - first:
+      213: -1882778808524529732
+    second: projectiles-alpha_11
+  - first:
+      213: -8563632811092551179
+    second: projectiles-alpha_12
+  - first:
+      213: -9170569563814183714
+    second: projectiles-alpha_13
+  - first:
+      213: 2236346446098155292
+    second: projectiles-alpha_14
+  - first:
+      213: 6868497781323538616
+    second: projectiles-alpha_15
+  - first:
+      213: -623012965741994358
+    second: projectiles-alpha_16
+  - first:
+      213: -4746516416011088050
+    second: projectiles-alpha_17
+  - first:
+      213: 3053576593666138979
+    second: projectiles-alpha_18
+  - first:
+      213: 8880006136678710547
+    second: projectiles-alpha_19
+  - first:
+      213: 3177668011430784191
+    second: projectiles-alpha_20
+  - first:
+      213: -4100797373577492694
+    second: projectiles-alpha_21
+  - first:
+      213: 6714214293173344393
+    second: projectiles-alpha_22
+  - first:
+      213: 5176028241112186569
+    second: projectiles-alpha_23
+  - first:
+      213: -5261694675587439445
+    second: projectiles-alpha_24
+  - first:
+      213: 4664972577612779155
+    second: projectiles-alpha_25
+  - first:
+      213: 4394800387879229487
+    second: projectiles-alpha_26
+  - first:
+      213: 1093036429235222903
+    second: projectiles-alpha_27
+  - first:
+      213: -1319580603086982117
+    second: projectiles-alpha_28
+  - first:
+      213: 2985189718924302102
+    second: projectiles-alpha_29
+  - first:
+      213: 3654719465650915802
+    second: projectiles-alpha_30
+  - first:
+      213: 1299230691809606257
+    second: projectiles-alpha_31
+  - first:
+      213: -3003601425818247061
+    second: projectiles-alpha_32
+  - first:
+      213: 7910170132845188495
+    second: projectiles-alpha_33
+  - first:
+      213: -1731735472986784699
+    second: projectiles-alpha_34
+  - first:
+      213: -5727332695182281323
+    second: projectiles-alpha_35
+  - first:
+      213: -7877358097728417696
+    second: projectiles-alpha_36
+  - first:
+      213: 1438108820819812555
+    second: projectiles-alpha_37
+  - first:
+      213: -638947189816892224
+    second: projectiles-alpha_38
+  - first:
+      213: 596088698941862543
+    second: projectiles-alpha_39
+  - first:
+      213: 3782964274238574237
+    second: projectiles-alpha_40
+  - first:
+      213: -6219593329354953648
+    second: projectiles-alpha_41
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: projectiles-alpha_0
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 557
+        width: 131
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 866547c17ccc95020800000000000000
+      internalID: 2331119437688886888
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_1
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 557
+        width: 115
+        height: 147
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d04048a49a17a5290800000000000000
+      internalID: -7900877624354536435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_2
+      rect:
+        serializedVersion: 2
+        x: 563
+        y: 552
+        width: 125
+        height: 143
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc21abd6cb2b757d0800000000000000
+      internalID: -2929676510216711475
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_3
+      rect:
+        serializedVersion: 2
+        x: 808
+        y: 548
+        width: 124
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b374b6c7992a93a0800000000000000
+      internalID: -6657963367263341642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_4
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 342
+        width: 198
+        height: 92
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 855f15d221a9928c0800000000000000
+      internalID: -4023515389218392744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_5
+      rect:
+        serializedVersion: 2
+        x: 297
+        y: 347
+        width: 189
+        height: 83
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e0c034728b0b7dd0800000000000000
+      internalID: -2487381714269060890
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_6
+      rect:
+        serializedVersion: 2
+        x: 542
+        y: 342
+        width: 193
+        height: 83
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9051208f09f18ccf0800000000000000
+      internalID: -231900673312942839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_7
+      rect:
+        serializedVersion: 2
+        x: 599
+        y: 424
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f157b3c84e0403860800000000000000
+      internalID: 7507571929176044831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_8
+      rect:
+        serializedVersion: 2
+        x: 793
+        y: 345
+        width: 191
+        height: 85
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74f9ae75e9d83d2a0800000000000000
+      internalID: -6713866908259934393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_9
+      rect:
+        serializedVersion: 2
+        x: 788
+        y: 395
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b52fe17e68e733470800000000000000
+      internalID: 8373175250080166491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_10
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 369
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fc22c58813098c60800000000000000
+      internalID: 7820785631763770615
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_11
+      rect:
+        serializedVersion: 2
+        x: 538
+        y: 369
+        width: 12
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbf134726a60fd5e0800000000000000
+      internalID: -1882778808524529732
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_12
+      rect:
+        serializedVersion: 2
+        x: 786
+        y: 367
+        width: 13
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f9d2f3945dd72980800000000000000
+      internalID: -8563632811092551179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_13
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 200
+        width: 24
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: edcb8d8c1979bb080800000000000000
+      internalID: -9170569563814183714
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_14
+      rect:
+        serializedVersion: 2
+        x: 115
+        y: 212
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c17436a7e39190f10800000000000000
+      internalID: 2236346446098155292
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_15
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 202
+        width: 9
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b0295c575ec15f50800000000000000
+      internalID: 6868497781323538616
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_16
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 192
+        width: 17
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8e5c7e220d9a57f0800000000000000
+      internalID: -623012965741994358
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_17
+      rect:
+        serializedVersion: 2
+        x: 344
+        y: 197
+        width: 15
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4f491fb77cf02eb0800000000000000
+      internalID: -4746516416011088050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_18
+      rect:
+        serializedVersion: 2
+        x: 374
+        y: 192
+        width: 14
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 363eaefbbbb706a20800000000000000
+      internalID: 3053576593666138979
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_19
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 125
+        width: 184
+        height: 77
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31df504788e1c3b70800000000000000
+      internalID: 8880006136678710547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_20
+      rect:
+        serializedVersion: 2
+        x: 577
+        y: 193
+        width: 12
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbc247b6838591c20800000000000000
+      internalID: 3177668011430784191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_21
+      rect:
+        serializedVersion: 2
+        x: 596
+        y: 199
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a270f04048a0717c0800000000000000
+      internalID: -4100797373577492694
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_22
+      rect:
+        serializedVersion: 2
+        x: 795
+        y: 202
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9889272835ead2d50800000000000000
+      internalID: 6714214293173344393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_23
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 181
+        width: 21
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ceb1e2f242f4d740800000000000000
+      internalID: 5176028241112186569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_24
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 122
+        width: 184
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba4eb09f194baf6b0800000000000000
+      internalID: -5261694675587439445
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_25
+      rect:
+        serializedVersion: 2
+        x: 313
+        y: 189
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39e4c8fd7df4db040800000000000000
+      internalID: 4664972577612779155
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_26
+      rect:
+        serializedVersion: 2
+        x: 793
+        y: 120
+        width: 184
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f285a4a0ba77dfc30800000000000000
+      internalID: 4394800387879229487
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_27
+      rect:
+        serializedVersion: 2
+        x: 839
+        y: 195
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 779702b57de3b2f00800000000000000
+      internalID: 1093036429235222903
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_28
+      rect:
+        serializedVersion: 2
+        x: 862
+        y: 192
+        width: 9
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b143184de68efade0800000000000000
+      internalID: -1319580603086982117
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_29
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 160
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61791afab368d6920800000000000000
+      internalID: 2985189718924302102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_30
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 163
+        width: 20
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad904df8dfb28b230800000000000000
+      internalID: 3654719465650915802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_31
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 122
+        width: 182
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17ab89a3e6bc70210800000000000000
+      internalID: 1299230691809606257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_32
+      rect:
+        serializedVersion: 2
+        x: 787
+        y: 148
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b602f3fba601156d0800000000000000
+      internalID: -3003601425818247061
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_33
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 137
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f85542173d196cd60800000000000000
+      internalID: 7910170132845188495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_34
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 139
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54cfdaf23c3a7f7e0800000000000000
+      internalID: -1731735472986784699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_35
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 120
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 595fd29224d6480b0800000000000000
+      internalID: -5727332695182281323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_36
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 114
+        width: 21
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 060d950db800ea290800000000000000
+      internalID: -7877358097728417696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_37
+      rect:
+        serializedVersion: 2
+        x: 330
+        y: 118
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc022556a5035f310800000000000000
+      internalID: 1438108820819812555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_38
+      rect:
+        serializedVersion: 2
+        x: 363
+        y: 116
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c4eab88ae00227f0800000000000000
+      internalID: -638947189816892224
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_39
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 120
+        width: 14
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f82fd03738bb54800800000000000000
+      internalID: 596088698941862543
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_40
+      rect:
+        serializedVersion: 2
+        x: 619
+        y: 114
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9ecbf3e6f9cf7430800000000000000
+      internalID: 3782964274238574237
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectiles-alpha_41
+      rect:
+        serializedVersion: 2
+        x: 825
+        y: 113
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05ca86cd1d09fa9a0800000000000000
+      internalID: -6219593329354953648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

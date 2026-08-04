@@ -1,0 +1,1143 @@
+fileFormatVersion: 2
+guid: 198ee099970f94258846e5d54719faa0
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1091239532830788643
+    second: warrior-grid-alpha_0
+  - first:
+      213: 1156310992728892258
+    second: warrior-grid-alpha_1
+  - first:
+      213: -7269310705149635684
+    second: warrior-grid-alpha_2
+  - first:
+      213: -8236813102448512079
+    second: warrior-grid-alpha_3
+  - first:
+      213: 3328022132284027076
+    second: warrior-grid-alpha_4
+  - first:
+      213: 1985597505420775874
+    second: warrior-grid-alpha_5
+  - first:
+      213: 7300214567708863550
+    second: warrior-grid-alpha_6
+  - first:
+      213: -2687801202930876440
+    second: warrior-grid-alpha_7
+  - first:
+      213: -2367080832715021059
+    second: warrior-grid-alpha_8
+  - first:
+      213: -3949254312110397553
+    second: warrior-grid-alpha_9
+  - first:
+      213: 2829089137327008225
+    second: warrior-grid-alpha_10
+  - first:
+      213: -406992746204082831
+    second: warrior-grid-alpha_11
+  - first:
+      213: -6813384660211062022
+    second: warrior-grid-alpha_12
+  - first:
+      213: 2538890853717685464
+    second: warrior-grid-alpha_13
+  - first:
+      213: 1794794056797526460
+    second: warrior-grid-alpha_14
+  - first:
+      213: 6384988455124432974
+    second: warrior-grid-alpha_15
+  - first:
+      213: -4079567455743064693
+    second: warrior-grid-alpha_16
+  - first:
+      213: 293327777109018058
+    second: warrior-grid-alpha_17
+  - first:
+      213: -4659503459111044977
+    second: warrior-grid-alpha_18
+  - first:
+      213: 2760898827453595885
+    second: warrior-grid-alpha_19
+  - first:
+      213: -3575034563726144586
+    second: warrior-grid-alpha_20
+  - first:
+      213: 1752728480498204751
+    second: warrior-grid-alpha_21
+  - first:
+      213: -681751497751783528
+    second: warrior-grid-alpha_22
+  - first:
+      213: -1041602885093683494
+    second: warrior-grid-alpha_23
+  - first:
+      213: -5353266973790162401
+    second: warrior-grid-alpha_24
+  - first:
+      213: -6430930484798219946
+    second: warrior-grid-alpha_25
+  - first:
+      213: 6305259157728277412
+    second: warrior-grid-alpha_26
+  - first:
+      213: -1463400978191228280
+    second: warrior-grid-alpha_27
+  - first:
+      213: 4291643366621955605
+    second: warrior-grid-alpha_28
+  - first:
+      213: 4679522615987185781
+    second: warrior-grid-alpha_29
+  - first:
+      213: -8840582729761982749
+    second: warrior-grid-alpha_30
+  - first:
+      213: 1899441591043397593
+    second: warrior-grid-alpha_31
+  - first:
+      213: -9077137916642028863
+    second: warrior-grid-alpha_32
+  - first:
+      213: 136241584991735524
+    second: warrior-grid-alpha_33
+  - first:
+      213: -2484028091899047066
+    second: warrior-grid-alpha_34
+  - first:
+      213: -8334343638729070638
+    second: warrior-grid-alpha_35
+  - first:
+      213: 19251839819008548
+    second: warrior-grid-alpha_36
+  - first:
+      213: -9085035410373235886
+    second: warrior-grid-alpha_37
+  - first:
+      213: -6369180575246332547
+    second: warrior-grid-alpha_38
+  - first:
+      213: 4913580790938150808
+    second: warrior-grid-alpha_39
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: warrior-grid-alpha_0
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 751
+        width: 162
+        height: 231
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd3f1c03d632bd0f0800000000000000
+      internalID: -1091239532830788643
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_1
+      rect:
+        serializedVersion: 2
+        x: 282
+        y: 746
+        width: 168
+        height: 231
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2632c73b8ba0c0010800000000000000
+      internalID: 1156310992728892258
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_2
+      rect:
+        serializedVersion: 2
+        x: 530
+        y: 745
+        width: 155
+        height: 236
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c939c999d683e1b90800000000000000
+      internalID: -7269310705149635684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_3
+      rect:
+        serializedVersion: 2
+        x: 767
+        y: 751
+        width: 162
+        height: 229
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b3f543bf16f0bd80800000000000000
+      internalID: -8236813102448512079
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_4
+      rect:
+        serializedVersion: 2
+        x: 1002
+        y: 750
+        width: 167
+        height: 230
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c07d672f728f2e20800000000000000
+      internalID: 3328022132284027076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_5
+      rect:
+        serializedVersion: 2
+        x: 1228
+        y: 748
+        width: 195
+        height: 227
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c1d18939624e8b10800000000000000
+      internalID: 1985597505420775874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_6
+      rect:
+        serializedVersion: 2
+        x: 1522
+        y: 748
+        width: 179
+        height: 256
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3c2b6c98729f4560800000000000000
+      internalID: 7300214567708863550
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_7
+      rect:
+        serializedVersion: 2
+        x: 1773
+        y: 748
+        width: 266
+        height: 221
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8efff68eb0303bad0800000000000000
+      internalID: -2687801202930876440
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_8
+      rect:
+        serializedVersion: 2
+        x: 2081
+        y: 751
+        width: 172
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df4a2632680762fd0800000000000000
+      internalID: -2367080832715021059
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_9
+      rect:
+        serializedVersion: 2
+        x: 2340
+        y: 756
+        width: 160
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f87eafe802e6139c0800000000000000
+      internalID: -3949254312110397553
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_10
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 505
+        width: 133
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e9ea4cc491f24720800000000000000
+      internalID: 2829089137327008225
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_11
+      rect:
+        serializedVersion: 2
+        x: 289
+        y: 505
+        width: 134
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17d4850f0421a5af0800000000000000
+      internalID: -406992746204082831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_12
+      rect:
+        serializedVersion: 2
+        x: 527
+        y: 507
+        width: 145
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afa260a10cef171a0800000000000000
+      internalID: -6813384660211062022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_13
+      rect:
+        serializedVersion: 2
+        x: 767
+        y: 505
+        width: 134
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d4b453a7c3fb3320800000000000000
+      internalID: 2538890853717685464
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_14
+      rect:
+        serializedVersion: 2
+        x: 1008
+        y: 506
+        width: 133
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb916687fa368e810800000000000000
+      internalID: 1794794056797526460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_15
+      rect:
+        serializedVersion: 2
+        x: 1280
+        y: 505
+        width: 117
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4879aabb290c9850800000000000000
+      internalID: 6384988455124432974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_16
+      rect:
+        serializedVersion: 2
+        x: 1519
+        y: 504
+        width: 132
+        height: 224
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b85c03373077267c0800000000000000
+      internalID: -4079567455743064693
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_17
+      rect:
+        serializedVersion: 2
+        x: 1768
+        y: 505
+        width: 247
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac586552f0c121400800000000000000
+      internalID: 293327777109018058
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_18
+      rect:
+        serializedVersion: 2
+        x: 2063
+        y: 505
+        width: 152
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f887bf18a4e165fb0800000000000000
+      internalID: -4659503459111044977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_19
+      rect:
+        serializedVersion: 2
+        x: 2342
+        y: 505
+        width: 136
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de00a2f0bdea05620800000000000000
+      internalID: 2760898827453595885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_20
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 269
+        width: 128
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6bb0c51710de26ec0800000000000000
+      internalID: -3575034563726144586
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_21
+      rect:
+        serializedVersion: 2
+        x: 302
+        y: 269
+        width: 132
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f404ec34441f25810800000000000000
+      internalID: 1752728480498204751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_22
+      rect:
+        serializedVersion: 2
+        x: 538
+        y: 269
+        width: 142
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8971a67ff9ee986f0800000000000000
+      internalID: -681751497751783528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_23
+      rect:
+        serializedVersion: 2
+        x: 784
+        y: 269
+        width: 140
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ade08f4d1bb7b81f0800000000000000
+      internalID: -1041602885093683494
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_24
+      rect:
+        serializedVersion: 2
+        x: 1033
+        y: 269
+        width: 134
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f123867dc0065b5b0800000000000000
+      internalID: -5353266973790162401
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_25
+      rect:
+        serializedVersion: 2
+        x: 1240
+        y: 267
+        width: 117
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6591f5eebceb0c6a0800000000000000
+      internalID: -6430930484798219946
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_26
+      rect:
+        serializedVersion: 2
+        x: 1508
+        y: 269
+        width: 125
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a33c291cc7c08750800000000000000
+      internalID: 6305259157728277412
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_27
+      rect:
+        serializedVersion: 2
+        x: 1682
+        y: 269
+        width: 231
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 882e3f25094f0bbe0800000000000000
+      internalID: -1463400978191228280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_28
+      rect:
+        serializedVersion: 2
+        x: 2115
+        y: 270
+        width: 130
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 516c92267eafe8b30800000000000000
+      internalID: 4291643366621955605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_29
+      rect:
+        serializedVersion: 2
+        x: 2366
+        y: 268
+        width: 133
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 578a25ca60101f040800000000000000
+      internalID: 4679522615987185781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_30
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 25
+        width: 139
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e67511c8d0ff4580800000000000000
+      internalID: -8840582729761982749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_31
+      rect:
+        serializedVersion: 2
+        x: 291
+        y: 25
+        width: 136
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d79eb9301c2c5a10800000000000000
+      internalID: 1899441591043397593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_32
+      rect:
+        serializedVersion: 2
+        x: 535
+        y: 25
+        width: 138
+        height: 215
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c292555827870280800000000000000
+      internalID: -9077137916642028863
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_33
+      rect:
+        serializedVersion: 2
+        x: 777
+        y: 25
+        width: 137
+        height: 215
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ee811deff604e100800000000000000
+      internalID: 136241584991735524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_34
+      rect:
+        serializedVersion: 2
+        x: 1015
+        y: 31
+        width: 139
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66314428c95f68dd0800000000000000
+      internalID: -2484028091899047066
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_35
+      rect:
+        serializedVersion: 2
+        x: 1244
+        y: 28
+        width: 173
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d764892e96765c80800000000000000
+      internalID: -8334343638729070638
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_36
+      rect:
+        serializedVersion: 2
+        x: 1532
+        y: 31
+        width: 132
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42a4fa14275644000800000000000000
+      internalID: 19251839819008548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_37
+      rect:
+        serializedVersion: 2
+        x: 1787
+        y: 30
+        width: 236
+        height: 203
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25babd8cd687be180800000000000000
+      internalID: -9085035410373235886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_38
+      rect:
+        serializedVersion: 2
+        x: 2076
+        y: 31
+        width: 157
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7dcf1e13002c97a0800000000000000
+      internalID: -6369180575246332547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: warrior-grid-alpha_39
+      rect:
+        serializedVersion: 2
+        x: 2364
+        y: 25
+        width: 140
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8972d0332bb803440800000000000000
+      internalID: 4913580790938150808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

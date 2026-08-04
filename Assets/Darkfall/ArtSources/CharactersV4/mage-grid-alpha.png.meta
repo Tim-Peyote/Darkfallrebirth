@@ -1,0 +1,1143 @@
+fileFormatVersion: 2
+guid: 5b08579117ccb4d7fac39f9efadf6977
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 7905090064604705685
+    second: mage-grid-alpha_0
+  - first:
+      213: 6067654212915513566
+    second: mage-grid-alpha_1
+  - first:
+      213: 6359323884741573684
+    second: mage-grid-alpha_2
+  - first:
+      213: -6922779400342166957
+    second: mage-grid-alpha_3
+  - first:
+      213: 180192765724710408
+    second: mage-grid-alpha_4
+  - first:
+      213: -4567949741860531811
+    second: mage-grid-alpha_5
+  - first:
+      213: -1206584015848526857
+    second: mage-grid-alpha_6
+  - first:
+      213: 8951475283039401845
+    second: mage-grid-alpha_7
+  - first:
+      213: 8345696561086253676
+    second: mage-grid-alpha_8
+  - first:
+      213: 6932116758033364385
+    second: mage-grid-alpha_9
+  - first:
+      213: -9143057002944385218
+    second: mage-grid-alpha_10
+  - first:
+      213: -6427208549081101286
+    second: mage-grid-alpha_11
+  - first:
+      213: -4309076530780695404
+    second: mage-grid-alpha_12
+  - first:
+      213: -7551421317778093634
+    second: mage-grid-alpha_13
+  - first:
+      213: 3833585985587535071
+    second: mage-grid-alpha_14
+  - first:
+      213: 3341836901299508061
+    second: mage-grid-alpha_15
+  - first:
+      213: 6551024195763498541
+    second: mage-grid-alpha_16
+  - first:
+      213: 2690050457784418159
+    second: mage-grid-alpha_17
+  - first:
+      213: 5525272970921205438
+    second: mage-grid-alpha_18
+  - first:
+      213: -4284816449987515325
+    second: mage-grid-alpha_19
+  - first:
+      213: 4147346255410773354
+    second: mage-grid-alpha_20
+  - first:
+      213: -573086273411161086
+    second: mage-grid-alpha_21
+  - first:
+      213: 6106273097753299083
+    second: mage-grid-alpha_22
+  - first:
+      213: 7608318036848857983
+    second: mage-grid-alpha_23
+  - first:
+      213: -824530346158881847
+    second: mage-grid-alpha_24
+  - first:
+      213: -1857236417569102623
+    second: mage-grid-alpha_25
+  - first:
+      213: 4049983300212800942
+    second: mage-grid-alpha_26
+  - first:
+      213: -14274300068123921
+    second: mage-grid-alpha_27
+  - first:
+      213: -2733718929482260062
+    second: mage-grid-alpha_28
+  - first:
+      213: -618215635235916296
+    second: mage-grid-alpha_29
+  - first:
+      213: -3185854746515734402
+    second: mage-grid-alpha_30
+  - first:
+      213: -2786754666028843734
+    second: mage-grid-alpha_31
+  - first:
+      213: 2595302687434796488
+    second: mage-grid-alpha_32
+  - first:
+      213: 1052001952771309268
+    second: mage-grid-alpha_33
+  - first:
+      213: -5430610867619035389
+    second: mage-grid-alpha_34
+  - first:
+      213: -8868192343831247948
+    second: mage-grid-alpha_35
+  - first:
+      213: -955536388094900932
+    second: mage-grid-alpha_36
+  - first:
+      213: -1120515737085241388
+    second: mage-grid-alpha_37
+  - first:
+      213: -8209869444133739785
+    second: mage-grid-alpha_38
+  - first:
+      213: -8561575264443405430
+    second: mage-grid-alpha_39
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: mage-grid-alpha_0
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 773
+        width: 114
+        height: 224
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 593bb32e78584bd60800000000000000
+      internalID: 7905090064604705685
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_1
+      rect:
+        serializedVersion: 2
+        x: 374
+        y: 771
+        width: 151
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed84bbcdb53a43450800000000000000
+      internalID: 6067654212915513566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_2
+      rect:
+        serializedVersion: 2
+        x: 615
+        y: 769
+        width: 155
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43cbda9416bd04850800000000000000
+      internalID: 6359323884741573684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_3
+      rect:
+        serializedVersion: 2
+        x: 840
+        y: 772
+        width: 177
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 352a63850d85def90800000000000000
+      internalID: -6922779400342166957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_4
+      rect:
+        serializedVersion: 2
+        x: 1106
+        y: 770
+        width: 152
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 806dd10ad5c208200800000000000000
+      internalID: 180192765724710408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_5
+      rect:
+        serializedVersion: 2
+        x: 1345
+        y: 767
+        width: 172
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d91d09c69e16b90c0800000000000000
+      internalID: -4567949741860531811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_6
+      rect:
+        serializedVersion: 2
+        x: 1624
+        y: 771
+        width: 155
+        height: 233
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fb2fa7fa3a514fe0800000000000000
+      internalID: -1206584015848526857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_7
+      rect:
+        serializedVersion: 2
+        x: 1848
+        y: 767
+        width: 187
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 577b04dc7570a3c70800000000000000
+      internalID: 8951475283039401845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_8
+      rect:
+        serializedVersion: 2
+        x: 2110
+        y: 767
+        width: 167
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6acebe0eced1d370800000000000000
+      internalID: 8345696561086253676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_9
+      rect:
+        serializedVersion: 2
+        x: 2378
+        y: 772
+        width: 139
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a57c18a673d33060800000000000000
+      internalID: 6932116758033364385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_10
+      rect:
+        serializedVersion: 2
+        x: 119
+        y: 514
+        width: 107
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3f2a5a09165d1180800000000000000
+      internalID: -9143057002944385218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_11
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 513
+        width: 120
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1ccaae90e7fdc6a0800000000000000
+      internalID: -6427208549081101286
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_12
+      rect:
+        serializedVersion: 2
+        x: 612
+        y: 514
+        width: 130
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49418d8c9b51334c0800000000000000
+      internalID: -4309076530780695404
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_13
+      rect:
+        serializedVersion: 2
+        x: 860
+        y: 515
+        width: 117
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb946841256f33790800000000000000
+      internalID: -7551421317778093634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_14
+      rect:
+        serializedVersion: 2
+        x: 1103
+        y: 514
+        width: 119
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fdc5cd68422a33530800000000000000
+      internalID: 3833585985587535071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_15
+      rect:
+        serializedVersion: 2
+        x: 1360
+        y: 514
+        width: 161
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d53df37b4f6906e20800000000000000
+      internalID: 3341836901299508061
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_16
+      rect:
+        serializedVersion: 2
+        x: 1570
+        y: 523
+        width: 169
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d2ee8771cc9e9ea50800000000000000
+      internalID: 6551024195763498541
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_17
+      rect:
+        serializedVersion: 2
+        x: 1850
+        y: 511
+        width: 150
+        height: 203
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6ffd1c83aaf45520800000000000000
+      internalID: 2690050457784418159
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_18
+      rect:
+        serializedVersion: 2
+        x: 2102
+        y: 517
+        width: 136
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebe53de2e76bdac40800000000000000
+      internalID: 5525272970921205438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_19
+      rect:
+        serializedVersion: 2
+        x: 2386
+        y: 510
+        width: 104
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34c6eb204264984c0800000000000000
+      internalID: -4284816449987515325
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_20
+      rect:
+        serializedVersion: 2
+        x: 121
+        y: 278
+        width: 120
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6d3e4a12755e8930800000000000000
+      internalID: 4147346255410773354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_21
+      rect:
+        serializedVersion: 2
+        x: 359
+        y: 269
+        width: 126
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 204eca7121dfb08f0800000000000000
+      internalID: -573086273411161086
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_22
+      rect:
+        serializedVersion: 2
+        x: 603
+        y: 273
+        width: 131
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b880c1da707ddb450800000000000000
+      internalID: 6106273097753299083
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_23
+      rect:
+        serializedVersion: 2
+        x: 855
+        y: 272
+        width: 133
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f73d294a1fc269960800000000000000
+      internalID: 7608318036848857983
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_24
+      rect:
+        serializedVersion: 2
+        x: 1106
+        y: 271
+        width: 128
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c38baac40eae84f0800000000000000
+      internalID: -824530346158881847
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_25
+      rect:
+        serializedVersion: 2
+        x: 1332
+        y: 269
+        width: 192
+        height: 203
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e4efda7155c936e0800000000000000
+      internalID: -1857236417569102623
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_26
+      rect:
+        serializedVersion: 2
+        x: 1636
+        y: 280
+        width: 157
+        height: 203
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eadb2739a5e643830800000000000000
+      internalID: 4049983300212800942
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_27
+      rect:
+        serializedVersion: 2
+        x: 1892
+        y: 266
+        width: 129
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: feaa50789994dcff0800000000000000
+      internalID: -14274300068123921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_28
+      rect:
+        serializedVersion: 2
+        x: 2124
+        y: 266
+        width: 128
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a1e2741e11ef0ad0800000000000000
+      internalID: -2733718929482260062
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_29
+      rect:
+        serializedVersion: 2
+        x: 2377
+        y: 270
+        width: 110
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f5bb2bb728ab67f0800000000000000
+      internalID: -618215635235916296
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_30
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 28
+        width: 114
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7000f7ccf199c3d0800000000000000
+      internalID: -3185854746515734402
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_31
+      rect:
+        serializedVersion: 2
+        x: 344
+        y: 26
+        width: 126
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2d303765657359d0800000000000000
+      internalID: -2786754666028843734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_32
+      rect:
+        serializedVersion: 2
+        x: 588
+        y: 28
+        width: 131
+        height: 204
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8cdea213b0e540420800000000000000
+      internalID: 2595302687434796488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_33
+      rect:
+        serializedVersion: 2
+        x: 835
+        y: 26
+        width: 130
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4de73f9c336799e00800000000000000
+      internalID: 1052001952771309268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_34
+      rect:
+        serializedVersion: 2
+        x: 1088
+        y: 26
+        width: 118
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3070132403892a4b0800000000000000
+      internalID: -5430610867619035389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_35
+      rect:
+        serializedVersion: 2
+        x: 1330
+        y: 25
+        width: 160
+        height: 203
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b3891a8c0adde480800000000000000
+      internalID: -8868192343831247948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_36
+      rect:
+        serializedVersion: 2
+        x: 1601
+        y: 47
+        width: 145
+        height: 221
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c35c4a9b7b04db2f0800000000000000
+      internalID: -955536388094900932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_37
+      rect:
+        serializedVersion: 2
+        x: 1848
+        y: 29
+        width: 153
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d79cc5bfd02370f0800000000000000
+      internalID: -1120515737085241388
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_38
+      rect:
+        serializedVersion: 2
+        x: 2111
+        y: 26
+        width: 124
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f223120d3fa01e80800000000000000
+      internalID: -8209869444133739785
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mage-grid-alpha_39
+      rect:
+        serializedVersion: 2
+        x: 2376
+        y: 26
+        width: 111
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8b641d78ac2f2980800000000000000
+      internalID: -8561575264443405430
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

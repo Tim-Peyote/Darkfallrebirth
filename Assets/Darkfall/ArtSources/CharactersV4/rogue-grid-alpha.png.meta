@@ -1,0 +1,1043 @@
+fileFormatVersion: 2
+guid: ce870933943f94be9b2e54ef6e3a87a6
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3774804779353456544
+    second: rogue-grid-alpha_0
+  - first:
+      213: 6164350510441893904
+    second: rogue-grid-alpha_1
+  - first:
+      213: 4862608045764871998
+    second: rogue-grid-alpha_2
+  - first:
+      213: 730854867513201660
+    second: rogue-grid-alpha_3
+  - first:
+      213: 1060679659460825515
+    second: rogue-grid-alpha_4
+  - first:
+      213: 4652027135214198997
+    second: rogue-grid-alpha_5
+  - first:
+      213: 2995541832562388920
+    second: rogue-grid-alpha_6
+  - first:
+      213: 6491818270989106277
+    second: rogue-grid-alpha_7
+  - first:
+      213: 6551153155092297977
+    second: rogue-grid-alpha_8
+  - first:
+      213: -8732531507489855531
+    second: rogue-grid-alpha_9
+  - first:
+      213: -5413436765499013453
+    second: rogue-grid-alpha_10
+  - first:
+      213: 3664309981635622299
+    second: rogue-grid-alpha_11
+  - first:
+      213: -1918195075327355475
+    second: rogue-grid-alpha_12
+  - first:
+      213: -801637086010417706
+    second: rogue-grid-alpha_13
+  - first:
+      213: 5099596271135724701
+    second: rogue-grid-alpha_14
+  - first:
+      213: 1368046280276129431
+    second: rogue-grid-alpha_15
+  - first:
+      213: 1586318366906338359
+    second: rogue-grid-alpha_16
+  - first:
+      213: -4623320699192798532
+    second: rogue-grid-alpha_17
+  - first:
+      213: 3735668970301262802
+    second: rogue-grid-alpha_18
+  - first:
+      213: -2556670576897084399
+    second: rogue-grid-alpha_19
+  - first:
+      213: -1392396726487212479
+    second: rogue-grid-alpha_20
+  - first:
+      213: -2418842226365531198
+    second: rogue-grid-alpha_21
+  - first:
+      213: -7796702140251123329
+    second: rogue-grid-alpha_22
+  - first:
+      213: 7277430634375780784
+    second: rogue-grid-alpha_23
+  - first:
+      213: -8009851797043767741
+    second: rogue-grid-alpha_24
+  - first:
+      213: 6415603235138277354
+    second: rogue-grid-alpha_25
+  - first:
+      213: -576933262780688713
+    second: rogue-grid-alpha_26
+  - first:
+      213: 1961399472096531932
+    second: rogue-grid-alpha_27
+  - first:
+      213: 7973744969063063884
+    second: rogue-grid-alpha_28
+  - first:
+      213: -6999534482729418877
+    second: rogue-grid-alpha_29
+  - first:
+      213: 3630529359432360493
+    second: rogue-grid-alpha_30
+  - first:
+      213: -3732522267946352129
+    second: rogue-grid-alpha_31
+  - first:
+      213: -798383840710879579
+    second: rogue-grid-alpha_32
+  - first:
+      213: 6405156171846111820
+    second: rogue-grid-alpha_33
+  - first:
+      213: -1887545198824404612
+    second: rogue-grid-alpha_34
+  - first:
+      213: 2530558907812757147
+    second: rogue-grid-alpha_35
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: rogue-grid-alpha_0
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 775
+        width: 126
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 060c03e8d033d9bc0800000000000000
+      internalID: -3774804779353456544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_1
+      rect:
+        serializedVersion: 2
+        x: 341
+        y: 773
+        width: 126
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01013ed012c2c8550800000000000000
+      internalID: 6164350510441893904
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_2
+      rect:
+        serializedVersion: 2
+        x: 599
+        y: 772
+        width: 135
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3785c121447b7340800000000000000
+      internalID: 4862608045764871998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_3
+      rect:
+        serializedVersion: 2
+        x: 842
+        y: 772
+        width: 151
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf35d7831a4842a00800000000000000
+      internalID: 730854867513201660
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_4
+      rect:
+        serializedVersion: 2
+        x: 1118
+        y: 773
+        width: 130
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba115a2d78a48be00800000000000000
+      internalID: 1060679659460825515
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_5
+      rect:
+        serializedVersion: 2
+        x: 1337
+        y: 775
+        width: 196
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d0abef28025f8040800000000000000
+      internalID: 4652027135214198997
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_6
+      rect:
+        serializedVersion: 2
+        x: 1623
+        y: 772
+        width: 206
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bf24b7fc6d429920800000000000000
+      internalID: 2995541832562388920
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_7
+      rect:
+        serializedVersion: 2
+        x: 1927
+        y: 758
+        width: 168
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56c32b48252971a50800000000000000
+      internalID: 6491818270989106277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_8
+      rect:
+        serializedVersion: 2
+        x: 2229
+        y: 770
+        width: 132
+        height: 215
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f8b476c51f5aea50800000000000000
+      internalID: 6551153155092297977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_9
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 515
+        width: 117
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d729226cd0dfc680800000000000000
+      internalID: -8732531507489855531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_10
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 517
+        width: 121
+        height: 203
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b6446281fb9fd4b0800000000000000
+      internalID: -5413436765499013453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_11
+      rect:
+        serializedVersion: 2
+        x: 596
+        y: 515
+        width: 128
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b953f42938e3ad230800000000000000
+      internalID: 3664309981635622299
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_12
+      rect:
+        serializedVersion: 2
+        x: 855
+        y: 515
+        width: 122
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da59535fdb33165e0800000000000000
+      internalID: -1918195075327355475
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_13
+      rect:
+        serializedVersion: 2
+        x: 1128
+        y: 514
+        width: 109
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ddd199415300e4f0800000000000000
+      internalID: -801637086010417706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_14
+      rect:
+        serializedVersion: 2
+        x: 1364
+        y: 509
+        width: 161
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9493fe2ac765c640800000000000000
+      internalID: 5099596271135724701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_15
+      rect:
+        serializedVersion: 2
+        x: 1602
+        y: 507
+        width: 201
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 796372cf7d64cf210800000000000000
+      internalID: 1368046280276129431
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_16
+      rect:
+        serializedVersion: 2
+        x: 1942
+        y: 506
+        width: 154
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73c4128662cb30610800000000000000
+      internalID: 1586318366906338359
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_17
+      rect:
+        serializedVersion: 2
+        x: 2218
+        y: 501
+        width: 145
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb217e9c15aa6dfb0800000000000000
+      internalID: -4623320699192798532
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_18
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 256
+        width: 114
+        height: 221
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2db8145d223c7d330800000000000000
+      internalID: 3735668970301262802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_19
+      rect:
+        serializedVersion: 2
+        x: 346
+        y: 260
+        width: 115
+        height: 217
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1143b58f7a1e48cd0800000000000000
+      internalID: -2556670576897084399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_20
+      rect:
+        serializedVersion: 2
+        x: 594
+        y: 261
+        width: 125
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14e1053fd863dace0800000000000000
+      internalID: -1392396726487212479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_21
+      rect:
+        serializedVersion: 2
+        x: 841
+        y: 260
+        width: 131
+        height: 217
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2cb74c98fcb8e6ed0800000000000000
+      internalID: -2418842226365531198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_22
+      rect:
+        serializedVersion: 2
+        x: 1111
+        y: 256
+        width: 124
+        height: 221
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f71ddce46bc8cc390800000000000000
+      internalID: -7796702140251123329
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_23
+      rect:
+        serializedVersion: 2
+        x: 1327
+        y: 252
+        width: 216
+        height: 203
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b9938fba90aef460800000000000000
+      internalID: 7277430634375780784
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_24
+      rect:
+        serializedVersion: 2
+        x: 1620
+        y: 251
+        width: 196
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3469ea58a3a47d090800000000000000
+      internalID: -8009851797043767741
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_25
+      rect:
+        serializedVersion: 2
+        x: 1933
+        y: 251
+        width: 176
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aef834aa62dc80950800000000000000
+      internalID: 6415603235138277354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_26
+      rect:
+        serializedVersion: 2
+        x: 2234
+        y: 250
+        width: 154
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b699d411425ef7f0800000000000000
+      internalID: -576933262780688713
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_27
+      rect:
+        serializedVersion: 2
+        x: 85
+        y: 21
+        width: 117
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd5d3fc8d6a483b10800000000000000
+      internalID: 1961399472096531932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_28
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 21
+        width: 122
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c41ef8a7dce68ae60800000000000000
+      internalID: 7973744969063063884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_29
+      rect:
+        serializedVersion: 2
+        x: 591
+        y: 21
+        width: 128
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38fb0db1978acde90800000000000000
+      internalID: -6999534482729418877
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_30
+      rect:
+        serializedVersion: 2
+        x: 840
+        y: 21
+        width: 134
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d22a79f873b326230800000000000000
+      internalID: 3630529359432360493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_31
+      rect:
+        serializedVersion: 2
+        x: 1118
+        y: 21
+        width: 124
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff182d6e5ca633cc0800000000000000
+      internalID: -3732522267946352129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_32
+      rect:
+        serializedVersion: 2
+        x: 1360
+        y: 24
+        width: 178
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a6140c70229be4f0800000000000000
+      internalID: -798383840710879579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_33
+      rect:
+        serializedVersion: 2
+        x: 1649
+        y: 24
+        width: 184
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c42d9c13a9fa3e850800000000000000
+      internalID: 6405156171846111820
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_34
+      rect:
+        serializedVersion: 2
+        x: 1952
+        y: 20
+        width: 134
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c79c39e64a71ec5e0800000000000000
+      internalID: -1887545198824404612
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rogue-grid-alpha_35
+      rect:
+        serializedVersion: 2
+        x: 2246
+        y: 24
+        width: 115
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9e316f4be95e1320800000000000000
+      internalID: 2530558907812757147
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
