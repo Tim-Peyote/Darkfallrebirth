@@ -11,6 +11,7 @@ namespace Darkfall.World
         {
             if (depth % 10 == 0) return GenerateBossArena();
             var random = new System.Random(seed);
+            var biomeStyle = Mathf.Max(0, (depth - 1) / 10) % 5;
             var size = Mathf.Clamp(balance.mapSize + Mathf.FloorToInt(depth * 1.5f), 30, 120);
             var floor = new bool[size, size];
             var rooms = new List<DungeonRoom>();
@@ -18,16 +19,42 @@ namespace Darkfall.World
             var maximumRooms = 15 + Mathf.FloorToInt(depth * .6f);
             var targetRooms = random.Next(minimumRooms, maximumRooms + 1);
             var attempts = targetRooms * 18;
+            var roomGrowth = Mathf.Min(12, Mathf.Max(0, depth - 1) / 4);
+            var minimumRoom = Mathf.Min(size - 8, balance.minimumRoomSize + roomGrowth / 3);
+            var maximumRoom = Mathf.Min(size - 6, balance.maximumRoomSize + roomGrowth);
 
             for (var attempt = 0; attempt < attempts && rooms.Count < targetRooms; attempt++)
             {
-                var width = random.Next(balance.minimumRoomSize, balance.maximumRoomSize + 1);
-                var height = random.Next(balance.minimumRoomSize, balance.maximumRoomSize + 1);
+                var width = random.Next(minimumRoom, maximumRoom + 1);
+                var height = random.Next(minimumRoom, maximumRoom + 1);
+                // Deeper chapters increasingly introduce halls and transepts instead of merely
+                // placing more rooms on a larger map.
+                if (depth >= 6 && attempt % Mathf.Max(3, 8 - depth / 10) == 0)
+                {
+                    if (random.Next(0, 2) == 0) width = Mathf.Min(size - 6, Mathf.RoundToInt(width * 1.28f));
+                    else height = Mathf.Min(size - 6, Mathf.RoundToInt(height * 1.28f));
+                }
+                if (biomeStyle == 1)
+                {
+                    var monumental = Mathf.Max(width, height);
+                    width = Mathf.Min(size - 6, monumental);
+                    height = Mathf.Min(size - 6, Mathf.Max(height, Mathf.RoundToInt(monumental * .82f)));
+                }
+                else if (biomeStyle == 2)
+                {
+                    if (random.Next(0, 2) == 0) width = Mathf.Min(size - 6, Mathf.RoundToInt(width * 1.32f));
+                    else height = Mathf.Min(size - 6, Mathf.RoundToInt(height * 1.32f));
+                }
+                else if (biomeStyle == 4)
+                {
+                    var sanctum = Mathf.RoundToInt((width + height) * .5f);
+                    width = height = Mathf.Min(size - 6, sanctum);
+                }
                 var candidate = new RectInt(random.Next(2, size - width - 2), random.Next(2, size - height - 2), width, height);
                 if (OverlapsAny(candidate, rooms)) continue;
 
                 var room = new DungeonRoom { bounds = candidate };
-                CarveRoom(floor, candidate, random);
+                CarveRoom(floor, candidate, random, biomeStyle);
                 if (rooms.Count > 0) CarveConnection(floor, rooms[rooms.Count - 1].Center, room.Center, random);
                 rooms.Add(room);
             }
@@ -40,8 +67,8 @@ namespace Darkfall.World
                 var second = new DungeonRoom { bounds = new RectInt(size - 12, size - 12, 8, 8) };
                 rooms.Add(first);
                 rooms.Add(second);
-                CarveRoom(floor, first.bounds, random);
-                CarveRoom(floor, second.bounds, random);
+                CarveRoom(floor, first.bounds, random, biomeStyle);
+                CarveRoom(floor, second.bounds, random, biomeStyle);
                 CarveConnection(floor, first.Center, second.Center, random);
             }
 
@@ -109,17 +136,19 @@ namespace Darkfall.World
             return false;
         }
 
-        private static void CarveRoom(bool[,] floor, RectInt room, System.Random random)
+        private static void CarveRoom(bool[,] floor, RectInt room, System.Random random, int biomeStyle)
         {
             // Cathedral-like chambers are still grid-authored for reliable gameplay, but their
             // silhouette is composed rather than exposed as a rectangle. Chamfers, shallow bays
             // and asymmetric recesses give the renderer useful architectural corners without
             // creating tiny collision traps.
             var chamfer = Mathf.Clamp(Mathf.Min(room.width, room.height) / 4, 1, 3);
-            var cutTopLeft = random.Next(1, chamfer + 1);
-            var cutTopRight = random.Next(1, chamfer + 1);
-            var cutBottomLeft = random.Next(1, chamfer + 1);
-            var cutBottomRight = random.Next(1, chamfer + 1);
+            if (biomeStyle == 1) chamfer = Mathf.Min(chamfer, 2);
+            var symmetricCut = biomeStyle == 4 ? random.Next(1, chamfer + 1) : -1;
+            var cutTopLeft = symmetricCut > 0 ? symmetricCut : random.Next(1, chamfer + 1);
+            var cutTopRight = symmetricCut > 0 ? symmetricCut : random.Next(1, chamfer + 1);
+            var cutBottomLeft = symmetricCut > 0 ? symmetricCut : random.Next(1, chamfer + 1);
+            var cutBottomRight = symmetricCut > 0 ? symmetricCut : random.Next(1, chamfer + 1);
             for (var x = room.xMin; x < room.xMax; x++)
             for (var y = room.yMin; y < room.yMax; y++)
             {
@@ -150,6 +179,12 @@ namespace Darkfall.World
                     var fromRight = random.Next(0, 2) == 0;
                     var sideX = fromRight ? room.xMax - 1 : room.xMin;
                     for (var y = sideY; y < sideY + sideHeight; y++) floor[sideX, y] = false;
+                }
+                if (biomeStyle == 3 && room.height >= 11)
+                {
+                    var organicWidth = Mathf.Clamp(room.width / 5, 2, 4);
+                    var organicX = random.Next(room.xMin + 1, room.xMax - organicWidth - 1);
+                    for (var x = organicX; x < organicX + organicWidth; x++) floor[x, room.yMin] = false;
                 }
             }
         }

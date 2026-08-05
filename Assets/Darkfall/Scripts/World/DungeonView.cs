@@ -90,7 +90,8 @@ namespace Darkfall.World
             }
 
             var capMesh = MakeMesh("Continuous Wall Coping", capVertices, capTriangles, capColors, capUvs);
-            var capMaterial = CreateTexturedMaterial(profile.WallTexture);
+            var capMaterial = new Material(DarkfallRenderMaterials.SpriteLit) { color = Color.white };
+            materials.Add(capMaterial);
             CreateLayer(capMesh.name, capMesh, capMaterial, 900);
             var shadowMesh = MakeMesh("Continuous Wall Contact Shadow", shadowVertices, shadowTriangles,
                 shadowColors, shadowUvs);
@@ -104,6 +105,10 @@ namespace Darkfall.World
                 var triangles = new List<int>();
                 var colors = new List<Color>();
                 var uvs = new List<Vector2>();
+                var reliefVertices = new List<Vector3>();
+                var reliefTriangles = new List<int>();
+                var reliefColors = new List<Color>();
+                var reliefUvs = new List<Vector2>();
                 foreach (var segment in contour.Segments)
                 {
                     var midpoint = (segment.From + segment.To) * .5f;
@@ -111,9 +116,14 @@ namespace Darkfall.World
                     var projected = IsoWorld.Project(segment.To) - IsoWorld.Project(segment.From);
                     var shade = projected.x >= 0 ? .88f : .72f;
                     if (Mathf.Abs(projected.x) < .08f) shade = .8f;
-                    var readableWall = Color.Lerp(profile.WallTint, Color.white, .17f);
+                    var readableWall = Color.Lerp(profile.WallTint, Color.white, profile.WallReadability);
                     AddWallFace(vertices, triangles, colors, uvs, segment.From, segment.To,
                         readableWall * shade);
+                    var hash = Mathf.Abs(Mathf.RoundToInt(midpoint.x * 71f + midpoint.y * 113f));
+                    if (hash % profile.PilasterEvery == 0)
+                        AddWallRelief(reliefVertices, reliefTriangles, reliefColors, reliefUvs,
+                            segment.From, segment.To, Color.Lerp(readableWall, Color.white, .22f),
+                            (hash + profile.Chapter) % 3);
                 }
                 if (vertices.Count == 0) continue;
                 var mesh = MakeMesh("Contour Wall Facades · " + depth, vertices, triangles, colors, uvs);
@@ -121,6 +131,24 @@ namespace Darkfall.World
                     { color = Color.white, mainTexture = wallTexture };
                 materials.Add(material);
                 CreateLayer(mesh.name, mesh, material, 1040 + depth * IsoWorld.DepthPrecision);
+                var fillMaterial = new Material(DarkfallRenderMaterials.SpriteUnlit)
+                {
+                    color = new Color(1f, 1f, 1f, profile.WallFill),
+                    mainTexture = wallTexture
+                };
+                materials.Add(fillMaterial);
+                CreateLayer("Wall Texture Fill · " + depth, mesh, fillMaterial,
+                    1041 + depth * IsoWorld.DepthPrecision);
+                if (reliefVertices.Count > 0)
+                {
+                    var reliefMesh = MakeMesh("Wall Architectural Relief · " + depth, reliefVertices, reliefTriangles,
+                        reliefColors, reliefUvs);
+                    var reliefMaterial = new Material(DarkfallRenderMaterials.SpriteLit)
+                        { color = Color.white, mainTexture = wallTexture };
+                    materials.Add(reliefMaterial);
+                    CreateLayer(reliefMesh.name, reliefMesh, reliefMaterial,
+                        1042 + depth * IsoWorld.DepthPrecision);
+                }
             }
         }
 
@@ -141,17 +169,17 @@ namespace Darkfall.World
         private void AddWallCap(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
             Vector2 from, Vector2 to)
         {
-            var a = IsoWorld.Project(from) + Vector2.up * IsoWorld.WallHeight;
-            var b = IsoWorld.Project(to) + Vector2.up * IsoWorld.WallHeight;
+            var a = IsoWorld.Project(from) + Vector2.up * profile.WallHeight;
+            var b = IsoWorld.Project(to) + Vector2.up * profile.WallHeight;
             var direction = (b - a).normalized;
-            var normal = Vector2.Perpendicular(direction) * .105f;
+            var normal = Vector2.Perpendicular(direction) * .072f;
             AddScreenQuad(v, t, c, uv, a - normal, b - normal, b + normal, a + normal,
-                Color.Lerp(profile.WallTint, Color.white, .2f), from, to);
+                Color.Lerp(profile.WallTint, new Color(.2f, .205f, .21f), .32f), from, to);
         }
 
         private void BuildArchitecturalAccents(DungeonData data)
         {
-            for (var roomIndex = 1; roomIndex < data.Rooms.Count; roomIndex++)
+            for (var roomIndex = 0; roomIndex < data.Rooms.Count; roomIndex++)
             {
                 var bounds = data.Rooms[roomIndex].bounds;
                 var anchors = new List<Vector2>();
@@ -172,7 +200,8 @@ namespace Darkfall.World
                 }
                 if (anchors.Count == 0) continue;
                 var hash = ((bounds.x * 92837111) ^ (bounds.y * 689287499) ^ (roomIndex * 283923481)) & int.MaxValue;
-                var count = bounds.width * bounds.height >= 90 ? 2 : 1;
+                var baseCount = bounds.width * bounds.height >= 90 ? 2f : 1f;
+                var count = Mathf.Clamp(Mathf.RoundToInt(baseCount * profile.ArchitectureDensity), 1, 3);
                 for (var i = 0; i < count && anchors.Count > 0; i++)
                 {
                     var anchorIndex = (hash + i * 17) % anchors.Count;
@@ -191,7 +220,7 @@ namespace Darkfall.World
             var b = IsoWorld.Project(to);
             var normal = Vector2.Perpendicular((b - a).normalized) * .026f;
             AddScreenQuad(v, t, c, uv, a - normal, b - normal, b + normal, a + normal,
-                profile.ContactShadow, from, to);
+                new Color(.018f, .016f, .014f, .34f), from, to);
         }
 
         private static void AddScreenQuad(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
@@ -216,14 +245,14 @@ namespace Darkfall.World
             materials.Clear();
         }
 
-        private static void AddWallFace(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
+        private void AddWallFace(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
             Vector2 from, Vector2 to, Color color)
         {
             var index = v.Count;
             var baseFrom = IsoWorld.Project(from);
             var baseTo = IsoWorld.Project(to);
-            var topFrom = baseFrom + Vector2.up * IsoWorld.WallHeight;
-            var topTo = baseTo + Vector2.up * IsoWorld.WallHeight;
+            var topFrom = baseFrom + Vector2.up * profile.WallHeight;
+            var topTo = baseTo + Vector2.up * profile.WallHeight;
             v.Add(new Vector3(baseFrom.x, baseFrom.y, 0));
             v.Add(new Vector3(baseTo.x, baseTo.y, 0));
             v.Add(new Vector3(topTo.x, topTo.y, 0));
@@ -233,7 +262,65 @@ namespace Darkfall.World
             c.Add(color); c.Add(color); c.Add(color); c.Add(color);
             var length = Vector2.Distance(from, to);
             uv.Add(new Vector2(0, 0)); uv.Add(new Vector2(length * .16f, 0));
-            uv.Add(new Vector2(length * .16f, .22f)); uv.Add(new Vector2(0, .22f));
+            uv.Add(new Vector2(length * .2f, .62f)); uv.Add(new Vector2(0, .62f));
+        }
+
+        private void AddWallRelief(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
+            Vector2 from, Vector2 to, Color color, int style)
+        {
+            var a = IsoWorld.Project(from);
+            var b = IsoWorld.Project(to);
+            var midpoint = (a + b) * .5f;
+            var direction = (b - a).normalized;
+            if (style == 1)
+            {
+                AddReliefQuad(v, t, c, uv, midpoint - direction * .105f, direction, .035f,
+                    profile.WallHeight * .92f, color);
+                AddReliefQuad(v, t, c, uv, midpoint + direction * .105f, direction, .035f,
+                    profile.WallHeight * .92f, color);
+                return;
+            }
+            if (style == 2)
+            {
+                AddButtress(v, t, c, uv, midpoint, direction, color);
+                return;
+            }
+            AddReliefQuad(v, t, c, uv, midpoint, direction, .085f,
+                profile.WallHeight + .08f, color);
+        }
+
+        private static void AddReliefQuad(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
+            Vector2 midpoint, Vector2 direction, float halfWidth, float height, Color color)
+        {
+            var along = direction * halfWidth;
+            var index = v.Count;
+            v.Add(midpoint - along + Vector2.down * .035f);
+            v.Add(midpoint + along + Vector2.down * .035f);
+            v.Add(midpoint + along + Vector2.up * height);
+            v.Add(midpoint - along + Vector2.up * height);
+            t.Add(index); t.Add(index + 2); t.Add(index + 1);
+            t.Add(index); t.Add(index + 3); t.Add(index + 2);
+            c.Add(color); c.Add(color); c.Add(color); c.Add(color);
+            uv.Add(Vector2.zero); uv.Add(new Vector2(.08f, 0));
+            uv.Add(new Vector2(.08f, .72f)); uv.Add(new Vector2(0, .72f));
+        }
+
+        private void AddButtress(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
+            Vector2 midpoint, Vector2 direction, Color color)
+        {
+            var bottom = direction * .145f;
+            var top = direction * .075f;
+            var index = v.Count;
+            v.Add(midpoint - bottom + Vector2.down * .075f);
+            v.Add(midpoint + bottom + Vector2.down * .075f);
+            v.Add(midpoint + top + Vector2.up * (profile.WallHeight * .72f));
+            v.Add(midpoint - top + Vector2.up * (profile.WallHeight * .72f));
+            t.Add(index); t.Add(index + 2); t.Add(index + 1);
+            t.Add(index); t.Add(index + 3); t.Add(index + 2);
+            var darker = color * .82f;
+            c.Add(darker); c.Add(darker); c.Add(color); c.Add(color);
+            uv.Add(Vector2.zero); uv.Add(new Vector2(.14f, 0));
+            uv.Add(new Vector2(.1f, .58f)); uv.Add(new Vector2(.04f, .58f));
         }
 
         private void BuildDecor(DungeonData data)
@@ -273,15 +360,13 @@ namespace Darkfall.World
 
                 // Layer several small, non-blocking props through the room instead of decorating
                 // only its corners. Density scales with area and stays deterministic for the seed.
-                var scatterCount = Mathf.Clamp(Mathf.RoundToInt(bounds.width * bounds.height / 38f * profile.DecorDensity), 1, 6);
-                var scatterAnchors = new[]
-                {
-                    new Vector2(.28f, .24f), new Vector2(.72f, .31f),
-                    new Vector2(.36f, .72f), new Vector2(.68f, .76f)
-                };
+                var scatterCount = Mathf.Clamp(
+                    Mathf.RoundToInt(bounds.width * bounds.height / 29f * profile.DecorDensity), 2, 10);
                 for (var scatter = 0; scatter < scatterCount; scatter++)
                 {
-                    var anchor = scatterAnchors[(scatter + hash) % scatterAnchors.Length];
+                    var anchor = new Vector2(
+                        .16f + Hash01(hash + scatter * 92821) * .68f,
+                        .16f + Hash01(hash + scatter * 68917 + 31) * .68f);
                     var position = new Vector2(
                         Mathf.Lerp(bounds.xMin + 1.15f, bounds.xMax - 1.15f, anchor.x),
                         Mathf.Lerp(bounds.yMin + 1.1f, bounds.yMax - 1.1f, anchor.y));
@@ -366,13 +451,13 @@ namespace Darkfall.World
             root.transform.SetParent(transform, false);
             root.AddComponent<CompositeShadowCaster2D>();
             foreach (var segment in contour.Segments)
-                CreateShadowEdge(root.transform, segment.From, segment.To);
+                CreateShadowEdge(root.transform, segment.From, segment.To, profile.WallHeight);
         }
 
-        private static void CreateShadowEdge(Transform parent, Vector2 from, Vector2 to)
+        private static void CreateShadowEdge(Transform parent, Vector2 from, Vector2 to, float wallHeight)
         {
-            var a = IsoWorld.Project(from) + Vector2.up * (IsoWorld.WallHeight * .55f);
-            var b = IsoWorld.Project(to) + Vector2.up * (IsoWorld.WallHeight * .55f);
+            var a = IsoWorld.Project(from) + Vector2.up * (wallHeight * .55f);
+            var b = IsoWorld.Project(to) + Vector2.up * (wallHeight * .55f);
             var delta = b - a;
             var shadow = new GameObject("Wall Shadow Edge");
             shadow.transform.SetParent(parent, false);
@@ -416,6 +501,17 @@ namespace Darkfall.World
         {
             var hash = (x * 73856093) ^ (y * 19349663);
             return .90f + Mathf.Abs(hash % 13) / 100f;
+        }
+
+        private static float Hash01(int value)
+        {
+            unchecked
+            {
+                value ^= value << 13;
+                value ^= value >> 17;
+                value ^= value << 5;
+            }
+            return (value & 0x7fffffff) / (float)int.MaxValue;
         }
 
     }

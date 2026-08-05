@@ -26,12 +26,18 @@ namespace Darkfall.World
 
         private void CreateGlobalAmbient(DungeonVisualProfile profile)
         {
+            var previous = GameObject.Find("Black Global Ambient");
+            if (previous != null)
+            {
+                var previousLight = previous.GetComponent<Light2D>();
+                if (previousLight != null) previousLight.enabled = false;
+            }
             var ambientObject = new GameObject("Black Global Ambient");
             ambientObject.transform.SetParent(transform, false);
             var ambient = ambientObject.AddComponent<Light2D>();
             ambient.lightType = Light2D.LightType.Global;
-            ambient.color = Color.Lerp(new Color(.055f, .06f, .07f), profile.WallTint, .18f);
-            ambient.intensity = .052f;
+            ambient.color = Color.Lerp(new Color(.16f, .17f, .19f), profile.WallTint, .28f);
+            ambient.intensity = profile.AmbientIntensity;
         }
 
         private Light2D CreateOccludedWorldLight(DungeonData dungeon, DungeonLightSource source, int index)
