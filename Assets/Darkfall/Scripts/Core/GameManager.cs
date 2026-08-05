@@ -34,6 +34,7 @@ namespace Darkfall.Core
         private RuntimeUI runtimeUI;
         private int runSeed;
         private readonly Dictionary<string, int> shopPurchases = new Dictionary<string, int>();
+        private bool[] shopOfferSold = Array.Empty<bool>();
         private bool blockingModal;
         private float runStartedAt;
 
@@ -60,6 +61,7 @@ namespace Darkfall.Core
             Inventory = new InventorySystem();
             shopPurchases.Clear();
             ShopOffers = Array.Empty<LegacyShopUpgrade>();
+            shopOfferSold = Array.Empty<bool>();
             Balance = Resources.Load<GameBalance>("Config/GameBalance");
             if (Balance == null) Balance = GameBalance.RuntimeDefault();
 
@@ -118,6 +120,7 @@ namespace Darkfall.Core
             Inventory = new InventorySystem();
             shopPurchases.Clear();
             ShopOffers = Array.Empty<LegacyShopUpgrade>();
+            shopOfferSold = Array.Empty<bool>();
             runSeed = Environment.TickCount;
             runStartedAt = Time.realtimeSinceStartup;
             BuildLevel();
@@ -310,6 +313,7 @@ namespace Darkfall.Core
             foreach (var upgrade in LegacyCatalog.Data.shop)
                 if (PurchaseCount(upgrade.id) < upgrade.maxPurchases) pool.Add(upgrade);
             ShopOffers = new LegacyShopUpgrade[Mathf.Min(5, pool.Count)];
+            shopOfferSold = new bool[ShopOffers.Length];
             for (var i = 0; i < ShopOffers.Length; i++)
             {
                 var index = UnityEngine.Random.Range(0, pool.Count);
@@ -319,12 +323,13 @@ namespace Darkfall.Core
         }
 
         public int PurchaseCount(string id) => shopPurchases.TryGetValue(id, out var count) ? count : 0;
+        public bool IsShopOfferSold(int offerIndex) => offerIndex >= 0 && offerIndex < shopOfferSold.Length && shopOfferSold[offerIndex];
         public int ShopPrice(LegacyShopUpgrade upgrade) =>
             Mathf.FloorToInt(upgrade.basePrice * (1 + PurchaseCount(upgrade.id) * .5f));
 
         public bool BuyShopOffer(int offerIndex)
         {
-            if (offerIndex < 0 || offerIndex >= ShopOffers.Length || Player == null) return false;
+            if (offerIndex < 0 || offerIndex >= ShopOffers.Length || Player == null || IsShopOfferSold(offerIndex)) return false;
             var upgrade = ShopOffers[offerIndex];
             var count = PurchaseCount(upgrade.id);
             if (count >= upgrade.maxPurchases) return false;
@@ -332,6 +337,7 @@ namespace Darkfall.Core
             if (Gold < price) { ShowMessage("Недостаточно золота"); return false; }
             Gold -= price;
             shopPurchases[upgrade.id] = count + 1;
+            shopOfferSold[offerIndex] = true;
             Player.ApplyShopUpgrade(upgrade);
             NotifyStatsChanged();
             return true;

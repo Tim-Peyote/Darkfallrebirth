@@ -55,6 +55,13 @@ namespace Darkfall.UI
         private bool shopAnimatorInitialized;
         private readonly Text[] shopOfferTexts = new Text[5];
         private readonly Button[] shopOfferButtons = new Button[5];
+        private readonly Image[] shopOfferImages = new Image[5];
+        private Text shopSelectionTitle;
+        private Text shopSelectionDescription;
+        private Text shopSelectionProgress;
+        private Text shopBuyText;
+        private Button shopBuyButton;
+        private int selectedShopOffer = -1;
         private HeroClass selected = HeroClass.Mage;
         private Coroutine toastRoutine;
         private readonly List<PlayerStatusSnapshot> visibleStatuses = new List<PlayerStatusSnapshot>(8);
@@ -425,7 +432,7 @@ namespace Darkfall.UI
 
             var heroCard = Panel("Traveller", safe.transform, Color.white);
             DarkFantasySkin.Apply(heroCard.GetComponent<Image>(), DarkFantasySkin.Tooltip, new Color(.36f, .28f, .19f));
-            SetRect(heroCard.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(440, 790), new Vector2(-632, -48));
+            SetRect(heroCard.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(460, 790), new Vector2(-622, -48));
             AddText(heroCard.transform, "ПУТНИК", 18, new Vector2(0, 344), new Vector2(360, 34),
                 new Color(.82f, .68f, .44f), TextAnchor.MiddleCenter);
             AddDivider(heroCard.transform, 315, 342);
@@ -437,8 +444,8 @@ namespace Darkfall.UI
             shopHeroAnimator = shopHero.gameObject.AddComponent<UIHeroIdleAnimator>();
             var statsSurface = Panel("Traveller Stats", heroCard.transform, Color.white);
             DarkFantasySkin.Apply(statsSurface.GetComponent<Image>(), DarkFantasySkin.Slot);
-            SetRect(statsSurface.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(370, 180), new Vector2(0, -270));
-            shopHeroStats = AddText(statsSurface.transform, string.Empty, 16, Vector2.zero, new Vector2(326, 142),
+            SetRect(statsSurface.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(386, 188), new Vector2(0, -266));
+            shopHeroStats = AddText(statsSurface.transform, string.Empty, 16, new Vector2(8, 0), new Vector2(322, 146),
                 new Color(.86f, .82f, .73f), TextAnchor.MiddleLeft);
 
             var offersCard = Panel("Relic Counter", safe.transform, Color.white);
@@ -446,20 +453,39 @@ namespace Darkfall.UI
             SetRect(offersCard.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(1120, 790), new Vector2(280, -48));
             AddText(offersCard.transform, "ДОСТУПНЫЕ УСИЛЕНИЯ", 26, new Vector2(-325, 342), new Vector2(420, 40),
                 DarkFantasySkin.Text, TextAnchor.MiddleLeft);
-            AddText(offersCard.transform, "Покупка действует до конца забега", 15, new Vector2(300, 342), new Vector2(430, 28),
+            AddText(offersCard.transform, "Выберите товар, затем подтвердите сделку", 15, new Vector2(300, 342), new Vector2(430, 28),
                 DarkFantasySkin.MutedText, TextAnchor.MiddleRight);
             AddDivider(offersCard.transform, 310, 1010);
             for (var i = 0; i < 5; i++)
             {
                 var index = i;
-                var offer = AddButton(offersCard.transform, string.Empty, new Vector2(0, 244 - i * 112), new Vector2(1010, 94),
-                    () => { game.BuyShopOffer(index); RefreshShop(); }, new Color(.20f, .14f, .08f));
+                var offer = AddButton(offersCard.transform, string.Empty, new Vector2(-198, 244 - i * 104), new Vector2(612, 86),
+                    () => SelectShopOffer(index), new Color(.20f, .14f, .08f));
                 shopOfferButtons[i] = offer.GetComponent<Button>();
+                shopOfferImages[i] = offer.GetComponent<Image>();
                 shopOfferTexts[i] = offer.GetComponentInChildren<Text>();
                 shopOfferTexts[i].alignment = TextAnchor.MiddleLeft;
-                shopOfferTexts[i].fontSize = 18;
+                shopOfferTexts[i].fontSize = 17;
                 shopOfferTexts[i].lineSpacing = .92f;
             }
+
+            var detail = Panel("Selected Offer", offersCard.transform, Color.white);
+            DarkFantasySkin.Apply(detail.GetComponent<Image>(), DarkFantasySkin.Tooltip, new Color(.45f, .31f, .17f));
+            SetRect(detail.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(342, 500), new Vector2(334, 36));
+            AddText(detail.transform, "ВЫБРАНО", 14, new Vector2(0, 208), new Vector2(280, 24),
+                new Color(.67f, .55f, .37f), TextAnchor.MiddleLeft);
+            shopSelectionTitle = AddText(detail.transform, "ВЫБЕРИТЕ УСИЛЕНИЕ", 22, new Vector2(0, 158), new Vector2(280, 68),
+                DarkFantasySkin.Text, TextAnchor.MiddleLeft);
+            shopSelectionTitle.font = boldFont;
+            shopSelectionDescription = AddText(detail.transform, "Сначала осмотрите предложение на витрине.", 16, new Vector2(0, 62), new Vector2(280, 100),
+                new Color(.78f, .76f, .69f), TextAnchor.UpperLeft);
+            shopSelectionProgress = AddText(detail.transform, string.Empty, 15, new Vector2(0, -62), new Vector2(280, 86),
+                DarkFantasySkin.MutedText, TextAnchor.UpperLeft);
+            var buy = AddButton(detail.transform, "КУПИТЬ", new Vector2(0, -190), new Vector2(282, 62), PurchaseSelectedShopOffer,
+                new Color(.66f, .38f, .12f));
+            shopBuyButton = buy.GetComponent<Button>();
+            shopBuyText = buy.GetComponentInChildren<Text>();
+
             AddButton(offersCard.transform, "ПОКИНУТЬ УБЕЖИЩЕ", new Vector2(250, -340), new Vector2(510, 60), game.ContinueAfterShop,
                 new Color(.48f, .27f, .10f));
             AddText(offersCard.transform, "Следующая глубина ждёт", 14, new Vector2(-308, -340), new Vector2(370, 28),
@@ -548,11 +574,53 @@ namespace Darkfall.UI
                 var offer = game.ShopOffers[i];
                 var count = game.PurchaseCount(offer.id);
                 var maxed = count >= offer.maxPurchases;
-                var purchase = maxed ? "ПРЕДЕЛ ДОСТИГНУТ" : $"{game.ShopPrice(offer)} ЗОЛ.   ·   УРОВЕНЬ {count}/{offer.maxPurchases}";
-                shopOfferTexts[i].text = $"{offer.name.ToUpperInvariant()}\n" +
-                                         $"{offer.description}    ·    {purchase}";
-                shopOfferButtons[i].interactable = !maxed && game.Gold >= game.ShopPrice(offer);
+                var sold = game.IsShopOfferSold(i);
+                var state = sold ? "ПРОДАНО" : maxed ? "ПРЕДЕЛ" : $"{game.ShopPrice(offer)} ЗОЛ.";
+                shopOfferTexts[i].text = $"{offer.name.ToUpperInvariant()}\n{offer.description}    ·    {state}";
+                shopOfferButtons[i].interactable = true;
+                shopOfferImages[i].color = sold || maxed ? new Color(.42f, .42f, .41f, .72f) :
+                    i == selectedShopOffer ? new Color(1.12f, .92f, .62f, 1f) : Color.white;
             }
+            RefreshSelectedShopOffer();
+        }
+
+        private void SelectShopOffer(int index)
+        {
+            if (index < 0 || index >= game.ShopOffers.Length) return;
+            selectedShopOffer = index;
+            RefreshShop();
+        }
+
+        private void PurchaseSelectedShopOffer()
+        {
+            if (selectedShopOffer < 0) return;
+            if (game.BuyShopOffer(selectedShopOffer)) RefreshShop();
+        }
+
+        private void RefreshSelectedShopOffer()
+        {
+            if (selectedShopOffer < 0 || selectedShopOffer >= game.ShopOffers.Length)
+            {
+                shopSelectionTitle.text = "ВЫБЕРИТЕ УСИЛЕНИЕ";
+                shopSelectionDescription.text = "Осмотрите предложение на витрине. Покупка произойдёт только после подтверждения.";
+                shopSelectionProgress.text = string.Empty;
+                shopBuyText.text = "КУПИТЬ";
+                shopBuyButton.interactable = false;
+                return;
+            }
+
+            var offer = game.ShopOffers[selectedShopOffer];
+            var count = game.PurchaseCount(offer.id);
+            var price = game.ShopPrice(offer);
+            var sold = game.IsShopOfferSold(selectedShopOffer);
+            var maxed = count >= offer.maxPurchases;
+            shopSelectionTitle.text = offer.name.ToUpperInvariant();
+            shopSelectionDescription.text = offer.description;
+            shopSelectionProgress.text = $"РАЗВИТИЕ   {count} / {offer.maxPurchases}\n" +
+                                         $"СТОИМОСТЬ   {price} ЗОЛ.\n\nОдна покупка за визит";
+            shopBuyButton.interactable = !sold && !maxed && game.Gold >= price;
+            shopBuyText.text = sold ? "ПРОДАНО" : maxed ? "ПРЕДЕЛ ДОСТИГНУТ" :
+                game.Gold < price ? $"НЕ ХВАТАЕТ {price - game.Gold} ЗОЛ." : $"КУПИТЬ ЗА {price}";
         }
 
         private void CreateHeroCard(Transform parent, HeroClass heroClass, int index, Vector2 position, float phase)
@@ -675,6 +743,7 @@ namespace Darkfall.UI
             gameOver.SetActive(false);
             shop.SetActive(true);
             levelComplete.SetActive(false);
+            selectedShopOffer = game.ShopOffers.Length > 0 ? 0 : -1;
             RefreshShop();
             GameInput.Reset();
         }
