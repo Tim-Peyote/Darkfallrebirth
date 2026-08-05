@@ -98,7 +98,11 @@ namespace Darkfall.World
             {
                 var bounds = data.Rooms[roomIndex].bounds;
                 if (roomIndex % profile.LightEveryRooms == 1)
-                    CreateProp(data, 2, new Vector2(bounds.xMin + 1.2f, bounds.yMax - 1.15f), 1f, "Brazier", false, lightDecor);
+                {
+                    var lightProp = profile.Id == "ashen-catacombs" ? 2 : (roomIndex % 2 == 0 ? 0 : 8);
+                    CreateProp(data, lightProp, new Vector2(bounds.xMin + 1.2f, bounds.yMax - 1.15f),
+                        profile.Id == "ashen-catacombs" ? 1f : .72f, "Biome Light", false, lightDecor);
+                }
 
                 var hash = ((bounds.x * 73856093) ^ (bounds.y * 19349663) ^ (roomIndex * 83492791)) & int.MaxValue;
                 var first = profile.ClutterProps[hash % profile.ClutterProps.Length];
@@ -156,6 +160,7 @@ namespace Darkfall.World
             var prop = new GameObject(objectName + " " + index);
             prop.transform.SetParent(group, false);
             prop.transform.position = position;
+            if (profile.Id != "ashen-catacombs" && (index == 0 || index == 8)) scale = .72f;
             prop.transform.localScale = Vector3.one * scale;
             var renderer = prop.AddComponent<SpriteRenderer>();
             renderer.sprite = EnvironmentSpriteAtlas.Prop(profile.Id, index);
@@ -179,6 +184,10 @@ namespace Darkfall.World
             else if (customBiomeDecor && index == 3)
             {
                 data.AddLightSource(position + new Vector2(0, .28f), profile.FireTint, 4.6f, .13f);
+            }
+            else if (customBiomeDecor && index == 8)
+            {
+                data.AddLightSource(position + new Vector2(0, .18f), profile.FireTint, 4.8f, .14f);
             }
             else if (index == 8)
             {
