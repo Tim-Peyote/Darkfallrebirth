@@ -470,6 +470,9 @@ namespace Darkfall.UI
                 shopOfferTexts[i].alignment = TextAnchor.MiddleLeft;
                 shopOfferTexts[i].fontSize = 17;
                 shopOfferTexts[i].lineSpacing = .92f;
+                var offerTextRect = shopOfferTexts[i].rectTransform;
+                offerTextRect.sizeDelta = new Vector2(548, 70);
+                offerTextRect.anchoredPosition = new Vector2(18, 0);
             }
 
             var detail = Panel("Selected Offer", offersCard.transform, Color.white);

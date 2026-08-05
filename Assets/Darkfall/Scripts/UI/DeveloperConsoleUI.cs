@@ -24,8 +24,8 @@ namespace Darkfall.UI
         private Font boldFont;
         private GameObject root;
         private Text status;
-        private Text itemSelection;
-        private Text enemySelection;
+        private Dropdown itemDropdown;
+        private Dropdown enemyDropdown;
         private Text godModeLabel;
         private readonly List<LegacyItem> consumables = new List<LegacyItem>();
         private readonly List<EnemyChoice> enemies = new List<EnemyChoice>();
@@ -87,12 +87,15 @@ namespace Darkfall.UI
             DarkFantasySkin.Apply(card.GetComponent<Image>(), DarkFantasySkin.Panel, new Color(.45f, .53f, .58f));
             SetRect(card.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(1540, 850), Vector2.zero);
 
-            Text(card.transform, "DARKFALL · РЕЖИМ РАЗРАБОТЧИКА", 28, new Vector2(-510, 380), new Vector2(880, 46),
+            var header = Panel("Console Header", card.transform, Color.white);
+            DarkFantasySkin.Apply(header.GetComponent<Image>(), DarkFantasySkin.Tooltip, new Color(.31f, .39f, .43f));
+            SetRect(header.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
+                new Vector2(1490, 88), new Vector2(0, 364));
+            Text(header.transform, "DARKFALL · РЕЖИМ РАЗРАБОТЧИКА", 28, new Vector2(-490, 14), new Vector2(890, 42),
                 new Color(.82f, .9f, .93f), TextAnchor.MiddleLeft, true);
-            Text(card.transform, "` / F10 — открыть или закрыть · изменения действуют только в текущем забеге", 14,
-                new Vector2(-390, 344), new Vector2(1120, 28), DarkFantasySkin.MutedText, TextAnchor.MiddleLeft);
-            Button(card.transform, "ЗАКРЫТЬ", new Vector2(650, 374), new Vector2(180, 46), Close);
-            Divider(card.transform, 320, 1430);
+            Text(header.transform, "` / F10 — открыть или закрыть · изменения действуют только в текущем забеге", 14,
+                new Vector2(-376, -18), new Vector2(1118, 24), DarkFantasySkin.MutedText, TextAnchor.MiddleLeft);
+            Button(header.transform, "ЗАКРЫТЬ", new Vector2(632, 0), new Vector2(176, 46), Close);
 
             BuildProgressColumn(card.transform);
             BuildSpawnColumn(card.transform);
@@ -137,20 +140,22 @@ namespace Darkfall.UI
             var panel = Section(parent, "ПРЕДМЕТЫ И СПАВН", new Vector2(0, -20), new Vector2(520, 650));
             Text(panel, "ЗЕЛЬЕ ИЛИ СВИТОК", 14, new Vector2(0, 252), new Vector2(440, 24),
                 DarkFantasySkin.MutedText, TextAnchor.MiddleLeft, true);
-            itemSelection = Selector(panel, new Vector2(0, 202), PreviousItem, NextItem);
+            itemDropdown = ChoiceDropdown(panel, new Vector2(0, 202), new Vector2(440, 50));
+            itemDropdown.onValueChanged.AddListener(value => itemIndex = value);
             Button(panel, "ДОБАВИТЬ В РЮКЗАК", new Vector2(0, 142), new Vector2(440, 50), AddSelectedItem,
                 new Color(.18f, .32f, .22f));
 
             Divider(panel, 92, 440);
             Text(panel, "ПРОТИВНИК РЯДОМ С ГЕРОЕМ", 14, new Vector2(0, 60), new Vector2(440, 24),
                 DarkFantasySkin.MutedText, TextAnchor.MiddleLeft, true);
-            enemySelection = Selector(panel, new Vector2(0, 10), PreviousEnemy, NextEnemy);
+            enemyDropdown = ChoiceDropdown(panel, new Vector2(0, 10), new Vector2(440, 50));
+            enemyDropdown.onValueChanged.AddListener(value => enemyIndex = value);
             Button(panel, "СОЗДАТЬ ПРОТИВНИКА", new Vector2(0, -50), new Vector2(440, 50), SpawnSelectedEnemy,
                 new Color(.38f, .16f, .15f));
             Text(panel, "Противник ищет ближайшую свободную точку в радиусе 1.5–4.5 клетки.", 14,
                 new Vector2(0, -114), new Vector2(440, 54), DarkFantasySkin.MutedText, TextAnchor.UpperLeft);
-            Button(panel, "ПРЕДЫДУЩИЙ ТИП", new Vector2(-112, -198), new Vector2(210, 44), PreviousEnemy);
-            Button(panel, "СЛЕДУЮЩИЙ ТИП", new Vector2(112, -198), new Vector2(210, 44), NextEnemy);
+            Text(panel, "Нажмите на поле и выберите нужный тип из прокручиваемого списка.", 14,
+                new Vector2(0, -198), new Vector2(440, 44), DarkFantasySkin.MutedText, TextAnchor.MiddleLeft);
         }
 
         private void BuildStatsColumn(Transform parent)
@@ -190,6 +195,79 @@ namespace Darkfall.UI
             return label;
         }
 
+        private Dropdown ChoiceDropdown(Transform parent, Vector2 position, Vector2 size)
+        {
+            var root = new GameObject("Choice", typeof(RectTransform), typeof(Image), typeof(Dropdown));
+            root.transform.SetParent(parent, false);
+            SetRect(root.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f), size, position);
+            DarkFantasySkin.Apply(root.GetComponent<Image>(), DarkFantasySkin.Button, new Color(.16f, .23f, .27f));
+
+            var caption = Text(root.transform, "Выберите…", 15, new Vector2(-10, 0), size - new Vector2(58, 8),
+                DarkFantasySkin.Text, TextAnchor.MiddleLeft, true);
+            Text(root.transform, "▼", 15, new Vector2(size.x * .5f - 26, 0), new Vector2(30, size.y - 8),
+                new Color(.85f, .68f, .38f), TextAnchor.MiddleCenter, true);
+
+            var template = Panel("Template", root.transform, Color.white);
+            var templateRect = template.GetComponent<RectTransform>();
+            templateRect.anchorMin = new Vector2(0, 0);
+            templateRect.anchorMax = new Vector2(1, 0);
+            templateRect.pivot = new Vector2(.5f, 1);
+            templateRect.anchoredPosition = new Vector2(0, -4);
+            templateRect.sizeDelta = new Vector2(0, 260);
+            DarkFantasySkin.Apply(template.GetComponent<Image>(), DarkFantasySkin.Panel, new Color(.38f, .48f, .52f));
+
+            var scroll = template.AddComponent<ScrollRect>();
+            scroll.horizontal = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 30;
+
+            var viewport = Panel("Viewport", template.transform, new Color(.01f, .015f, .018f, .98f));
+            var viewportRect = viewport.GetComponent<RectTransform>();
+            viewportRect.anchorMin = Vector2.zero;
+            viewportRect.anchorMax = Vector2.one;
+            viewportRect.offsetMin = new Vector2(4, 4);
+            viewportRect.offsetMax = new Vector2(-4, -4);
+            viewport.AddComponent<Mask>().showMaskGraphic = false;
+
+            var content = new GameObject("Content", typeof(RectTransform)).GetComponent<RectTransform>();
+            content.SetParent(viewport.transform, false);
+            content.anchorMin = new Vector2(0, 1);
+            content.anchorMax = new Vector2(1, 1);
+            content.pivot = new Vector2(.5f, 1);
+            content.sizeDelta = new Vector2(0, 42);
+
+            var item = new GameObject("Item", typeof(RectTransform), typeof(Toggle));
+            item.transform.SetParent(content, false);
+            var itemRect = item.GetComponent<RectTransform>();
+            itemRect.anchorMin = new Vector2(0, .5f);
+            itemRect.anchorMax = new Vector2(1, .5f);
+            itemRect.sizeDelta = new Vector2(0, 42);
+            var itemBackground = Panel("Item Background", item.transform, new Color(.05f, .065f, .07f, .98f));
+            var itemBackgroundRect = itemBackground.GetComponent<RectTransform>();
+            itemBackgroundRect.anchorMin = Vector2.zero;
+            itemBackgroundRect.anchorMax = Vector2.one;
+            itemBackgroundRect.offsetMin = new Vector2(2, 1);
+            itemBackgroundRect.offsetMax = new Vector2(-2, -1);
+            var checkmark = Panel("Item Checkmark", itemBackground.transform, new Color(.86f, .55f, .18f, 1f));
+            SetRect(checkmark.GetComponent<RectTransform>(), new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(4, 30), new Vector2(5, 0));
+            var itemLabel = Text(item.transform, "Option", 14, new Vector2(12, 0), new Vector2(size.x - 38, 38),
+                DarkFantasySkin.Text, TextAnchor.MiddleLeft);
+            var toggle = item.GetComponent<Toggle>();
+            toggle.targetGraphic = itemBackground.GetComponent<Image>();
+            toggle.graphic = checkmark.GetComponent<Image>();
+
+            scroll.viewport = viewportRect;
+            scroll.content = content;
+            template.SetActive(false);
+
+            var dropdown = root.GetComponent<Dropdown>();
+            dropdown.template = templateRect;
+            dropdown.captionText = caption;
+            dropdown.itemText = itemLabel;
+            dropdown.options = new List<Dropdown.OptionData>();
+            return dropdown;
+        }
+
         private void Refresh()
         {
             if (game == null) return;
@@ -198,12 +276,32 @@ namespace Darkfall.UI
                 itemIndex = Wrap(itemIndex, consumables.Count);
                 var item = consumables[itemIndex];
                 var type = item.baseId.StartsWith("scroll_") || item.baseId == "mystery_scroll" ? "СВИТОК" : "ЗЕЛЬЕ";
-                itemSelection.text = $"{type} · {item.name}";
+                if (itemDropdown.options.Count != consumables.Count)
+                {
+                    itemDropdown.ClearOptions();
+                    var labels = new List<string>();
+                    foreach (var choice in consumables)
+                    {
+                        var choiceType = choice.baseId.StartsWith("scroll_") || choice.baseId == "mystery_scroll" ? "СВИТОК" : "ЗЕЛЬЕ";
+                        labels.Add($"{choiceType} · {choice.name}");
+                    }
+                    itemDropdown.AddOptions(labels);
+                }
+                itemDropdown.SetValueWithoutNotify(itemIndex);
+                itemDropdown.RefreshShownValue();
             }
             if (enemies.Count > 0)
             {
                 enemyIndex = Wrap(enemyIndex, enemies.Count);
-                enemySelection.text = enemies[enemyIndex].Label;
+                if (enemyDropdown.options.Count != enemies.Count)
+                {
+                    enemyDropdown.ClearOptions();
+                    var labels = new List<string>();
+                    foreach (var choice in enemies) labels.Add(choice.Label);
+                    enemyDropdown.AddOptions(labels);
+                }
+                enemyDropdown.SetValueWithoutNotify(enemyIndex);
+                enemyDropdown.RefreshShownValue();
             }
             var player = game.Player;
             if (player == null) return;
@@ -258,10 +356,6 @@ namespace Darkfall.UI
             foreach (var enemy in EnemyController.Snapshot()) if (enemy != null) enemy.TakeDamage(9999999);
             SetStatus("Все активные противники уничтожены");
         }
-        private void PreviousItem() { itemIndex--; Refresh(); }
-        private void NextItem() { itemIndex++; Refresh(); }
-        private void PreviousEnemy() { enemyIndex--; Refresh(); }
-        private void NextEnemy() { enemyIndex++; Refresh(); }
         private static int Wrap(int value, int count) => count <= 0 ? 0 : (value % count + count) % count;
         private void SetStatus(string message, bool warning = false)
         {
