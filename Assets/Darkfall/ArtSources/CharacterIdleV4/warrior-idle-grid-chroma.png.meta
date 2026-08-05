@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      warrior-idle-grid-chroma_0: -6894686639750308499
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

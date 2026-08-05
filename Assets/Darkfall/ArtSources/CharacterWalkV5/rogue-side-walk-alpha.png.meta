@@ -235,7 +235,11 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      rogue-side-walk-alpha_0: -3203340040264874001
+      rogue-side-walk-alpha_1: 9027592669061543502
+      rogue-side-walk-alpha_2: 4863314713232111598
+      rogue-side-walk-alpha_3: -4959998410663875986
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

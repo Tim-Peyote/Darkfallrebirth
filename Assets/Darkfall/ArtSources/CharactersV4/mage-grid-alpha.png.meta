@@ -1135,7 +1135,47 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      mage-grid-alpha_0: 7905090064604705685
+      mage-grid-alpha_1: 6067654212915513566
+      mage-grid-alpha_10: -9143057002944385218
+      mage-grid-alpha_11: -6427208549081101286
+      mage-grid-alpha_12: -4309076530780695404
+      mage-grid-alpha_13: -7551421317778093634
+      mage-grid-alpha_14: 3833585985587535071
+      mage-grid-alpha_15: 3341836901299508061
+      mage-grid-alpha_16: 6551024195763498541
+      mage-grid-alpha_17: 2690050457784418159
+      mage-grid-alpha_18: 5525272970921205438
+      mage-grid-alpha_19: -4284816449987515325
+      mage-grid-alpha_2: 6359323884741573684
+      mage-grid-alpha_20: 4147346255410773354
+      mage-grid-alpha_21: -573086273411161086
+      mage-grid-alpha_22: 6106273097753299083
+      mage-grid-alpha_23: 7608318036848857983
+      mage-grid-alpha_24: -824530346158881847
+      mage-grid-alpha_25: -1857236417569102623
+      mage-grid-alpha_26: 4049983300212800942
+      mage-grid-alpha_27: -14274300068123921
+      mage-grid-alpha_28: -2733718929482260062
+      mage-grid-alpha_29: -618215635235916296
+      mage-grid-alpha_3: -6922779400342166957
+      mage-grid-alpha_30: -3185854746515734402
+      mage-grid-alpha_31: -2786754666028843734
+      mage-grid-alpha_32: 2595302687434796488
+      mage-grid-alpha_33: 1052001952771309268
+      mage-grid-alpha_34: -5430610867619035389
+      mage-grid-alpha_35: -8868192343831247948
+      mage-grid-alpha_36: -955536388094900932
+      mage-grid-alpha_37: -1120515737085241388
+      mage-grid-alpha_38: -8209869444133739785
+      mage-grid-alpha_39: -8561575264443405430
+      mage-grid-alpha_4: 180192765724710408
+      mage-grid-alpha_5: -4567949741860531811
+      mage-grid-alpha_6: -1206584015848526857
+      mage-grid-alpha_7: 8951475283039401845
+      mage-grid-alpha_8: 8345696561086253676
+      mage-grid-alpha_9: 6932116758033364385
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

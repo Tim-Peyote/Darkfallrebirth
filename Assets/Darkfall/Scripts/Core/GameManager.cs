@@ -36,6 +36,11 @@ namespace Darkfall.Core
         private readonly Dictionary<string, int> shopPurchases = new Dictionary<string, int>();
         private bool[] shopOfferSold = Array.Empty<bool>();
         private bool blockingModal;
+        private bool developerConsoleOpen;
+        private bool developerPreviousPause;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        public bool DeveloperGodMode { get; private set; }
+#endif
         private float runStartedAt;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -114,6 +119,9 @@ namespace Darkfall.Core
 
         public void StartRun()
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            DeveloperGodMode = false;
+#endif
             Depth = 1;
             Gold = 0;
             SessionKills = 0;
@@ -149,6 +157,9 @@ namespace Darkfall.Core
             playerObject.transform.position = Dungeon.CellCenter(Dungeon.StartCell);
             Player = playerObject.AddComponent<PlayerController>();
             Player.Initialize(HeroDefinition.Create(SelectedHero), Dungeon);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (DeveloperGodMode) Player.SetDeveloperInvincible(true);
+#endif
             var lighting = new GameObject("Dungeon Lighting").AddComponent<DungeonLighting>();
             lighting.transform.SetParent(levelRoot, false);
             lighting.Build(Dungeon, Player, DungeonVisualProfile.ForDepth(Depth));
@@ -360,6 +371,90 @@ namespace Darkfall.Core
             Gold += amount;
             NotifyStatsChanged();
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        public void SetDeveloperConsoleOpen(bool open)
+        {
+            if (developerConsoleOpen == open) return;
+            developerConsoleOpen = open;
+            if (open)
+            {
+                developerPreviousPause = IsPaused;
+                IsPaused = true;
+                Time.timeScale = 0;
+                Audio.SetPaused(true);
+                GameInput.Reset();
+                return;
+            }
+            if (!blockingModal && !developerPreviousPause)
+            {
+                IsPaused = false;
+                Time.timeScale = 1;
+                Audio.SetPaused(false);
+            }
+            GameInput.Reset();
+        }
+
+        public void SetDeveloperGodMode(bool value)
+        {
+            DeveloperGodMode = value;
+            Player?.SetDeveloperInvincible(value);
+        }
+
+        public void DeveloperAdvanceLevel()
+        {
+            if (Player == null) return;
+            Depth++;
+            BuildLevel();
+            NotifyStatsChanged();
+        }
+
+        public void DeveloperOpenShop()
+        {
+            if (Player == null) return;
+            PrepareShop();
+            IsPaused = true;
+            blockingModal = true;
+            Time.timeScale = 0;
+            Audio.SetPaused(true);
+            runtimeUI.ShowShop();
+        }
+
+        public bool DeveloperAddItem(string baseId, int quantity = 1)
+        {
+            var definition = LegacyCatalog.Item(baseId);
+            var item = InventorySystem.CreateFromDefinition(definition, Depth, quantity);
+            if (item == null || !Inventory.Add(item)) return false;
+            ShowMessage($"DEV: добавлено — {definition.name}");
+            return true;
+        }
+
+        public bool DeveloperSpawnEnemy(LegacyEnemy definition, bool boss = false)
+        {
+            if (definition == null || Player == null || Dungeon == null) return false;
+            var origin = (Vector2)Player.transform.position;
+            var directions = new[]
+            {
+                Vector2.right, Vector2.left, Vector2.up, Vector2.down,
+                new Vector2(1, 1).normalized, new Vector2(-1, 1).normalized,
+                new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized
+            };
+            for (var radius = 1.5f; radius <= 4.5f; radius += .5f)
+            foreach (var direction in directions)
+            {
+                var position = origin + direction * radius;
+                if (!Dungeon.CanOccupy(position, .22f)) continue;
+                var enemyObject = new GameObject("DEV " + definition.type);
+                enemyObject.transform.SetParent(levelRoot);
+                enemyObject.transform.position = position;
+                enemyObject.AddComponent<EnemyController>().Initialize(Dungeon, Player, Depth, boss, definition);
+                ShowMessage($"DEV: создан — {definition.type}");
+                return true;
+            }
+            ShowMessage("DEV: рядом нет свободной клетки для противника");
+            return false;
+        }
+#endif
 
         public void NotifyStatsChanged() => StatsChanged?.Invoke();
         public void ShowMessage(string message) => OverlayRequested?.Invoke(message);

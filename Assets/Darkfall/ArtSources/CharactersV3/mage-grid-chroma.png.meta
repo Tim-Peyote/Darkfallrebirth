@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      mage-grid-chroma_0: 880643884230752104
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

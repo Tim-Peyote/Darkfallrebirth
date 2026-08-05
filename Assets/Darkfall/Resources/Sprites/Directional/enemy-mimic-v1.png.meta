@@ -935,7 +935,39 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      enemy-mimic-v1_0: -2466594938732824778
+      enemy-mimic-v1_1: -3109549883172356717
+      enemy-mimic-v1_10: 1369688897013247822
+      enemy-mimic-v1_11: 302092052561547210
+      enemy-mimic-v1_12: 521606820558030062
+      enemy-mimic-v1_13: 8651166382595831441
+      enemy-mimic-v1_14: 4358033414281469943
+      enemy-mimic-v1_15: 5585668449924670715
+      enemy-mimic-v1_16: -4715197428059903310
+      enemy-mimic-v1_17: 2915099099315198857
+      enemy-mimic-v1_18: 1694416023296708706
+      enemy-mimic-v1_19: -6040194781242990880
+      enemy-mimic-v1_2: 2294668866222522553
+      enemy-mimic-v1_20: -9023508392282347036
+      enemy-mimic-v1_21: -4085465149582477148
+      enemy-mimic-v1_22: 175144966284343305
+      enemy-mimic-v1_23: -8654350283149585945
+      enemy-mimic-v1_24: 7496923804137653926
+      enemy-mimic-v1_25: -4137359275189536220
+      enemy-mimic-v1_26: 4814279684545542898
+      enemy-mimic-v1_27: 6042206868025260472
+      enemy-mimic-v1_28: -5288927402657827884
+      enemy-mimic-v1_29: 6436255359441140273
+      enemy-mimic-v1_3: 9050485060740609398
+      enemy-mimic-v1_30: 6845595348554118558
+      enemy-mimic-v1_31: 3810584891473863293
+      enemy-mimic-v1_4: -2979303935931039955
+      enemy-mimic-v1_5: -7396515560781854673
+      enemy-mimic-v1_6: -3927478034810219953
+      enemy-mimic-v1_7: 6815120161806343464
+      enemy-mimic-v1_8: -5881545732716318122
+      enemy-mimic-v1_9: -3115237353246557000
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

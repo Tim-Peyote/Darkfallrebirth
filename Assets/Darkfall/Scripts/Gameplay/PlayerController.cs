@@ -55,6 +55,9 @@ namespace Darkfall.Gameplay
         public float Defense => (hero.defense + EquipmentStat(item => item.defense)) * DefenseMultiplier;
         public float CriticalChance => Mathf.Clamp01(hero.criticalChance + EquipmentStat(item => item.crit) / 100f);
         public float AttackRange => hero.attackRange + EquipmentStat(item => item.attackRadius) / 32f;
+        public float BaseMoveSpeed => hero.speed;
+        public float BaseAttackCooldown => hero.attackCooldown;
+        public bool DeveloperInvincible { get; private set; }
         public float FireResistance => Mathf.Clamp(EquipmentStat(item => item.fire), 0, 75);
         public float IceResistance => Mathf.Clamp(EquipmentStat(item => item.ice), 0, 75);
         public Vector2 FacingDirection => facingDirection;
@@ -289,6 +292,7 @@ namespace Darkfall.Gameplay
 
         public void TakeDamage(float rawDamage)
         {
+            if (DeveloperInvincible) return;
             if (IsInvulnerable || Time.time < damageInvulnerableUntil) return;
             if (barrier > 0)
             {
@@ -383,6 +387,26 @@ namespace Darkfall.Gameplay
         public void Heal(float amount)
         {
             Health = Mathf.Min(MaxHealth, Health + amount);
+            GameManager.Instance.NotifyStatsChanged();
+        }
+
+        public void SetDeveloperInvincible(bool value)
+        {
+            DeveloperInvincible = value;
+            if (value) Health = MaxHealth;
+            GameManager.Instance.NotifyStatsChanged();
+        }
+
+        public void ApplyDeveloperStats(float maxHealth, float damage, float defense, float moveSpeed,
+            float criticalPercent, float attackRange)
+        {
+            hero.maxHealth = Mathf.Max(1, maxHealth);
+            hero.damage = Mathf.Max(0, damage);
+            hero.defense = Mathf.Max(0, defense);
+            hero.speed = Mathf.Max(.1f, moveSpeed);
+            hero.criticalChance = Mathf.Clamp01(criticalPercent / 100f);
+            hero.attackRange = Mathf.Max(.1f, attackRange);
+            Health = Mathf.Min(Health, MaxHealth);
             GameManager.Instance.NotifyStatsChanged();
         }
 

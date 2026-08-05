@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      warrior-grid-chroma_0: 4620511621628054119
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      mage-side-walk-chroma_0: -2012926863333722784
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

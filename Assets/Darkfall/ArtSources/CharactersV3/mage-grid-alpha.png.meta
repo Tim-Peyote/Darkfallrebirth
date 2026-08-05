@@ -510,7 +510,22 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      mage-grid-alpha_0: 7905090064604705685
+      mage-grid-alpha_1: 6067654212915513566
+      mage-grid-alpha_10: -9143057002944385218
+      mage-grid-alpha_11: -6427208549081101286
+      mage-grid-alpha_12: -4309076530780695404
+      mage-grid-alpha_13: -7551421317778093634
+      mage-grid-alpha_14: 3833585985587535071
+      mage-grid-alpha_2: 6359323884741573684
+      mage-grid-alpha_3: -6922779400342166957
+      mage-grid-alpha_4: 180192765724710408
+      mage-grid-alpha_5: -4567949741860531811
+      mage-grid-alpha_6: -1206584015848526857
+      mage-grid-alpha_7: 8951475283039401845
+      mage-grid-alpha_8: 8345696561086253676
+      mage-grid-alpha_9: 6932116758033364385
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

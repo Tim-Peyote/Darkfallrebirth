@@ -435,7 +435,19 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      mage-idle-grid-alpha_0: -8475453701670962308
+      mage-idle-grid-alpha_1: 4168194743824041919
+      mage-idle-grid-alpha_10: -1936543166232094267
+      mage-idle-grid-alpha_11: -622944124472357428
+      mage-idle-grid-alpha_2: -1371045125252768894
+      mage-idle-grid-alpha_3: 3991150168578934075
+      mage-idle-grid-alpha_4: -2332561496567392072
+      mage-idle-grid-alpha_5: 3435092617213248443
+      mage-idle-grid-alpha_6: 9202888826835761255
+      mage-idle-grid-alpha_7: 2204473660306752092
+      mage-idle-grid-alpha_8: 5293165460943576422
+      mage-idle-grid-alpha_9: -8177340604437218874
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      rogue-up-chroma_0: -7690528046255209501
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

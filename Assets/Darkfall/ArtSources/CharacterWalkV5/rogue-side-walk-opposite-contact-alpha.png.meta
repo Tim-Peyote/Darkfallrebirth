@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      rogue-side-walk-opposite-contact-alpha_0: -348069383123320808
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

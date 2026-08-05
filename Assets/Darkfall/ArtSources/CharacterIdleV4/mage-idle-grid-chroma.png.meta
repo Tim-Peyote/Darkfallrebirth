@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      mage-idle-grid-chroma_0: 5097885986970881465
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

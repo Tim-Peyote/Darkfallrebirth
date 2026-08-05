@@ -88,6 +88,9 @@ namespace Darkfall.UI
             BuildLevelComplete();
             BuildRecords();
             BuildGameOver();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            canvas.gameObject.AddComponent<DeveloperConsoleUI>().Initialize(game, font, boldFont);
+#endif
             game.StatsChanged += Refresh;
             game.OverlayRequested += ShowToast;
             ShowMenu();

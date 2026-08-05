@@ -435,7 +435,19 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      rogue-idle-grid-alpha_0: -3737985554805490903
+      rogue-idle-grid-alpha_1: 7916977616841400752
+      rogue-idle-grid-alpha_10: 9139040135663166972
+      rogue-idle-grid-alpha_11: 2091515484627205833
+      rogue-idle-grid-alpha_2: -5194471077032600788
+      rogue-idle-grid-alpha_3: 8780184041327454796
+      rogue-idle-grid-alpha_4: 224742901397431811
+      rogue-idle-grid-alpha_5: -6307881347592368147
+      rogue-idle-grid-alpha_6: 3350971505781299453
+      rogue-idle-grid-alpha_7: -599985199791571642
+      rogue-idle-grid-alpha_8: 7012598222674878503
+      rogue-idle-grid-alpha_9: 9173182730900586610
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

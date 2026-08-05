@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      rogue-idle-strip-v2-chroma_0: -4769674294365072683
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

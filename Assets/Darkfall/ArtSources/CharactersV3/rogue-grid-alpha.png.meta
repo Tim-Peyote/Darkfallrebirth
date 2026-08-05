@@ -510,7 +510,22 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      rogue-grid-alpha_0: -3774804779353456544
+      rogue-grid-alpha_1: 6164350510441893904
+      rogue-grid-alpha_10: -5413436765499013453
+      rogue-grid-alpha_11: 3664309981635622299
+      rogue-grid-alpha_12: -1918195075327355475
+      rogue-grid-alpha_13: -801637086010417706
+      rogue-grid-alpha_14: 5099596271135724701
+      rogue-grid-alpha_2: 4862608045764871998
+      rogue-grid-alpha_3: 730854867513201660
+      rogue-grid-alpha_4: 1060679659460825515
+      rogue-grid-alpha_5: 4652027135214198997
+      rogue-grid-alpha_6: 2995541832562388920
+      rogue-grid-alpha_7: 6491818270989106277
+      rogue-grid-alpha_8: 6551153155092297977
+      rogue-grid-alpha_9: -8732531507489855531
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

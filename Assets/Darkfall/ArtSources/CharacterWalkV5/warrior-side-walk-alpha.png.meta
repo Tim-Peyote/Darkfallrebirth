@@ -235,7 +235,11 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      warrior-side-walk-alpha_0: 9185797675245104737
+      warrior-side-walk-alpha_1: -8232291678965544485
+      warrior-side-walk-alpha_2: -6683110328040871677
+      warrior-side-walk-alpha_3: 5752905115908587139
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

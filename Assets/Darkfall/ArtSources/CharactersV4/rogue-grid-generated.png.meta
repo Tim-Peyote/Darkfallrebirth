@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      rogue-grid-generated_0: -6605803457539242389
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

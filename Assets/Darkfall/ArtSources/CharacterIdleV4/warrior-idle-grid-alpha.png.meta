@@ -435,7 +435,19 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      warrior-idle-grid-alpha_0: -4233562997845107104
+      warrior-idle-grid-alpha_1: 7754438636618696256
+      warrior-idle-grid-alpha_10: 203748438339422506
+      warrior-idle-grid-alpha_11: 2168226293487194594
+      warrior-idle-grid-alpha_2: -4337353297069531165
+      warrior-idle-grid-alpha_3: -5452440857279485602
+      warrior-idle-grid-alpha_4: -7532916392874890924
+      warrior-idle-grid-alpha_5: -1208218470589376904
+      warrior-idle-grid-alpha_6: 9030138855721398747
+      warrior-idle-grid-alpha_7: -3528425110516200470
+      warrior-idle-grid-alpha_8: 2481480380354388026
+      warrior-idle-grid-alpha_9: 7168804624516575982
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -235,7 +235,11 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      mage-side-walk-alpha_0: -6264436237872764977
+      mage-side-walk-alpha_1: 7881922134643730745
+      mage-side-walk-alpha_2: 8745469636731603446
+      mage-side-walk-alpha_3: 8994921118792987194
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

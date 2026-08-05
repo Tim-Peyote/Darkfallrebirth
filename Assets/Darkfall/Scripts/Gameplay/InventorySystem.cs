@@ -300,6 +300,28 @@ namespace Darkfall.Gameplay
             return item;
         }
 
+        public static ItemInstance CreateFromDefinition(LegacyItem definition, int depth, int quantity = 1)
+        {
+            if (definition == null) return null;
+            var item = new ItemInstance
+            {
+                id = definition.baseId + "_debug_" + UnityEngine.Random.Range(100000, 999999),
+                baseId = definition.baseId,
+                name = definition.name,
+                kind = ParseKind(definition),
+                slot = definition.slot,
+                description = definition.description,
+                icon = definition.icon,
+                requiredClass = definition.requiredClass,
+                rarity = ItemRarity.Common,
+                itemLevel = Mathf.Max(1, depth),
+                quantity = Mathf.Max(1, quantity),
+                power = 3 + Mathf.Max(1, depth) * .6f
+            };
+            ApplyBaseStats(item);
+            return item;
+        }
+
         private static LegacyRarity RollRarityForDepth(int depth)
         {
             var roll = UnityEngine.Random.value;

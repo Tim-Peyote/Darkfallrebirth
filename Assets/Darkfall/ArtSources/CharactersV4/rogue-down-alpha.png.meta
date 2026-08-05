@@ -385,7 +385,17 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      rogue-down-alpha_0: 5327341922984983598
+      rogue-down-alpha_1: 7098414591878242993
+      rogue-down-alpha_2: 5092446276271526581
+      rogue-down-alpha_3: 2311125240451614034
+      rogue-down-alpha_4: -3229413294791423911
+      rogue-down-alpha_5: -5283930619058259640
+      rogue-down-alpha_6: -8606964197358683618
+      rogue-down-alpha_7: -4789143068140711947
+      rogue-down-alpha_8: -4172319771898287818
+      rogue-down-alpha_9: -812500647110613623
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

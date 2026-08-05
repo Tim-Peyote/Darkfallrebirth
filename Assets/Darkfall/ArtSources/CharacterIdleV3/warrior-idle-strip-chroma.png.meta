@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      warrior-idle-strip-chroma_0: -4607520043814831011
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

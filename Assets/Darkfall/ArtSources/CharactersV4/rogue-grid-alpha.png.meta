@@ -1035,7 +1035,43 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      rogue-grid-alpha_0: -3774804779353456544
+      rogue-grid-alpha_1: 6164350510441893904
+      rogue-grid-alpha_10: -5413436765499013453
+      rogue-grid-alpha_11: 3664309981635622299
+      rogue-grid-alpha_12: -1918195075327355475
+      rogue-grid-alpha_13: -801637086010417706
+      rogue-grid-alpha_14: 5099596271135724701
+      rogue-grid-alpha_15: 1368046280276129431
+      rogue-grid-alpha_16: 1586318366906338359
+      rogue-grid-alpha_17: -4623320699192798532
+      rogue-grid-alpha_18: 3735668970301262802
+      rogue-grid-alpha_19: -2556670576897084399
+      rogue-grid-alpha_2: 4862608045764871998
+      rogue-grid-alpha_20: -1392396726487212479
+      rogue-grid-alpha_21: -2418842226365531198
+      rogue-grid-alpha_22: -7796702140251123329
+      rogue-grid-alpha_23: 7277430634375780784
+      rogue-grid-alpha_24: -8009851797043767741
+      rogue-grid-alpha_25: 6415603235138277354
+      rogue-grid-alpha_26: -576933262780688713
+      rogue-grid-alpha_27: 1961399472096531932
+      rogue-grid-alpha_28: 7973744969063063884
+      rogue-grid-alpha_29: -6999534482729418877
+      rogue-grid-alpha_3: 730854867513201660
+      rogue-grid-alpha_30: 3630529359432360493
+      rogue-grid-alpha_31: -3732522267946352129
+      rogue-grid-alpha_32: -798383840710879579
+      rogue-grid-alpha_33: 6405156171846111820
+      rogue-grid-alpha_34: -1887545198824404612
+      rogue-grid-alpha_35: 2530558907812757147
+      rogue-grid-alpha_4: 1060679659460825515
+      rogue-grid-alpha_5: 4652027135214198997
+      rogue-grid-alpha_6: 2995541832562388920
+      rogue-grid-alpha_7: 6491818270989106277
+      rogue-grid-alpha_8: 6551153155092297977
+      rogue-grid-alpha_9: -8732531507489855531
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      mage-right-high-pass-source_0: 2463823506234138898
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

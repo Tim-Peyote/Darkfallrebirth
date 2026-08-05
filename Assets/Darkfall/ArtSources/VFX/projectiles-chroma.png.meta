@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      projectiles-chroma_0: 4103550753304071635
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

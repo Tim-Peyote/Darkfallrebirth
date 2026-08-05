@@ -1135,7 +1135,47 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      warrior-grid-alpha_0: -1091239532830788643
+      warrior-grid-alpha_1: 1156310992728892258
+      warrior-grid-alpha_10: 2829089137327008225
+      warrior-grid-alpha_11: -406992746204082831
+      warrior-grid-alpha_12: -6813384660211062022
+      warrior-grid-alpha_13: 2538890853717685464
+      warrior-grid-alpha_14: 1794794056797526460
+      warrior-grid-alpha_15: 6384988455124432974
+      warrior-grid-alpha_16: -4079567455743064693
+      warrior-grid-alpha_17: 293327777109018058
+      warrior-grid-alpha_18: -4659503459111044977
+      warrior-grid-alpha_19: 2760898827453595885
+      warrior-grid-alpha_2: -7269310705149635684
+      warrior-grid-alpha_20: -3575034563726144586
+      warrior-grid-alpha_21: 1752728480498204751
+      warrior-grid-alpha_22: -681751497751783528
+      warrior-grid-alpha_23: -1041602885093683494
+      warrior-grid-alpha_24: -5353266973790162401
+      warrior-grid-alpha_25: -6430930484798219946
+      warrior-grid-alpha_26: 6305259157728277412
+      warrior-grid-alpha_27: -1463400978191228280
+      warrior-grid-alpha_28: 4291643366621955605
+      warrior-grid-alpha_29: 4679522615987185781
+      warrior-grid-alpha_3: -8236813102448512079
+      warrior-grid-alpha_30: -8840582729761982749
+      warrior-grid-alpha_31: 1899441591043397593
+      warrior-grid-alpha_32: -9077137916642028863
+      warrior-grid-alpha_33: 136241584991735524
+      warrior-grid-alpha_34: -2484028091899047066
+      warrior-grid-alpha_35: -8334343638729070638
+      warrior-grid-alpha_36: 19251839819008548
+      warrior-grid-alpha_37: -9085035410373235886
+      warrior-grid-alpha_38: -6369180575246332547
+      warrior-grid-alpha_39: 4913580790938150808
+      warrior-grid-alpha_4: 3328022132284027076
+      warrior-grid-alpha_5: 1985597505420775874
+      warrior-grid-alpha_6: 7300214567708863550
+      warrior-grid-alpha_7: -2687801202930876440
+      warrior-grid-alpha_8: -2367080832715021059
+      warrior-grid-alpha_9: -3949254312110397553
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

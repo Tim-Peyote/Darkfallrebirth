@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      mimic-directional-8x4-chroma_0: -1474935829679644429
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

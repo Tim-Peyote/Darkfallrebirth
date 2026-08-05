@@ -510,7 +510,22 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      warrior-grid-alpha_0: -1091239532830788643
+      warrior-grid-alpha_1: 1156310992728892258
+      warrior-grid-alpha_10: 2829089137327008225
+      warrior-grid-alpha_11: -406992746204082831
+      warrior-grid-alpha_12: -6813384660211062022
+      warrior-grid-alpha_13: 2538890853717685464
+      warrior-grid-alpha_14: 1794794056797526460
+      warrior-grid-alpha_2: -7269310705149635684
+      warrior-grid-alpha_3: -8236813102448512079
+      warrior-grid-alpha_4: 3328022132284027076
+      warrior-grid-alpha_5: 1985597505420775874
+      warrior-grid-alpha_6: 7300214567708863550
+      warrior-grid-alpha_7: -2687801202930876440
+      warrior-grid-alpha_8: -2367080832715021059
+      warrior-grid-alpha_9: -3949254312110397553
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

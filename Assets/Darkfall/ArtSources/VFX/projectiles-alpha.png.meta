@@ -1185,7 +1185,49 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      projectiles-alpha_0: 2331119437688886888
+      projectiles-alpha_1: -7900877624354536435
+      projectiles-alpha_10: 7820785631763770615
+      projectiles-alpha_11: -1882778808524529732
+      projectiles-alpha_12: -8563632811092551179
+      projectiles-alpha_13: -9170569563814183714
+      projectiles-alpha_14: 2236346446098155292
+      projectiles-alpha_15: 6868497781323538616
+      projectiles-alpha_16: -623012965741994358
+      projectiles-alpha_17: -4746516416011088050
+      projectiles-alpha_18: 3053576593666138979
+      projectiles-alpha_19: 8880006136678710547
+      projectiles-alpha_2: -2929676510216711475
+      projectiles-alpha_20: 3177668011430784191
+      projectiles-alpha_21: -4100797373577492694
+      projectiles-alpha_22: 6714214293173344393
+      projectiles-alpha_23: 5176028241112186569
+      projectiles-alpha_24: -5261694675587439445
+      projectiles-alpha_25: 4664972577612779155
+      projectiles-alpha_26: 4394800387879229487
+      projectiles-alpha_27: 1093036429235222903
+      projectiles-alpha_28: -1319580603086982117
+      projectiles-alpha_29: 2985189718924302102
+      projectiles-alpha_3: -6657963367263341642
+      projectiles-alpha_30: 3654719465650915802
+      projectiles-alpha_31: 1299230691809606257
+      projectiles-alpha_32: -3003601425818247061
+      projectiles-alpha_33: 7910170132845188495
+      projectiles-alpha_34: -1731735472986784699
+      projectiles-alpha_35: -5727332695182281323
+      projectiles-alpha_36: -7877358097728417696
+      projectiles-alpha_37: 1438108820819812555
+      projectiles-alpha_38: -638947189816892224
+      projectiles-alpha_39: 596088698941862543
+      projectiles-alpha_4: -4023515389218392744
+      projectiles-alpha_40: 3782964274238574237
+      projectiles-alpha_41: -6219593329354953648
+      projectiles-alpha_5: -2487381714269060890
+      projectiles-alpha_6: -231900673312942839
+      projectiles-alpha_7: 7507571929176044831
+      projectiles-alpha_8: -6713866908259934393
+      projectiles-alpha_9: 8373175250080166491
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
