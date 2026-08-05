@@ -34,6 +34,8 @@ namespace Darkfall.UI
         private Image healthFill;
         private Text healthText;
         private Image heroPortrait;
+        private Image abilityFrame;
+        private Image abilityCooldownFill;
         private Text abilityText;
         private readonly Text[] quickSlotTexts = new Text[3];
         private readonly Image[] quickSlotIcons = new Image[3];
@@ -184,7 +186,9 @@ namespace Darkfall.UI
 
             var statsPanel = Panel("Player HUD", hud.transform, Color.clear);
             DarkFantasyHudSkin.Apply(statsPanel.GetComponent<Image>(), DarkFantasyHudSkin.Player);
-            SetRect(statsPanel.GetComponent<RectTransform>(), new Vector2(0, 0), new Vector2(0, 0), new Vector2(454, 108), new Vector2(239, 62));
+            var statsAnchor = Application.isMobilePlatform ? new Vector2(0, 0) : new Vector2(0, 1);
+            var statsPosition = Application.isMobilePlatform ? new Vector2(239, 62) : new Vector2(239, -62);
+            SetRect(statsPanel.GetComponent<RectTransform>(), statsAnchor, statsAnchor, new Vector2(454, 108), statsPosition);
             var healthTrack = Panel("Health Track", statsPanel.transform, Color.white);
             DarkFantasySkin.Apply(healthTrack.GetComponent<Image>(), DarkFantasySkin.HealthBar);
             SetRect(healthTrack.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(302, 22), new Vector2(55, -15));
@@ -224,7 +228,8 @@ namespace Darkfall.UI
             attack.AddComponent<HoldAttackButton>();
             attack.SetActive(false);
             var ability = AddButton(hud.transform, "НАВЫК\nQ", Vector2.zero, new Vector2(104, 104), () => GameInput.TouchAbilityRequested = true);
-            DarkFantasyHudSkin.Apply(ability.GetComponent<Image>(), DarkFantasyHudSkin.Ability);
+            abilityFrame = ability.GetComponent<Image>();
+            DarkFantasyHudSkin.Apply(abilityFrame, DarkFantasyHudSkin.Ability);
             var abilitySize = Application.isMobilePlatform ? new Vector2(92, 92) : new Vector2(62, 62);
             var abilityPosition = Application.isMobilePlatform ? new Vector2(-82, 78) : Vector2.zero;
             var abilityAnchor = Application.isMobilePlatform ? new Vector2(1, 0) : new Vector2(0, 0);
@@ -232,19 +237,30 @@ namespace Darkfall.UI
             abilityText = ability.GetComponentInChildren<Text>();
             abilityText.fontSize = Application.isMobilePlatform ? 18 : 16;
             abilityText.color = new Color(.89f, .82f, .69f);
+            abilityCooldownFill = Panel("Cooldown Shade", ability.transform, new Color(.008f, .009f, .011f, .82f)).GetComponent<Image>();
+            abilityCooldownFill.type = Image.Type.Filled;
+            abilityCooldownFill.fillMethod = Image.FillMethod.Radial360;
+            abilityCooldownFill.fillOrigin = (int)Image.Origin360.Top;
+            abilityCooldownFill.fillClockwise = true;
+            abilityCooldownFill.raycastTarget = false;
+            SetRect(abilityCooldownFill.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f),
+                Application.isMobilePlatform ? new Vector2(76, 76) : new Vector2(58, 58), Vector2.zero);
+            abilityText.transform.SetAsLastSibling();
 
             var pauseButton = AddButton(hud.transform, "II", Vector2.zero, new Vector2(58, 58), game.TogglePause);
             DarkFantasyHudSkin.Apply(pauseButton.GetComponent<Image>(), DarkFantasyHudSkin.PauseButton);
-            SetRect(pauseButton.GetComponent<RectTransform>(), new Vector2(1, 1), new Vector2(1, 1), new Vector2(42, 42), new Vector2(-226, -28));
+            var pausePosition = Application.isMobilePlatform ? new Vector2(-226, -28) : new Vector2(-83, -251);
+            SetRect(pauseButton.GetComponent<RectTransform>(), new Vector2(1, 1), new Vector2(1, 1), new Vector2(42, 42), pausePosition);
             var inventoryButton = AddButton(hud.transform, "I", Vector2.zero, new Vector2(58, 58), () => InventoryUI.Instance?.Toggle());
             DarkFantasyHudSkin.Apply(inventoryButton.GetComponent<Image>(), DarkFantasyHudSkin.InventoryButton);
-            SetRect(inventoryButton.GetComponent<RectTransform>(), new Vector2(1, 1), new Vector2(1, 1), new Vector2(42, 42), new Vector2(-274, -28));
+            var inventoryPosition = Application.isMobilePlatform ? new Vector2(-274, -28) : new Vector2(-133, -251);
+            SetRect(inventoryButton.GetComponent<RectTransform>(), new Vector2(1, 1), new Vector2(1, 1), new Vector2(42, 42), inventoryPosition);
 
             var quickBar = Panel("Quick Slots", hud.transform, Color.clear);
             DarkFantasyHudSkin.Apply(quickBar.GetComponent<Image>(), DarkFantasyHudSkin.Quickbar);
-            var quickAnchor = Application.isMobilePlatform ? new Vector2(.5f, 0) : new Vector2(0, 0);
-            var quickPosition = Application.isMobilePlatform ? new Vector2(0, 56) : new Vector2(654, 52);
-            var quickSize = Application.isMobilePlatform ? new Vector2(360, 108) : new Vector2(370, 80);
+            var quickAnchor = new Vector2(.5f, 0);
+            var quickPosition = Application.isMobilePlatform ? new Vector2(0, 56) : new Vector2(0, 52);
+            var quickSize = Application.isMobilePlatform ? new Vector2(360, 108) : new Vector2(420, 82);
             SetRect(quickBar.GetComponent<RectTransform>(), quickAnchor, quickAnchor, quickSize, quickPosition);
             for (var i = 0; i < 3; i++)
             {
@@ -256,7 +272,7 @@ namespace Darkfall.UI
                 SetRect(quick.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
                     new Vector2(slotSize, slotSize), Application.isMobilePlatform
                         ? new Vector2(-120 + i * 80, 0)
-                        : new Vector2(-132 + i * 70, 0));
+                        : new Vector2(-137 + i * 70, 0));
                 quickSlotTexts[i] = quick.GetComponentInChildren<Text>();
                 quickSlotTexts[i].fontSize = 16;
                 quickSlotTexts[i].alignment = TextAnchor.LowerCenter;
@@ -272,9 +288,13 @@ namespace Darkfall.UI
             }
             if (!Application.isMobilePlatform)
             {
+                var divider = Panel("Ability Divider", quickBar.transform, new Color(.67f, .48f, .22f, .75f));
+                SetRect(divider.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
+                    new Vector2(2, 54), new Vector2(68, 0));
+                divider.GetComponent<Image>().raycastTarget = false;
                 ability.transform.SetParent(quickBar.transform, false);
                 SetRect(ability.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
-                    new Vector2(62, 62), new Vector2(126, 0));
+                    new Vector2(70, 70), new Vector2(139, 0));
             }
             ability.transform.SetAsLastSibling();
 
@@ -626,10 +646,22 @@ namespace Darkfall.UI
             heroPortrait.sprite = DirectionalSpriteAtlas.HeroPortrait(game.Player.Hero.heroClass);
             healthFill.fillAmount = game.Player.MaxHealth <= 0 ? 0 : game.Player.Health / game.Player.MaxHealth;
             healthText.text = $"{game.Player.Health:0} / {game.Player.MaxHealth:0}";
+            var abilityRemaining = game.Player.AbilityCooldownRemaining;
+            var abilityReady = abilityRemaining <= .05f;
             if (abilityText != null)
-                abilityText.text = game.Player.AbilityCooldownRemaining > 0
-                    ? $"{AbilityName(game.Player.Hero.heroClass)}\n{game.Player.AbilityCooldownRemaining:0.0}"
-                    : $"{AbilityName(game.Player.Hero.heroClass)}\nQ";
+            {
+                abilityText.text = abilityReady
+                    ? $"<color=#F2C36B><b>{AbilityName(game.Player.Hero.heroClass)}</b></color>\nQ"
+                    : $"<color=#B8B1A5>{AbilityName(game.Player.Hero.heroClass)}</color>\n<b>{abilityRemaining:0.0}</b>";
+                abilityText.color = abilityReady ? new Color(1f, .86f, .58f) : new Color(.76f, .74f, .7f);
+            }
+            if (abilityCooldownFill != null)
+            {
+                abilityCooldownFill.gameObject.SetActive(!abilityReady);
+                abilityCooldownFill.fillAmount = Mathf.Clamp01(abilityRemaining / AbilityCooldownDuration(game.Player.Hero.heroClass));
+            }
+            if (abilityFrame != null)
+                abilityFrame.color = abilityReady ? new Color(1f, .88f, .58f, 1f) : new Color(.62f, .62f, .62f, 1f);
             for (var i = 0; i < quickSlotTexts.Length; i++)
             {
                 var baseId = game.Inventory.QuickSlots[i];
@@ -691,6 +723,16 @@ namespace Darkfall.UI
                 case HeroClass.Rogue: return "РЫВОК";
                 case HeroClass.Warrior: return "СТРАЖ";
                 default: return "ВЗРЫВ";
+            }
+        }
+
+        private static float AbilityCooldownDuration(HeroClass heroClass)
+        {
+            switch (heroClass)
+            {
+                case HeroClass.Rogue: return 3f;
+                case HeroClass.Warrior: return 8f;
+                default: return 12f;
             }
         }
 
