@@ -79,6 +79,14 @@ namespace Darkfall.Editor
                 "Inventory interaction: backpack drag swap failed");
 
             var balance = GameBalance.RuntimeDefault();
+            var earlyDungeon = DungeonGenerator.Generate(balance, 1, 4242);
+            var middleDungeon = DungeonGenerator.Generate(balance, 5, 4242);
+            var lateDungeon = DungeonGenerator.Generate(balance, 9, 4242);
+            failures += Require(earlyDungeon.Width < middleDungeon.Width && middleDungeon.Width < lateDungeon.Width,
+                "Progression: regular dungeon dimensions must grow with depth");
+            failures += Require(GameManager.EnemyBudgetForDepth(balance, 1) < GameManager.EnemyBudgetForDepth(balance, 5) &&
+                                GameManager.EnemyBudgetForDepth(balance, 5) < GameManager.EnemyBudgetForDepth(balance, 9),
+                "Progression: regular enemy budget must grow with depth");
             for (var seed = 0; seed < 100; seed++)
             {
                 var dungeon = DungeonGenerator.Generate(balance, 1 + seed % 25, seed);

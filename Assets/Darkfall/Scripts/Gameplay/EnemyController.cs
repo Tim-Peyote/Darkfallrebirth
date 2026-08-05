@@ -58,10 +58,14 @@ namespace Darkfall.Gameplay
             player = target;
             boss = isBoss;
             definition = enemyDefinition;
-            var regularScale = 1f + Mathf.Max(0, depth - 1) * .12f + (depth >= 10 ? (depth - 10) * .05f : 0);
+            var balance = GameManager.Instance?.Balance;
+            var healthPerLevel = balance != null ? balance.enemyHealthPerLevel : .12f;
+            var damagePerLevel = balance != null ? balance.enemyDamagePerLevel : .12f;
+            var healthProgression = 1f + Mathf.Max(0, depth - 1) * healthPerLevel + Mathf.Max(0, depth - 10) * .03f;
+            var damageProgression = 1f + Mathf.Max(0, depth - 1) * damagePerLevel + Mathf.Max(0, depth - 10) * .025f;
             var bossScale = 1f + Mathf.Max(0, depth - 10) * .08f;
-            var healthScale = boss ? bossScale : regularScale;
-            var damageScale = boss ? bossScale : regularScale;
+            var healthScale = boss ? bossScale : healthProgression;
+            var damageScale = boss ? bossScale : damageProgression;
             health = definition.hp * healthScale;
             maxHealth = health;
             damage = definition.damage * damageScale;

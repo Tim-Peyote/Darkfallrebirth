@@ -60,6 +60,15 @@ namespace Darkfall.UI
             foreach (var enemy in EnemyController.Snapshot())
                 if (enemy != null && IsVisible(enemy.transform.position))
                     Set(colors, enemy.transform.position, enemy.IsBoss ? new Color32(235, 42, 35, 255) : new Color32(146, 38, 31, 255));
+            var portal = ExitPortal.Active;
+            if (portal != null)
+            {
+                var portalCell = new Vector2Int(Mathf.FloorToInt(portal.transform.position.x), Mathf.FloorToInt(portal.transform.position.y));
+                if (portal.IsUnlocked || game.Dungeon.IsExplored(portalCell.x, portalCell.y))
+                    SetMarker(colors, portal.transform.position, portal.IsUnlocked
+                        ? new Color32(245, 126, 35, 255)
+                        : new Color32(116, 100, 84, 255));
+            }
             Set(colors, game.Player.transform.position, new Color32(231, 189, 92, 255));
             texture.SetPixels32(colors);
             texture.Apply(false);
@@ -73,6 +82,19 @@ namespace Darkfall.UI
             var x = Mathf.Clamp(Mathf.FloorToInt(position.x), 0, width - 1);
             var y = Mathf.Clamp(Mathf.FloorToInt(position.y), 0, height - 1);
             pixels[y * width + x] = color;
+        }
+
+        private void SetMarker(Color32[] pixels, Vector2 position, Color32 color)
+        {
+            var x = Mathf.Clamp(Mathf.FloorToInt(position.x), 0, width - 1);
+            var y = Mathf.Clamp(Mathf.FloorToInt(position.y), 0, height - 1);
+            for (var offset = -1; offset <= 1; offset++)
+            {
+                var horizontal = Mathf.Clamp(x + offset, 0, width - 1);
+                var vertical = Mathf.Clamp(y + offset, 0, height - 1);
+                pixels[y * width + horizontal] = color;
+                pixels[vertical * width + x] = color;
+            }
         }
 
         private void OnDestroy()

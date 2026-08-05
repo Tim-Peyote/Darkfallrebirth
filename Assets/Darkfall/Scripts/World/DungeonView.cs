@@ -104,11 +104,23 @@ namespace Darkfall.World
                 var first = profile.ClutterProps[hash % profile.ClutterProps.Length];
                 CreateProp(data, first, new Vector2(bounds.xMax - 1.15f, bounds.yMin + 1.1f), .9f,
                     "Room Decor", first == 4, clutterDecor);
+                if (bounds.width >= 9 && bounds.height >= 8 && hash % 4 != 0)
+                {
+                    var secondary = profile.ClutterProps[(hash / 13 + 1) % profile.ClutterProps.Length];
+                    CreateProp(data, secondary, new Vector2(bounds.xMin + 1.1f, bounds.yMin + 1.05f), .68f,
+                        "Secondary Clutter", false, clutterDecor);
+                }
                 if (bounds.width >= 11 && bounds.height >= 10 && roomIndex > 0)
                 {
                     var second = profile.StructuralProps[(hash / 7) % profile.StructuralProps.Length];
                     CreateProp(data, second, new Vector2(bounds.xMax - 1.2f, bounds.yMax - 1.15f), .92f,
                         "Large Room Decor", true, structuralDecor);
+                }
+                if (bounds.width >= 14 && bounds.height >= 12 && roomIndex > 0 && hash % 3 == 0)
+                {
+                    var accent = profile.StructuralProps[(hash / 19 + 1) % profile.StructuralProps.Length];
+                    CreateProp(data, accent, new Vector2(bounds.xMin + 1.2f, bounds.yMax - 1.15f), .72f,
+                        "Wall Accent", false, structuralDecor);
                 }
             }
         }
@@ -116,6 +128,9 @@ namespace Darkfall.World
         private void CreateProp(DungeonData data, int index, Vector2 position, float scale, string objectName, bool blocks,
             Transform group)
         {
+            if (blocks && (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 2f ||
+                           Vector2.Distance(position, data.CellCenter(data.ExitCell)) < 2f))
+                blocks = false;
             var prop = new GameObject(objectName + " " + index);
             prop.transform.SetParent(group, false);
             prop.transform.position = position;

@@ -32,8 +32,18 @@ generation, collision or gameplay.
 - `Resources/Sprites/Environment/Props/prop-0..11.png` are independent prop assets.
 - `Resources/Sprites/Environment/Flames/flame-0..3.png` are independent animation frames.
 - Generated hierarchy is split into `Structural`, `Light Sources` and `Clutter` groups.
+- Medium rooms receive deterministic secondary clutter; very large rooms may receive an additional
+  wall accent. Placement is derived from room coordinates, so the same seed remains visually stable.
 - Blocking props register obstacles and shadow casters; light props register lights independently.
+- Props inside the protected start/exit radius are forced non-blocking so decoration cannot break a run.
 - The original atlases remain only as compatibility fallbacks.
+
+### Exit portal
+
+- A single portal is created at the farthest room when the level is built, initially sealed.
+- Clearing the enemy budget unlocks it; a fallback runtime check also handles non-standard enemy removal.
+- The unlocked portal receives emissive ground glow, stronger native 2D light and a cross-shaped minimap marker.
+- Close interaction uses an explicit `[E]` prompt. The sealed prompt reports the remaining enemy count.
 
 ### Lighting
 
@@ -47,8 +57,8 @@ generation, collision or gameplay.
 ### Runtime status visibility
 
 `PlayerController.GetStatusSnapshots` exposes positive/negative state, label and remaining time.
-The HUD shows two high-priority timed effects and a compact overflow counter. Inventory displays
-final damage, defence, critical chance, range, fire resistance and ice resistance.
+The HUD shows up to four timed effects in a top-centre container and hides the container when empty.
+Inventory displays final health, damage, defence, critical chance, fire resistance and ice resistance.
 
 ## Adding a biome
 

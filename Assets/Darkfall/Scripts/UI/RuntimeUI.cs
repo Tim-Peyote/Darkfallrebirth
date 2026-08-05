@@ -701,10 +701,16 @@ namespace Darkfall.UI
                 statusPanel.GetComponent<RectTransform>().sizeDelta = new Vector2(panelWidth, 50);
                 statusEffects.rectTransform.sizeDelta = new Vector2(panelWidth - 36, 30);
             }
+            var portalDistance = ExitPortal.DistanceToNearest(game.Player);
             var chestDistance = TreasureChest.DistanceToNearest(game.Player);
-            interactionHint.text = chestDistance <= 1.35f
-                ? (EnemyController.FindNearest(game.Player.transform.position, 150f / 32f) == null ? "[E] ОТКРЫТЬ СУНДУК" : "СУНДУК НЕДОСТУПЕН В БОЮ")
-                : "";
+            if (portalDistance <= 1.45f)
+                interactionHint.text = ExitPortal.Active != null && ExitPortal.Active.IsUnlocked
+                    ? "[E] СПУСТИТЬСЯ ГЛУБЖЕ"
+                    : $"ПОРТАЛ ЗАПЕЧАТАН  ·  ВРАГОВ {EnemyController.Count}";
+            else
+                interactionHint.text = chestDistance <= 1.35f
+                    ? (EnemyController.FindNearest(game.Player.transform.position, 150f / 32f) == null ? "[E] ОТКРЫТЬ СУНДУК" : "СУНДУК НЕДОСТУПЕН В БОЮ")
+                    : "";
             interactionPrompt.SetActive(!string.IsNullOrEmpty(interactionHint.text));
         }
 

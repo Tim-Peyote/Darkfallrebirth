@@ -80,7 +80,9 @@ namespace Darkfall.Core
                 else TogglePause();
             }
             if (Player == null || IsPaused) return;
-            if (GameInput.InteractPressed) TreasureChest.InteractNearest(Player);
+            if (EnemyController.Count == 0 && ExitPortal.Active != null && !ExitPortal.Active.IsUnlocked)
+                OpenExitPortal();
+            if (GameInput.InteractPressed && !ExitPortal.InteractNearest(Player)) TreasureChest.InteractNearest(Player);
             var quickSlot = GameInput.QuickSlotPressed;
             if (quickSlot >= 0) Inventory.UseQuickSlot(quickSlot, Player);
         }
@@ -129,6 +131,7 @@ namespace Darkfall.Core
 
         private void BuildLevel()
         {
+            ExitPortal.ResetRegistry();
             if (levelRoot != null) Destroy(levelRoot.gameObject);
             EnemyController.ClearRegistry();
             GameInput.Reset();
@@ -157,20 +160,17 @@ namespace Darkfall.Core
             }
             else
             {
-                var count = 0;
-                for (var roomIndex = 1; roomIndex < Dungeon.Rooms.Count; roomIndex++)
+                var enemyBudget = EnemyBudgetForDepth(Balance, Depth);
+                for (var i = 0; i < enemyBudget; i++)
                 {
-                    var enemiesInRoom = UnityEngine.Random.Range(1, 3) + Mathf.FloorToInt(Depth / 3f);
-                    for (var i = 0; i < enemiesInRoom; i++)
-                    {
-                        SpawnEnemy(PickSpawnCell(count), false);
-                        count++;
-                    }
+                    SpawnEnemy(PickSpawnCell(i), false);
                 }
                 var chestCount = Mathf.Clamp(1 + Depth / 4, 1, 4);
                 for (var i = 0; i < chestCount; i++)
-                    TreasureChest.Spawn(Dungeon.CellCenter(PickSpawnCell(count + i + 3)), Player);
+                    TreasureChest.Spawn(Dungeon.CellCenter(PickSpawnCell(enemyBudget + i + 3)), Player);
             }
+            var portal = ExitPortal.Spawn(Dungeon.CellCenter(Dungeon.ExitCell), Player);
+            if (EnemyController.Count == 0) portal.Unlock();
             NotifyStatsChanged();
         }
 
@@ -186,6 +186,15 @@ namespace Darkfall.Core
                 if (Dungeon.CanOccupy(Dungeon.CellCenter(cell), .22f)) return cell;
             }
             return room.Center;
+        }
+
+        public static int EnemyBudgetForDepth(GameBalance balance, int depth)
+        {
+            if (balance == null) return 0;
+            return Mathf.Clamp(
+                balance.baseEnemyCount + Mathf.FloorToInt(Mathf.Max(0, depth - 1) * 1.5f),
+                balance.baseEnemyCount,
+                80);
         }
 
         private void SpawnEnemy(Vector2Int cell, bool boss)
@@ -231,12 +240,15 @@ namespace Darkfall.Core
             var lootChance = Depth <= 4 ? .15f : Depth <= 10 ? .20f : .25f;
             if (boss || UnityEngine.Random.value < lootChance)
                 Pickup.SpawnItem(position + Vector2.right * .25f, Player, InventorySystem.GenerateLoot(Depth));
-            if (EnemyController.Count <= 1)
-            {
-                ExitPortal.Spawn(Dungeon.CellCenter(Dungeon.ExitCell), Player);
-                OverlayRequested?.Invoke("Путь открыт — войдите в портал");
-            }
+            if (EnemyController.Count <= 1) OpenExitPortal();
             NotifyStatsChanged();
+        }
+
+        private void OpenExitPortal()
+        {
+            if (ExitPortal.Active == null || ExitPortal.Active.IsUnlocked) return;
+            ExitPortal.Active.Unlock();
+            OverlayRequested?.Invoke("Путь открыт — портал отмечен на карте");
         }
 
         public void NextLevel()
