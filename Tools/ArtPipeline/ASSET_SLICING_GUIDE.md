@@ -7,6 +7,10 @@
 - Every exported cell must keep its full transparent gutter. Do not trim a frame independently: trimming changes the pivot and makes animation jitter.
 - If generated art touches a cell edge, apply the same inset to every frame in the whole character set. Current hero safe-area is `16 px`.
 - All frames in one animation set must have identical dimensions, pivot and pixels-per-unit.
+- Heroes use `right` as the canonical horizontal animation. Unity mirrors it for movement to the
+  left with `SpriteRenderer.flipX`; do not create an independently timed left set. A dedicated left
+  set is allowed only when handedness or asymmetric equipment changes gameplay and it has been
+  reviewed frame-for-frame against the right set.
 - Atlas coordinates are measured from the top-left corner. The slicer rejects rectangles outside the source image.
 - Unity imports runtime sprites with mipmaps disabled, bilinear filtering and clamp wrapping. A transparent gutter prevents adjacent-frame bleeding.
 - `DarkfallSpriteImportRules` enforces these settings automatically. Characters use point filtering; inventory art uses bilinear filtering. Both are uncompressed `256×256` textures with mipmaps disabled.
@@ -20,6 +24,8 @@
   `Resources/Sprites/Characters/<hero>/<direction>/<state>.png`.
 - Directional enemies: `1774×887`, `8×4`. Rows are `down`, `left`, `right`, `up`.
   Columns are `idle_1`, `idle_2`, `walk_1`, `walk_2`, `attack_1`, `attack_2`, `attack_3`, `hurt`.
+  Runtime treats `right` as the canonical horizontal row and mirrors it for left. Keep the legacy
+  left row only as an authoring reference; gameplay must not mix independently timed side rows.
 - Mimic: `Resources/Sprites/Directional/enemy-mimic-v1.png` follows the directional enemy grid.
   Keep the complete transparent gutter around every silhouette; `DirectionalSpriteAtlas` slices it at runtime.
 
@@ -45,8 +51,10 @@ swiftc Tools/ArtPipeline/ValidateSprite.swift -o /tmp/darkfall-validate-sprite
 /tmp/darkfall-validate-sprite path/to/frame.png path/to/next-frame.png
 ```
 
-The hero review grid is always `5×3`: columns are `idle`, `walk_1`, `walk_2`, `attack`, `hurt`;
-rows are `down`, `up`, `side`. It is a review/import artifact only. Runtime still consumes individual frames.
+The runtime hero set contains `idle`, `walk_1..4`, `attack_1..3`, and `hurt_1..2` for `down`, `up`,
+and canonical `right`. The four walking images must alternate neutral/contact poses; the current
+generated sets play in `1, 2, 4, 3` order so opposite leg contacts are separated by a neutral pose.
+Runtime still consumes individual `256×256` frames.
 
 Generated hero grids use a uniform `#ff00ff` matte. Convert it before slicing:
 

@@ -168,11 +168,12 @@ namespace Darkfall.Gameplay
             var animationTime = motion == CharacterMotion.Hit ? Time.time - (hitAnimationUntil - .2f) :
                 motion == CharacterMotion.Attack ? Time.time - (attackAnimationUntil - .28f) : Time.time;
             spriteFacingDirection = DirectionalSpriteAtlas.StabilizeFourWay(facingDirection, spriteFacingDirection);
-            var directional = DirectionalSpriteAtlas.Get(directionalSheet, spriteFacingDirection, motion, animationTime);
+            var directional = DirectionalSpriteAtlas.Get(directionalSheet, spriteFacingDirection, motion,
+                animationTime, out var flipX);
             if (directional != null)
             {
                 spriteRenderer.sprite = directional;
-                spriteRenderer.flipX = false;
+                spriteRenderer.flipX = flipX;
                 spriteRenderer.color = boss ? new Color(1f, .72f, .72f) : Color.white;
                 visual.localScale = Vector3.one * (boss ? 1.55f : 1f);
                 visual.localPosition = Vector3.zero;

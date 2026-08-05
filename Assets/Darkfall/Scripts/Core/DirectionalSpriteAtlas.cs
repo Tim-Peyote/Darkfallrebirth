@@ -9,6 +9,9 @@ namespace Darkfall.Core
     {
         private const int Columns = 8;
         private const int Rows = 4;
+        // Generated walk frames are authored as neutral, contact A, contact B, neutral.
+        // Reordering avoids playing both extreme leg poses back-to-back.
+        private static readonly int[] HeroWalkOrder = { 1, 2, 4, 3 };
         private static readonly Dictionary<string, Sprite[]> Cache = new Dictionary<string, Sprite[]>();
         private static readonly Dictionary<string, Sprite> HeroCache = new Dictionary<string, Sprite>();
 
@@ -23,6 +26,14 @@ namespace Darkfall.Core
             flipX = false;
             var sprites = Load(sheet);
             if (sprites == null) return null;
+            // Enemy atlases historically contained independently generated left/right rows.
+            // They are not phase-identical, so use the authored right row as the canonical side
+            // and mirror it. This keeps feet, weapons and hit reactions consistent in both directions.
+            if (Mathf.Abs(facing.x) > Mathf.Abs(facing.y))
+            {
+                flipX = facing.x < 0f;
+                facing = Vector2.right;
+            }
             var row = DirectionRow(facing);
             var column = MotionColumn(sheet, motion, time);
             return sprites[row * Columns + column];
@@ -62,7 +73,12 @@ namespace Darkfall.Core
 
             string direction;
             if (Mathf.Abs(facing.x) > Mathf.Abs(facing.y))
-                direction = facing.x < 0f ? "left" : "right";
+            {
+                // One canonical side keeps gait, weapon and reaction timing identical in both directions.
+                // SpriteRenderer.flipX affects rendering only, so gameplay colliders remain stable.
+                direction = "right";
+                flipX = facing.x < 0f;
+            }
             else direction = facing.y > 0f ? "up" : "down";
 
             var frame = MotionFrame(motion, time);
@@ -99,7 +115,7 @@ namespace Darkfall.Core
         {
             switch (motion)
             {
-                case CharacterMotion.Walk: return $"walk_{Mathf.FloorToInt(time * 9f) % 4 + 1}";
+                case CharacterMotion.Walk: return $"walk_{HeroWalkOrder[Mathf.FloorToInt(time * 8f) % HeroWalkOrder.Length]}";
                 case CharacterMotion.Attack: return $"attack_{Mathf.Clamp(Mathf.FloorToInt(time * 12.5f) + 1, 1, 3)}";
                 case CharacterMotion.Hit: return $"hurt_{Mathf.Clamp(Mathf.FloorToInt(time * 9f) + 1, 1, 2)}";
                 default: return "idle";

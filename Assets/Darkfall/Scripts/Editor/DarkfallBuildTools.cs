@@ -26,13 +26,10 @@ namespace Darkfall.Editor
             failures += ValidateHeroFrames("mage");
             failures += ValidateHeroFrames("warrior");
             failures += ValidateHeroFrames("rogue");
-            failures += Require(Resources.Load<Texture2D>("Sprites/Directional/enemy-melee-v2") != null, "Melee enemy sheet is missing");
-            failures += Require(Resources.Load<Texture2D>("Sprites/Directional/enemy-ranged-v2") != null, "Ranged enemy sheet is missing");
-            failures += Require(Resources.Load<Texture2D>("Sprites/Directional/enemy-caster-v2") != null, "Caster enemy sheet is missing");
-            var mimicSheet = Resources.Load<Texture2D>("Sprites/Directional/enemy-mimic-v1");
-            failures += Require(mimicSheet != null, "Mimic directional sheet is missing");
-            failures += Require(mimicSheet != null && mimicSheet.width == 1774 && mimicSheet.height == 887,
-                "Mimic directional sheet must match the 8x4 enemy grid dimensions");
+            failures += ValidateDirectionalSheet("enemy-melee-v2", "Melee enemy");
+            failures += ValidateDirectionalSheet("enemy-ranged-v2", "Ranged enemy");
+            failures += ValidateDirectionalSheet("enemy-caster-v2", "Caster enemy");
+            failures += ValidateDirectionalSheet("enemy-mimic-v1", "Mimic");
             failures += Require(TreasureChest.MimicChance > 0f && TreasureChest.MimicChance <= .03f,
                 "Mimic encounter chance must remain rare");
             failures += Require(Resources.Load<Texture2D>("Textures/dungeon-floor-v2") != null, "Dungeon floor v2 texture is missing");
@@ -157,8 +154,14 @@ namespace Darkfall.Editor
         private static int ValidateHeroFrames(string hero)
         {
             var failures = 0;
-            var directions = new[] { "down", "up", "side" };
-            var frames = new[] { "idle", "walk_1", "walk_2", "attack", "hurt" };
+            // Horizontal animation has one canonical authored side. Runtime mirrors it with
+            // SpriteRenderer.flipX so the gait and action phases cannot drift between left/right.
+            var directions = new[] { "down", "up", "right" };
+            var frames = new[]
+            {
+                "idle", "walk_1", "walk_2", "walk_3", "walk_4",
+                "attack_1", "attack_2", "attack_3", "hurt_1", "hurt_2"
+            };
             foreach (var direction in directions)
             foreach (var frame in frames)
             {
@@ -166,6 +169,15 @@ namespace Darkfall.Editor
                 failures += Require(Resources.Load<Texture2D>(path) != null,
                     $"Hero frame is missing: {hero}/{direction}/{frame}");
             }
+            return failures;
+        }
+
+        private static int ValidateDirectionalSheet(string resourceName, string displayName)
+        {
+            var sheet = Resources.Load<Texture2D>($"Sprites/Directional/{resourceName}");
+            var failures = Require(sheet != null, $"{displayName} directional sheet is missing");
+            failures += Require(sheet != null && sheet.width == 1774 && sheet.height == 887,
+                $"{displayName} directional sheet must match the 8x4 enemy grid dimensions");
             return failures;
         }
     }
