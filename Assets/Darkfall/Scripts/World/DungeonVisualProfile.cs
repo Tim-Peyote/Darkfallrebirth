@@ -83,8 +83,8 @@ namespace Darkfall.World
                 StructuralProps = structural,
                 LightEveryRooms = lightEvery,
                 DecorDensity = decorDensity,
-                AmbientIntensity = .16f,
-                WallReadability = .38f,
+                AmbientIntensity = .28f,
+                WallReadability = .58f,
                 WallHeight = .9f,
                 ArchitectureDensity = 1f,
                 WallFill = .34f
@@ -92,19 +92,19 @@ namespace Darkfall.World
             switch (id)
             {
                 case "ember-vaults":
-                    profile.AmbientIntensity = .17f; profile.WallReadability = .34f;
+                    profile.AmbientIntensity = .29f; profile.WallReadability = .55f;
                     profile.WallHeight = 1.02f; profile.ArchitectureDensity = 1.2f;
                     profile.WallFill = .3f; break;
                 case "drowned-crypt":
-                    profile.AmbientIntensity = .18f; profile.WallReadability = .4f;
+                    profile.AmbientIntensity = .31f; profile.WallReadability = .61f;
                     profile.WallHeight = .88f; profile.ArchitectureDensity = 1.12f;
                     profile.WallFill = .38f; break;
                 case "charnel-gardens":
-                    profile.AmbientIntensity = .16f; profile.WallReadability = .36f;
+                    profile.AmbientIntensity = .28f; profile.WallReadability = .57f;
                     profile.WallHeight = .82f; profile.ArchitectureDensity = 1.35f;
                     profile.WallFill = .32f; break;
                 case "obsidian-sanctum":
-                    profile.AmbientIntensity = .14f; profile.WallReadability = .44f;
+                    profile.AmbientIntensity = .26f; profile.WallReadability = .64f;
                     profile.WallHeight = 1.08f; profile.ArchitectureDensity = 1.28f;
                     profile.WallFill = .24f; break;
             }

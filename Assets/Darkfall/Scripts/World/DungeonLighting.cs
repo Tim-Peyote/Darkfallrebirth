@@ -36,7 +36,7 @@ namespace Darkfall.World
             ambientObject.transform.SetParent(transform, false);
             var ambient = ambientObject.AddComponent<Light2D>();
             ambient.lightType = Light2D.LightType.Global;
-            ambient.color = Color.Lerp(new Color(.16f, .17f, .19f), profile.WallTint, .28f);
+            ambient.color = Color.Lerp(new Color(.40f, .41f, .44f), profile.WallTint, .22f);
             ambient.intensity = profile.AmbientIntensity;
         }
 

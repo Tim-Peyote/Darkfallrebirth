@@ -7,7 +7,8 @@ namespace Darkfall.World
     {
         public readonly Vector2 From;
         public readonly Vector2 To;
-        public DungeonContourSegment(Vector2 from, Vector2 to) { From = from; To = to; }
+        public readonly int Mask;
+        public DungeonContourSegment(Vector2 from, Vector2 to, int mask) { From = from; To = to; Mask = mask; }
     }
 
     internal sealed class DungeonContour
@@ -44,24 +45,24 @@ namespace Darkfall.World
 
             switch (mask)
             {
-                case 1: AddPolygon(result, p0, b, l); AddSegment(result, l, b); break;
-                case 2: AddPolygon(result, p1, r, b); AddSegment(result, b, r); break;
-                case 3: AddPolygon(result, p0, p1, r, l); AddSegment(result, l, r); break;
-                case 4: AddPolygon(result, p2, t, r); AddSegment(result, r, t); break;
+                case 1: AddPolygon(result, p0, b, l); AddSegment(result, l, b, mask); break;
+                case 2: AddPolygon(result, p1, r, b); AddSegment(result, b, r, mask); break;
+                case 3: AddPolygon(result, p0, p1, r, l); AddSegment(result, l, r, mask); break;
+                case 4: AddPolygon(result, p2, t, r); AddSegment(result, r, t, mask); break;
                 case 5:
                     AddPolygon(result, p0, b, l); AddPolygon(result, p2, t, r);
-                    AddSegment(result, l, b); AddSegment(result, r, t); break;
-                case 6: AddPolygon(result, b, p1, p2, t); AddSegment(result, b, t); break;
-                case 7: AddPolygon(result, p0, p1, p2, t, l); AddSegment(result, l, t); break;
-                case 8: AddPolygon(result, p3, l, t); AddSegment(result, t, l); break;
-                case 9: AddPolygon(result, p0, b, t, p3); AddSegment(result, t, b); break;
+                    AddSegment(result, l, b, mask); AddSegment(result, r, t, mask); break;
+                case 6: AddPolygon(result, b, p1, p2, t); AddSegment(result, b, t, mask); break;
+                case 7: AddPolygon(result, p0, p1, p2, t, l); AddSegment(result, l, t, mask); break;
+                case 8: AddPolygon(result, p3, l, t); AddSegment(result, t, l, mask); break;
+                case 9: AddPolygon(result, p0, b, t, p3); AddSegment(result, t, b, mask); break;
                 case 10:
                     AddPolygon(result, p1, r, b); AddPolygon(result, p3, l, t);
-                    AddSegment(result, b, r); AddSegment(result, t, l); break;
-                case 11: AddPolygon(result, p0, p1, r, t, p3); AddSegment(result, t, r); break;
-                case 12: AddPolygon(result, l, r, p2, p3); AddSegment(result, r, l); break;
-                case 13: AddPolygon(result, p0, b, r, p2, p3); AddSegment(result, r, b); break;
-                case 14: AddPolygon(result, b, p1, p2, p3, l); AddSegment(result, b, l); break;
+                    AddSegment(result, b, r, mask); AddSegment(result, t, l, mask); break;
+                case 11: AddPolygon(result, p0, p1, r, t, p3); AddSegment(result, t, r, mask); break;
+                case 12: AddPolygon(result, l, r, p2, p3); AddSegment(result, r, l, mask); break;
+                case 13: AddPolygon(result, p0, b, r, p2, p3); AddSegment(result, r, b, mask); break;
+                case 14: AddPolygon(result, b, p1, p2, p3, l); AddSegment(result, b, l, mask); break;
                 case 15: AddPolygon(result, p0, p1, p2, p3); break;
             }
         }
@@ -69,7 +70,7 @@ namespace Darkfall.World
         private static void AddPolygon(DungeonContour result, params Vector2[] points) =>
             result.FloorPolygons.Add(points);
 
-        private static void AddSegment(DungeonContour result, Vector2 from, Vector2 to) =>
-            result.Segments.Add(new DungeonContourSegment(from, to));
+        private static void AddSegment(DungeonContour result, Vector2 from, Vector2 to, int mask) =>
+            result.Segments.Add(new DungeonContourSegment(from, to, mask));
     }
 }

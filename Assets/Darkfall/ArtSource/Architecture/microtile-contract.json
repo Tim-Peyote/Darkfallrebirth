@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "fallbackBetweenBiomes": false,
+  "geometry": {
+    "microframePixels": [32, 32],
+    "subtilePixels": [64, 160],
+    "microframesPerSubtile": 10,
+    "subtilesPerTile": 4,
+    "tilePixels": [128, 192],
+    "specialFramePixels": [64, 160],
+    "specialFrames": 8
+  },
+  "requiredProducts": [
+    "cel-microframes",
+    "min-subtile-recipes",
+    "til-four-subtile-recipes",
+    "sol-gameplay-flags",
+    "tmi-render-pass-flags",
+    "special-overlays"
+  ],
+  "biomes": {
+    "ashen-catacombs": { "status": "runtime-modular-sprites" },
+    "ember-vaults": { "status": "runtime-modular-sprites" },
+    "drowned-crypt": { "status": "runtime-modular-sprites" },
+    "charnel-gardens": { "status": "runtime-modular-sprites" },
+    "obsidian-sanctum": { "status": "runtime-modular-sprites" }
+  },
+  "acceptance": "The current renderer uses the five complete modular sprite kits with a shared pivot and topology rules. CEL/MIN/TIL/SOL/TMI remain the reference contract for any future binary-compatible Diablo asset pipeline."
+}

@@ -9,14 +9,13 @@ func fail(_ message: String) -> Never {
 }
 
 guard CommandLine.arguments.count == 3 else {
-    fail("usage: swift KeepMainSprite.swift <input-256.png> <output.png>")
+    fail("usage: swift KeepMainSprite.swift <input.png> <output.png>")
 }
 
 let input = CommandLine.arguments[1]
 let output = CommandLine.arguments[2]
 guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: input) as CFURL, nil),
-      let image = CGImageSourceCreateImageAtIndex(source, 0, nil),
-      image.width == 256, image.height == 256 else { fail("input must be a 256x256 PNG") }
+      let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { fail("input must be a PNG") }
 
 let width = image.width
 let height = image.height

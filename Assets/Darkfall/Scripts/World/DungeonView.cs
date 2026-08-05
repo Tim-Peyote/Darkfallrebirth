@@ -10,6 +10,7 @@ namespace Darkfall.World
         private readonly List<Mesh> meshes = new List<Mesh>();
         private readonly List<Material> materials = new List<Material>();
         private DungeonVisualProfile profile;
+        private Transform architectureDecor;
         private Transform structuralDecor;
         private Transform lightDecor;
         private Transform clutterDecor;
@@ -20,6 +21,7 @@ namespace Darkfall.World
             profile = DungeonVisualProfile.ForDepth(depth);
             gameObject.name = "Dungeon · " + profile.Id;
             var contour = DungeonContour.Build(data);
+            architectureDecor = CreateGroup(transform, "Architecture · " + profile.Id);
             BuildContourFloor(contour);
             BuildContourWalls(contour, data.Width + data.Height);
             BuildContourShadows(contour);
@@ -29,7 +31,6 @@ namespace Darkfall.World
             lightDecor = CreateGroup(decorRoot, "Light Sources");
             clutterDecor = CreateGroup(decorRoot, "Clutter");
             BuildDecor(data);
-            BuildArchitecturalAccents(data);
         }
 
         private void BuildContourFloor(DungeonContour contour)
@@ -67,6 +68,7 @@ namespace Darkfall.World
 
         private void BuildContourWalls(DungeonContour contour, int maximumDepth)
         {
+            var hasArchitecture = ArchitectureSpriteLibrary.HasBiome(profile.Id);
             var wallTexture = Resources.Load<Texture2D>(profile.WallTexture);
             if (wallTexture != null)
             {
@@ -88,6 +90,14 @@ namespace Darkfall.World
             var shadowMaterial = new Material(DarkfallRenderMaterials.SpriteLit) { color = Color.white };
             materials.Add(shadowMaterial);
             CreateLayer(shadowMesh.name, shadowMesh, shadowMaterial, -5);
+
+            // The continuous mesh is only a legacy fallback. Drawing it below a complete authored
+            // kit reintroduces the bright polygonal rails the modular architecture replaces.
+            if (hasArchitecture)
+            {
+                BuildArchitectureModules(contour);
+                return;
+            }
 
             for (var depth = -2; depth <= maximumDepth + 2; depth++)
             {
@@ -121,7 +131,113 @@ namespace Darkfall.World
                 CreateLayer("Wall Texture Fill · " + depth, mesh, fillMaterial,
                     1041 + depth * IsoWorld.DepthPrecision);
             }
+
         }
+
+        private void BuildArchitectureModules(DungeonContour contour)
+        {
+            var cornerAnchors = new List<Vector2>();
+            // Lay the repeatable runs first. Corner pieces are overlays and belong only at turns.
+            for (var i = 0; i < contour.Segments.Count; i++)
+            {
+                var segment = contour.Segments[i];
+                var straight = IsStraightWall(segment.Mask);
+                if (!straight) continue;
+                var anchor = (segment.From + segment.To) * .5f;
+                var flip = Mathf.Abs(segment.To.y - segment.From.y) > Mathf.Abs(segment.To.x - segment.From.x);
+                CreateArchitectureModule(StraightWallRole(segment, i), anchor, flip, .92f, i);
+            }
+
+            for (var i = 0; i < contour.Segments.Count; i++)
+            {
+                var segment = contour.Segments[i];
+                if (IsStraightWall(segment.Mask)) continue;
+                var anchor = CornerAnchor(segment);
+                var projected = IsoWorld.Project(anchor);
+                var tooClose = false;
+                for (var previous = 0; previous < cornerAnchors.Count; previous++)
+                    if (Vector2.Distance(projected, IsoWorld.Project(cornerAnchors[previous])) < .9f)
+                    {
+                        tooClose = true;
+                        break;
+                    }
+                if (tooClose) continue;
+                cornerAnchors.Add(anchor);
+                CreateArchitectureModule(CornerRole(segment.Mask), anchor, FlipCorner(segment.Mask), 1f, i);
+            }
+        }
+
+        private string StraightWallRole(DungeonContourSegment segment, int index)
+        {
+            var midpoint = (segment.From + segment.To) * .5f;
+            var hash = (Mathf.RoundToInt(midpoint.x * 97f) * 73856093 ^
+                        Mathf.RoundToInt(midpoint.y * 97f) * 19349663 ^
+                        profile.Chapter * 83492791 ^ index * 31) & int.MaxValue;
+            var variety = Mathf.Clamp(Mathf.RoundToInt(profile.ArchitectureDensity * 10f), 8, 15);
+            if (hash % Mathf.Max(17, 34 - variety) == 0) return "arcade";
+            if (hash % Mathf.Max(13, 29 - variety) == 0) return "wall-broken";
+            if (hash % Mathf.Max(11, 25 - variety) == 0) return "wall-niche";
+            return Mathf.Abs(segment.To.y - segment.From.y) > Mathf.Abs(segment.To.x - segment.From.x)
+                ? "wall-right"
+                : "wall-left";
+        }
+
+        private void CreateArchitectureModule(string role, Vector2 anchor, bool flipX, float scale, int index)
+        {
+            var sprite = ArchitectureSpriteLibrary.Module(profile.Id, role);
+            if (sprite == null) return;
+
+            var owner = new GameObject($"{role} · {index}");
+            owner.transform.SetParent(architectureDecor, false);
+            owner.transform.position = anchor;
+
+            var visual = new GameObject("Projected Architecture");
+            visual.transform.SetParent(owner.transform, false);
+            visual.transform.localScale = Vector3.one * scale;
+
+            // Authored sprites already contain their own material shading. A restrained unlit pass
+            // keeps carved detail legible in the global darkness; the lit pass still receives local
+            // torches and player light.
+            var readability = visual.AddComponent<SpriteRenderer>();
+            readability.sprite = sprite;
+            readability.flipX = flipX;
+            readability.color = new Color(.72f, .72f, .72f, .30f);
+            readability.sortingOrder = 0;
+            DarkfallRenderMaterials.MakeEmissive(readability);
+
+            var litObject = new GameObject("Local Light Pass");
+            litObject.transform.SetParent(visual.transform, false);
+            var lit = litObject.AddComponent<SpriteRenderer>();
+            lit.sprite = sprite;
+            lit.flipX = flipX;
+            lit.color = Color.white;
+            lit.sortingOrder = 1;
+            DarkfallRenderMaterials.MakeLit(lit);
+
+            visual.AddComponent<IsoVisual>().Initialize(owner.transform, 0f, 1040);
+        }
+
+        private static bool IsStraightWall(int mask) => mask == 3 || mask == 6 || mask == 9 || mask == 12;
+
+        private static string CornerRole(int mask)
+        {
+            var bits = 0;
+            for (var value = mask; value != 0; value >>= 1) bits += value & 1;
+            return bits >= 3 ? "corner-inner" : "corner-outer";
+        }
+
+        private static bool FlipCorner(int mask) =>
+            mask == 2 || mask == 4 || mask == 10 || mask == 11 || mask == 13;
+
+        private static Vector2 CornerAnchor(DungeonContourSegment segment)
+        {
+            var first = new Vector2(segment.From.x, segment.To.y);
+            var second = new Vector2(segment.To.x, segment.From.y);
+            return IntegerDistance(first) <= IntegerDistance(second) ? first : second;
+        }
+
+        private static float IntegerDistance(Vector2 point) =>
+            Mathf.Abs(point.x - Mathf.Round(point.x)) + Mathf.Abs(point.y - Mathf.Round(point.y));
 
         private Material CreateTexturedMaterial(string path)
         {
@@ -135,49 +251,6 @@ namespace Darkfall.World
             }
             materials.Add(material);
             return material;
-        }
-
-        private void BuildArchitecturalAccents(DungeonData data)
-        {
-            for (var roomIndex = 0; roomIndex < data.Rooms.Count; roomIndex++)
-            {
-                var bounds = data.Rooms[roomIndex].bounds;
-                var anchors = new List<Vector2>();
-                for (var x = bounds.xMin + 1; x < bounds.xMax - 1; x++)
-                for (var y = bounds.yMin + 1; y < bounds.yMax - 1; y++)
-                {
-                    if (!data.IsFloor(x, y)) continue;
-                    var walls = 0;
-                    if (!data.IsFloor(x - 1, y)) walls++;
-                    if (!data.IsFloor(x + 1, y)) walls++;
-                    if (!data.IsFloor(x, y - 1)) walls++;
-                    if (!data.IsFloor(x, y + 1)) walls++;
-                    if (walls == 0) continue;
-                    var point = new Vector2(x + .5f, y + .5f);
-                    if (Vector2.Distance(point, data.CellCenter(data.StartCell)) < 2.2f ||
-                        Vector2.Distance(point, data.CellCenter(data.ExitCell)) < 2.2f) continue;
-                    anchors.Add(point);
-                }
-                if (anchors.Count == 0) continue;
-                var hash = ((bounds.x * 92837111) ^ (bounds.y * 689287499) ^ (roomIndex * 283923481)) & int.MaxValue;
-                var baseCount = bounds.width * bounds.height >= 90 ? 3f : 2f;
-                var count = Mathf.Clamp(Mathf.RoundToInt(baseCount * profile.ArchitectureDensity), 2, 5);
-                for (var i = 0; i < count && anchors.Count > 0; i++)
-                {
-                    var anchorIndex = (hash + i * 17) % anchors.Count;
-                    var propIndex = profile.StructuralProps[(hash / (i + 3) + i) % profile.StructuralProps.Length];
-                    CreateProp(data, propIndex, anchors[anchorIndex], i == 0 ? 1.18f : .92f,
-                        "Wall Architecture", false, structuralDecor);
-                    anchors.RemoveAt(anchorIndex);
-                }
-                if (bounds.width * bounds.height >= 125)
-                {
-                    var centerpiece = profile.StructuralProps[(hash / 29 + roomIndex) % profile.StructuralProps.Length];
-                    var center = data.CellCenter(data.Rooms[roomIndex].Center);
-                    CreateProp(data, centerpiece, center + new Vector2(.65f, -.35f), 1.38f,
-                        "Room Landmark", false, structuralDecor);
-                }
-            }
         }
 
         private void AddContactShadow(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
@@ -215,21 +288,43 @@ namespace Darkfall.World
         private void AddWallFace(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
             Vector2 from, Vector2 to, Color color)
         {
-            var index = v.Count;
             var baseFrom = IsoWorld.Project(from);
             var baseTo = IsoWorld.Project(to);
-            var topFrom = baseFrom + Vector2.up * profile.WallHeight;
-            var topTo = baseTo + Vector2.up * profile.WallHeight;
-            v.Add(new Vector3(baseFrom.x, baseFrom.y, 0));
-            v.Add(new Vector3(baseTo.x, baseTo.y, 0));
-            v.Add(new Vector3(topTo.x, topTo.y, 0));
-            v.Add(new Vector3(topFrom.x, topFrom.y, 0));
+            var height = profile.WallHeight;
+            var plinth = height * .18f;
+            var frieze = height * .78f;
+            AddWallBand(v, t, c, uv, baseFrom, baseTo, 0f, plinth, color * .68f, from, to, 0f, .16f);
+            AddWallBand(v, t, c, uv, baseFrom, baseTo, plinth, frieze, color, from, to, .16f, .72f);
+            AddWallBand(v, t, c, uv, baseFrom, baseTo, frieze, height, color * 1.12f, from, to, .72f, .92f);
+
+            var topFrom = baseFrom + Vector2.up * height;
+            var topTo = baseTo + Vector2.up * height;
+            var projected = topTo - topFrom;
+            var crownOffset = Vector2.Perpendicular(projected.normalized) * .105f;
+            if (crownOffset.y < 0f) crownOffset = -crownOffset;
+            AddScreenQuad(v, t, c, uv, topFrom, topTo, topTo + crownOffset, topFrom + crownOffset,
+                color * .92f, from, to);
+        }
+
+        private static void AddWallBand(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
+            Vector2 baseFrom, Vector2 baseTo, float bottom, float top, Color color,
+            Vector2 logicalFrom, Vector2 logicalTo, float uvBottom, float uvTop)
+        {
+            var index = v.Count;
+            var lowerFrom = baseFrom + Vector2.up * bottom;
+            var lowerTo = baseTo + Vector2.up * bottom;
+            var upperFrom = baseFrom + Vector2.up * top;
+            var upperTo = baseTo + Vector2.up * top;
+            v.Add(lowerFrom);
+            v.Add(lowerTo);
+            v.Add(upperTo);
+            v.Add(upperFrom);
             t.Add(index); t.Add(index + 2); t.Add(index + 1);
             t.Add(index); t.Add(index + 3); t.Add(index + 2);
             c.Add(color); c.Add(color); c.Add(color); c.Add(color);
-            var length = Vector2.Distance(from, to);
-            uv.Add(new Vector2(0, 0)); uv.Add(new Vector2(length * .16f, 0));
-            uv.Add(new Vector2(length * .2f, .62f)); uv.Add(new Vector2(0, .62f));
+            var length = Vector2.Distance(logicalFrom, logicalTo) * .22f;
+            uv.Add(new Vector2(0, uvBottom)); uv.Add(new Vector2(length, uvBottom));
+            uv.Add(new Vector2(length, uvTop)); uv.Add(new Vector2(0, uvTop));
         }
 
 

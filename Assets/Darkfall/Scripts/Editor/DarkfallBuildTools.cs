@@ -69,6 +69,20 @@ namespace Darkfall.Editor
             foreach (var biome in biomeAssets)
                 failures += Require(Resources.Load<Texture2D>($"Sprites/Environment/Biomes/{biome}-decor") != null,
                     $"Biome decor atlas is missing: {biome}");
+            var architectureBiomes = new[]
+            {
+                "ashen-catacombs", "ember-vaults", "drowned-crypt", "charnel-gardens", "obsidian-sanctum"
+            };
+            var architectureModules = new[]
+            {
+                "wall-left", "wall-right", "corner-outer", "corner-inner", "arch-open", "door-closed",
+                "wall-broken", "wall-niche", "column", "arcade", "stairs", "landmark"
+            };
+            foreach (var biome in architectureBiomes)
+            foreach (var module in architectureModules)
+                failures += Require(Resources.Load<Texture2D>(
+                        $"Sprites/Environment/Architecture/{biome}/{module}-01") != null,
+                    $"Architecture module is missing: {biome}/{module}");
             var biomeEnemySheets = new[]
             {
                 "enemy-ash-warden-v1", "enemy-ember-revenant-v1", "enemy-drowned-sentinel-v1",

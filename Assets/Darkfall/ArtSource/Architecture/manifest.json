@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "runtimeRoot": "Assets/Darkfall/Resources/Sprites/Environment/Architecture",
+  "sourceRoot": "Assets/Darkfall/ArtSource/Architecture",
+  "biomes": [
+    "ashen-catacombs",
+    "ember-vaults",
+    "drowned-crypt",
+    "charnel-gardens",
+    "obsidian-sanctum"
+  ],
+  "modules": [
+    "wall-left",
+    "wall-right",
+    "corner-outer",
+    "corner-inner",
+    "arch-open",
+    "door-closed",
+    "wall-broken",
+    "wall-niche",
+    "column",
+    "arcade",
+    "stairs",
+    "landmark"
+  ],
+  "filePattern": "{biome}/{module}-{variant:00}.png",
+  "pivot": [0.5, 0.08],
+  "pixelsPerUnit": 230,
+  "status": "runtime-modular-sprites",
+  "notes": "Each module is loaded independently. Straight wall roles follow contour direction; inner and outer corners are selected from contour topology; accent modules only replace compatible straight sections. Source files remain split for direct replacement."
+}

@@ -10,7 +10,7 @@ namespace Darkfall.Editor
     [InitializeOnLoad]
     public static class DarkfallUIVisualAudit
     {
-        // Sentinel-driven runtime audit used after UI and world-visual changes.
+        // A file sentinel keeps runtime visual verification reproducible without editor UI automation.
         private const string Request = "/tmp/darkfall-ui-visual-audit.request";
         private const string TitleOutput = "/tmp/darkfall-title-runtime.png";
         private const string HeroOutput = "/tmp/darkfall-heroes-runtime.png";
