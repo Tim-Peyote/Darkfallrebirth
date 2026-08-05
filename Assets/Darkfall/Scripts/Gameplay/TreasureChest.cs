@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Darkfall.Core;
+using Darkfall.World;
 using UnityEngine;
 
 namespace Darkfall.Gameplay
@@ -20,12 +21,15 @@ namespace Darkfall.Gameplay
             chestObject.transform.position = position;
             var chest = chestObject.AddComponent<TreasureChest>();
             chest.player = target;
-            chest.spriteRenderer = chestObject.AddComponent<SpriteRenderer>();
+            var visual = new GameObject("Chest Visual");
+            visual.transform.SetParent(chestObject.transform, false);
+            chest.spriteRenderer = visual.AddComponent<SpriteRenderer>();
             chest.spriteRenderer.sprite = GameSpriteAtlas.Chest(false);
             chest.spriteRenderer.color = Color.white;
             chest.spriteRenderer.sortingOrder = 11;
             DarkfallRenderMaterials.MakeLit(chest.spriteRenderer);
-            chestObject.transform.localScale = Vector3.one * 1.35f;
+            visual.transform.localScale = Vector3.one * 1.35f;
+            visual.AddComponent<IsoVisual>().Initialize(chestObject.transform, 0f, 1000);
             var roll = Random.value;
             var maxItems = roll < .10f ? 0 : roll < .40f ? 1 : roll < .65f ? 2 :
                 roll < .80f ? 3 : roll < .90f ? 4 : roll < .95f ? 5 : Random.Range(6, 10);

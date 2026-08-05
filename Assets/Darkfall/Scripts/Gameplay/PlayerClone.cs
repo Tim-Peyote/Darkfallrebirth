@@ -1,4 +1,5 @@
 using Darkfall.Core;
+using Darkfall.World;
 using UnityEngine;
 
 namespace Darkfall.Gameplay
@@ -16,12 +17,15 @@ namespace Darkfall.Gameplay
             var clone = cloneObject.AddComponent<PlayerClone>();
             clone.owner = player;
             clone.expiresAt = Time.time + duration;
-            var renderer = cloneObject.AddComponent<SpriteRenderer>();
+            var visual = new GameObject("Clone Visual");
+            visual.transform.SetParent(cloneObject.transform, false);
+            var renderer = visual.AddComponent<SpriteRenderer>();
             renderer.sprite = DirectionalSpriteAtlas.HeroPortrait(player.Hero.heroClass);
             renderer.color = new Color(.4f, .8f, 1f, .65f);
             renderer.sortingOrder = 19;
             DarkfallRenderMaterials.MakeLit(renderer);
-            cloneObject.transform.localScale = Vector3.one * 1.2f;
+            visual.transform.localScale = Vector3.one * 1.2f;
+            visual.AddComponent<IsoVisual>().Initialize(cloneObject.transform, 0f, 1000);
         }
 
         private void Update()

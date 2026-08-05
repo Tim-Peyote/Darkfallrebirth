@@ -27,8 +27,8 @@ namespace Darkfall.World
                 if (OverlapsAny(candidate, rooms)) continue;
 
                 var room = new DungeonRoom { bounds = candidate };
-                CarveRoom(floor, candidate);
-                if (rooms.Count > 0) CarveConnection(floor, rooms[rooms.Count - 1].Center, room.Center, random.Next(0, 2) == 0);
+                CarveRoom(floor, candidate, random);
+                if (rooms.Count > 0) CarveConnection(floor, rooms[rooms.Count - 1].Center, room.Center, random);
                 rooms.Add(room);
             }
 
@@ -40,9 +40,9 @@ namespace Darkfall.World
                 var second = new DungeonRoom { bounds = new RectInt(size - 12, size - 12, 8, 8) };
                 rooms.Add(first);
                 rooms.Add(second);
-                CarveRoom(floor, first.bounds);
-                CarveRoom(floor, second.bounds);
-                CarveConnection(floor, first.Center, second.Center, true);
+                CarveRoom(floor, first.bounds, random);
+                CarveRoom(floor, second.bounds, random);
+                CarveConnection(floor, first.Center, second.Center, random);
             }
 
             MakeFarthestRoomLast(rooms);
@@ -52,7 +52,7 @@ namespace Darkfall.World
                 var first = random.Next(0, rooms.Count);
                 var second = random.Next(0, rooms.Count);
                 if (first == second) continue;
-                CarveConnection(floor, rooms[first].Center, rooms[second].Center, random.Next(0, 2) == 0);
+                CarveConnection(floor, rooms[first].Center, rooms[second].Center, random);
             }
 
             return new DungeonData(floor, rooms);
@@ -64,7 +64,15 @@ namespace Darkfall.World
             var floor = new bool[size, size];
             for (var x = 4; x < 26; x++)
             for (var y = 4; y < 26; y++)
+            {
+                var left = x - 4;
+                var right = 25 - x;
+                var bottom = y - 4;
+                var top = 25 - y;
+                // Boss rooms are monumental octagons rather than the largest rectangle in a run.
+                if (left + bottom < 5 || right + bottom < 5 || left + top < 5 || right + top < 5) continue;
                 floor[x, y] = true;
+            }
             var pillars = new[] { new Vector2Int(10, 10), new Vector2Int(19, 10), new Vector2Int(10, 19), new Vector2Int(19, 19) };
             foreach (var pillar in pillars)
                 for (var x = pillar.x; x < pillar.x + 2; x++)
@@ -101,45 +109,84 @@ namespace Darkfall.World
             return false;
         }
 
-        private static void CarveRoom(bool[,] floor, RectInt room)
+        private static void CarveRoom(bool[,] floor, RectInt room, System.Random random)
         {
+            // Cathedral-like chambers are still grid-authored for reliable gameplay, but their
+            // silhouette is composed rather than exposed as a rectangle. Chamfers, shallow bays
+            // and asymmetric recesses give the renderer useful architectural corners without
+            // creating tiny collision traps.
+            var chamfer = Mathf.Clamp(Mathf.Min(room.width, room.height) / 4, 1, 3);
+            var cutTopLeft = random.Next(1, chamfer + 1);
+            var cutTopRight = random.Next(1, chamfer + 1);
+            var cutBottomLeft = random.Next(1, chamfer + 1);
+            var cutBottomRight = random.Next(1, chamfer + 1);
             for (var x = room.xMin; x < room.xMax; x++)
             for (var y = room.yMin; y < room.yMax; y++)
+            {
+                var left = x - room.xMin;
+                var right = room.xMax - 1 - x;
+                var bottom = y - room.yMin;
+                var top = room.yMax - 1 - y;
+                if (left + top < cutTopLeft || right + top < cutTopRight ||
+                    left + bottom < cutBottomLeft || right + bottom < cutBottomRight) continue;
                 floor[x, y] = true;
+            }
+
+            // Shallow recesses break the four-wall rectangle into readable bays and niches.
+            if (room.width >= 9 && room.height >= 8)
+            {
+                var recessWidth = Mathf.Clamp(room.width / 4, 2, 4);
+                var recessDepth = random.Next(1, Mathf.Min(3, room.height / 3));
+                var recessX = random.Next(room.xMin + 1, room.xMax - recessWidth - 1);
+                var fromTop = random.Next(0, 2) == 0;
+                var recessY = fromTop ? room.yMax - recessDepth : room.yMin;
+                for (var x = recessX; x < recessX + recessWidth; x++)
+                for (var y = recessY; y < recessY + recessDepth; y++) floor[x, y] = false;
+
+                if (room.width >= 12 && random.Next(0, 3) != 0)
+                {
+                    var sideHeight = Mathf.Clamp(room.height / 3, 3, 5);
+                    var sideY = random.Next(room.yMin + 1, room.yMax - sideHeight - 1);
+                    var fromRight = random.Next(0, 2) == 0;
+                    var sideX = fromRight ? room.xMax - 1 : room.xMin;
+                    for (var y = sideY; y < sideY + sideHeight; y++) floor[sideX, y] = false;
+                }
+            }
         }
 
-        private static void CarveConnection(bool[,] floor, Vector2Int from, Vector2Int to, bool horizontalFirst)
+        private static void CarveConnection(bool[,] floor, Vector2Int from, Vector2Int to, System.Random random)
         {
-            if (horizontalFirst)
+            // A widened Bresenham passage avoids the repeated right-angle elbows of the previous
+            // generator. Small landings at both ends make entrances read as authored thresholds.
+            var width = random.Next(0, 4) == 0 ? 3 : 2;
+            var x = from.x;
+            var y = from.y;
+            var dx = Mathf.Abs(to.x - from.x);
+            var dy = Mathf.Abs(to.y - from.y);
+            var sx = from.x < to.x ? 1 : -1;
+            var sy = from.y < to.y ? 1 : -1;
+            var error = dx - dy;
+            while (true)
             {
-                CarveHorizontal(floor, from.x, to.x, from.y);
-                CarveVertical(floor, from.y, to.y, to.x);
+                CarveDisc(floor, x, y, width);
+                if (x == to.x && y == to.y) break;
+                var twice = error * 2;
+                if (twice > -dy) { error -= dy; x += sx; }
+                if (twice < dx) { error += dx; y += sy; }
             }
-            else
-            {
-                CarveVertical(floor, from.y, to.y, from.x);
-                CarveHorizontal(floor, from.x, to.x, to.y);
-            }
+            CarveDisc(floor, from.x, from.y, width + 1);
+            CarveDisc(floor, to.x, to.y, width + 1);
         }
 
-        private static void CarveHorizontal(bool[,] floor, int from, int to, int y)
+        private static void CarveDisc(bool[,] floor, int centerX, int centerY, int width)
         {
-            // Two-cell corridors keep the rendered opening and the actor's collision envelope
-            // visually aligned. One-cell corridors were technically passable at their centre,
-            // but read as wall trim and snagged the player at every L-shaped connection.
-            for (var x = Mathf.Min(from, to); x <= Mathf.Max(from, to); x++)
+            var negative = (width - 1) / 2;
+            var positive = width / 2;
+            for (var x = centerX - negative; x <= centerX + positive; x++)
+            for (var y = centerY - negative; y <= centerY + positive; y++)
             {
-                floor[x, y] = true;
-                if (y + 1 < floor.GetLength(1)) floor[x, y + 1] = true;
-            }
-        }
-
-        private static void CarveVertical(bool[,] floor, int from, int to, int x)
-        {
-            for (var y = Mathf.Min(from, to); y <= Mathf.Max(from, to); y++)
-            {
-                floor[x, y] = true;
-                if (x + 1 < floor.GetLength(0)) floor[x + 1, y] = true;
+                if (x > 0 && y > 0 && x < floor.GetLength(0) - 1 && y < floor.GetLength(1) - 1)
+                    floor[x, y] = true;
             }
         }
     }

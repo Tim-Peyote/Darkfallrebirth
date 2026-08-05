@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Darkfall.Core;
+using Darkfall.World;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -21,9 +22,14 @@ namespace Darkfall.Gameplay
                 : ProjectileVisualStyle.Arcane;
             var visual = new GameObject("Animated Projectile Visual");
             visual.transform.SetParent(root.transform, false);
+            visual.AddComponent<IsoVisual>().Initialize(root.transform, .18f, 1040);
             visual.transform.localScale = Vector3.one * (style == ProjectileVisualStyle.Arcane ? .58f : .68f);
             if (style != ProjectileVisualStyle.Arcane)
-                visual.transform.localRotation = Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+            {
+                var projectedDirection = IsoWorld.ProjectDirection(direction).normalized;
+                visual.transform.localRotation = Quaternion.Euler(0, 0,
+                    Mathf.Atan2(projectedDirection.y, projectedDirection.x) * Mathf.Rad2Deg);
+            }
             var renderer = visual.AddComponent<SpriteRenderer>();
             renderer.sortingOrder = sortingOrder;
             renderer.color = Color.white;
@@ -33,7 +39,7 @@ namespace Darkfall.Gameplay
             visual.AddComponent<SheetAnimation>().Initialize(renderer, frames, 14f, true, false,
                 style == ProjectileVisualStyle.Arcane);
 
-            var trail = root.AddComponent<TrailRenderer>();
+            var trail = visual.AddComponent<TrailRenderer>();
             trail.time = .16f;
             trail.startWidth = style == ProjectileVisualStyle.Arcane ? .13f : .105f;
             trail.endWidth = 0f;
@@ -45,7 +51,7 @@ namespace Darkfall.Gameplay
             trail.endColor = new Color(tint.r, tint.g, tint.b, 0f);
             trail.sortingOrder = sortingOrder - 1;
 
-            var light = root.AddComponent<Light2D>();
+            var light = visual.AddComponent<Light2D>();
             light.lightType = Light2D.LightType.Point;
             light.color = tint;
             light.intensity = hostile ? .72f : .95f;
@@ -60,10 +66,10 @@ namespace Darkfall.Gameplay
         public static void SpawnImpact(Vector2 position, ProjectileVisualStyle style, Color tint, float scale = 1f)
         {
             var root = new GameObject(style + " Impact");
-            root.transform.position = position;
+            root.transform.position = IsoWorld.Project(position, .12f);
             root.transform.localScale = Vector3.one * scale;
             var renderer = root.AddComponent<SpriteRenderer>();
-            renderer.sortingOrder = 34;
+            renderer.sortingOrder = IsoWorld.SortingOrder(position, 1040);
             DarkfallRenderMaterials.MakeEmissive(renderer);
             var frames = LoadFrames("Impacts", style);
             renderer.sprite = frames[0];
@@ -81,7 +87,7 @@ namespace Darkfall.Gameplay
         public static void SpawnPulse(Vector2 position, Color color, float radius, float duration = .48f)
         {
             var root = new GameObject("Ability Pulse");
-            root.transform.position = position;
+            root.transform.position = IsoWorld.Project(position, .04f);
             var ring = root.AddComponent<LineRenderer>();
             ring.loop = true;
             ring.useWorldSpace = false;
@@ -89,7 +95,7 @@ namespace Darkfall.Gameplay
             ring.widthMultiplier = .055f;
             ring.numCornerVertices = 3;
             ring.sharedMaterial = LineMaterial;
-            ring.sortingOrder = 32;
+            ring.sortingOrder = IsoWorld.SortingOrder(position, 1040);
             root.AddComponent<ExpandingRing>().Initialize(ring, color, radius, duration);
             var light = root.AddComponent<Light2D>();
             light.lightType = Light2D.LightType.Point;
@@ -105,11 +111,11 @@ namespace Darkfall.Gameplay
         {
             if (sprite == null) return;
             var root = new GameObject("Dash Afterimage");
-            root.transform.position = position;
+            root.transform.position = IsoWorld.Project(position);
             var renderer = root.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
             renderer.color = color;
-            renderer.sortingOrder = 18;
+            renderer.sortingOrder = IsoWorld.SortingOrder(position, 1018);
             DarkfallRenderMaterials.MakeEmissive(renderer);
             root.AddComponent<FadeSprite>().Initialize(renderer, .3f, .94f);
         }
@@ -138,7 +144,7 @@ namespace Darkfall.Gameplay
             DarkfallRenderMaterials.MakeEmissive(renderer);
             var y = status == StatusVisualStyle.Stun || status == StatusVisualStyle.Fear ? 1.05f :
                 status == StatusVisualStyle.Freeze ? .28f : .16f;
-            root.transform.localPosition = new Vector3(0, y, 0);
+            root.AddComponent<IsoVisual>().Initialize(target, y, 1060);
             root.transform.localScale = Vector3.one * (.48f * scale);
             root.AddComponent<SheetAnimation>().Initialize(renderer, LoadFrames("Impacts", projectileStyle),
                 status == StatusVisualStyle.Stun ? 8f : 10f, true, false, false);
@@ -167,6 +173,7 @@ namespace Darkfall.Gameplay
             if (target == null) return;
             var root = new GameObject("Ability Aura");
             root.transform.SetParent(target, false);
+            root.AddComponent<IsoVisual>().Initialize(target, .03f, 970);
             var ring = root.AddComponent<LineRenderer>();
             ring.loop = true;
             ring.useWorldSpace = false;
@@ -197,7 +204,9 @@ namespace Darkfall.Gameplay
             line.positionCount = 9;
             line.widthMultiplier = .045f;
             line.sharedMaterial = LineMaterial;
-            line.sortingOrder = 36;
+            line.sortingOrder = IsoWorld.SortingOrder((from + to) * .5f, 1050);
+            from = IsoWorld.Project(from, .22f);
+            to = IsoWorld.Project(to, .22f);
             var perpendicular = Vector2.Perpendicular((to - from).normalized);
             for (var i = 0; i < line.positionCount; i++)
             {
@@ -308,7 +317,7 @@ namespace Darkfall.Gameplay
             for (var i = 0; i < line.positionCount; i++)
             {
                 var angle = i * Mathf.PI * 2f / line.positionCount;
-                line.SetPosition(i, new Vector3(Mathf.Cos(angle), Mathf.Sin(angle) * .68f) * radius * eased);
+                line.SetPosition(i, new Vector3(Mathf.Cos(angle), Mathf.Sin(angle) * .5f) * radius * eased);
             }
             line.startColor = line.endColor = new Color(color.r, color.g, color.b, (1f - t) * .85f);
             if (t >= 1f) Destroy(gameObject);

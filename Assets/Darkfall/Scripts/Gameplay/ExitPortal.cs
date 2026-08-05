@@ -1,4 +1,5 @@
 using Darkfall.Core;
+using Darkfall.World;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -25,21 +26,23 @@ namespace Darkfall.Gameplay
             var portal = gameObject.AddComponent<ExitPortal>();
             Active = portal;
             portal.player = target;
+            var visual = new GameObject("Portal Visual");
+            visual.transform.SetParent(gameObject.transform, false);
             var glowObject = new GameObject("Portal Ground Glow");
-            glowObject.transform.SetParent(gameObject.transform, false);
-            glowObject.transform.localScale = Vector3.one * 1.7f;
+            glowObject.transform.SetParent(visual.transform, false);
+            glowObject.transform.localScale = new Vector3(1.7f, .85f, 1f);
             portal.groundGlow = glowObject.AddComponent<SpriteRenderer>();
             portal.groundGlow.sprite = RuntimeAssets.Glow;
             portal.groundGlow.sortingOrder = 8;
             portal.groundGlow.color = new Color(.5f, .08f, .025f, 0f);
             DarkfallRenderMaterials.MakeEmissive(portal.groundGlow);
-            var renderer = gameObject.AddComponent<SpriteRenderer>();
+            var renderer = visual.AddComponent<SpriteRenderer>();
             portal.spriteRenderer = renderer;
             renderer.sprite = EnvironmentSpriteAtlas.Prop(11);
             renderer.color = Color.white;
             renderer.sortingOrder = 10;
             DarkfallRenderMaterials.MakeEmissive(renderer);
-            portal.portalLight = gameObject.AddComponent<Light2D>();
+            portal.portalLight = visual.AddComponent<Light2D>();
             portal.portalLight.lightType = Light2D.LightType.Point;
             portal.portalLight.color = new Color(1f, .28f, .06f);
             portal.portalLight.intensity = 0f;
@@ -49,7 +52,8 @@ namespace Darkfall.Gameplay
             portal.portalLight.shadowsEnabled = true;
             portal.portalLight.shadowIntensity = .9f;
             portal.portalLight.shadowSoftness = .6f;
-            gameObject.transform.localScale = Vector3.one * 1.05f;
+            visual.transform.localScale = Vector3.one * 1.05f;
+            visual.AddComponent<IsoVisual>().Initialize(gameObject.transform, 0f, 1000);
             return portal;
         }
 
@@ -87,7 +91,7 @@ namespace Darkfall.Gameplay
         private void Update()
         {
             var scale = 1.02f + Mathf.Sin(Time.time * 2.2f) * .035f;
-            transform.localScale = Vector3.one * scale;
+            if (spriteRenderer != null) spriteRenderer.transform.localScale = Vector3.one * scale;
             var dungeon = GameManager.Instance?.Dungeon;
             var targetVisibility = dungeon != null && dungeon.IsVisible(
                 Mathf.FloorToInt(transform.position.x), Mathf.FloorToInt(transform.position.y)) ? 1f : 0f;

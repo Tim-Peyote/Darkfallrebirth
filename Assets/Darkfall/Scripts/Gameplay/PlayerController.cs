@@ -85,6 +85,7 @@ namespace Darkfall.Gameplay
             visualScale = hero.heroClass == HeroClass.Rogue ? 1.38f :
                 hero.heroClass == HeroClass.Warrior ? .96f : 1f;
             visual.localScale = Vector3.one * visualScale;
+            visual.gameObject.AddComponent<IsoVisual>().Initialize(transform, 0f, 1000);
             directionalSheet = hero.heroClass == HeroClass.Mage ? "mage-v2" :
                 hero.heroClass == HeroClass.Warrior ? "warrior-v2" : "rogue-v2";
             gameObject.AddComponent<CircleCollider2D>().radius = 0.45f;
@@ -118,7 +119,7 @@ namespace Darkfall.Gameplay
         private void LateUpdate()
         {
             if (gameplayCamera == null) return;
-            var target = transform.position;
+            var target = IsoWorld.Project(transform.position);
             var current = gameplayCamera.transform.position;
             gameplayCamera.transform.position = Vector3.Lerp(current, new Vector3(target.x, target.y, -10), 1f - Mathf.Exp(-10f * Time.unscaledDeltaTime));
         }
@@ -128,13 +129,15 @@ namespace Darkfall.Gameplay
             if (gameplayCamera != null && Input.mousePresent && !Application.isMobilePlatform)
             {
                 var mouse = gameplayCamera.ScreenToWorldPoint(Input.mousePosition);
-                var aim = (Vector2)mouse - (Vector2)transform.position;
+                var logicalMouse = IsoWorld.Unproject(mouse);
+                var aim = logicalMouse - (Vector2)transform.position;
                 if (aim.sqrMagnitude > .16f)
                 {
                     facingDirection = aim.normalized;
                     return;
                 }
             }
+            movement = IsoWorld.UnprojectDirection(movement);
             if (movement.sqrMagnitude > .01f) facingDirection = movement.normalized;
         }
 
@@ -143,7 +146,8 @@ namespace Darkfall.Gameplay
             var start = (Vector2)transform.position;
             actualVelocity = Vector2.zero;
             if (input.sqrMagnitude < 0.001f) return;
-            lastMoveDirection = input.normalized;
+            input = IsoWorld.UnprojectDirection(input).normalized;
+            lastMoveDirection = input;
             var moveBonus = 1f + EquipmentStat(item => item.moveSpeed) / 100f;
             var distance = hero.speed * moveBonus * SpeedMultiplier * Time.deltaTime;
             var delta = input.normalized * distance;
@@ -169,7 +173,8 @@ namespace Darkfall.Gameplay
                 moving ? CharacterMotion.Walk : CharacterMotion.Idle;
             var animationTime = IsTakingHit ? Time.time - (hitAnimationUntil - .22f) :
                 IsAttacking ? Time.time - (attackAnimationUntil - .24f) : Time.time;
-            spriteFacingDirection = DirectionalSpriteAtlas.StabilizeFourWay(facingDirection, spriteFacingDirection);
+            var visualFacing = IsoWorld.ProjectDirection(facingDirection).normalized;
+            spriteFacingDirection = DirectionalSpriteAtlas.StabilizeFourWay(visualFacing, spriteFacingDirection);
             var directional = DirectionalSpriteAtlas.Get(directionalSheet, spriteFacingDirection, motion, animationTime, out var flipX);
             if (directional != null)
             {

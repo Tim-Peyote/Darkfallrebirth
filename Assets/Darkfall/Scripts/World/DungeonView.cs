@@ -19,16 +19,192 @@ namespace Darkfall.World
             Clear();
             profile = DungeonVisualProfile.ForDepth(depth);
             gameObject.name = "Dungeon · " + profile.Id;
-            BuildLayer(data, true, profile.FloorTint, 0, profile.FloorTexture);
-            BuildLayer(data, false, profile.WallTint, .1f, profile.WallTexture);
-            BuildWallEdges(data);
-            BuildShadowCasters(data);
+            var contour = DungeonContour.Build(data);
+            BuildContourFloor(contour);
+            BuildContourWalls(contour, data.Width + data.Height);
+            BuildContourShadows(contour);
             var decorRoot = new GameObject("Decor · " + profile.Id).transform;
             decorRoot.SetParent(transform, false);
             structuralDecor = CreateGroup(decorRoot, "Structural");
             lightDecor = CreateGroup(decorRoot, "Light Sources");
             clutterDecor = CreateGroup(decorRoot, "Clutter");
             BuildDecor(data);
+            BuildArchitecturalAccents(data);
+        }
+
+        private void BuildContourFloor(DungeonContour contour)
+        {
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            var colors = new List<Color>();
+            var uvs = new List<Vector2>();
+            const float uvScale = .08f;
+            foreach (var polygon in contour.FloorPolygons)
+            {
+                var index = vertices.Count;
+                var center = Vector2.zero;
+                for (var i = 0; i < polygon.Length; i++) center += polygon[i];
+                center /= polygon.Length;
+                var tint = profile.FloorTint * RandomTint(Mathf.FloorToInt(center.x), Mathf.FloorToInt(center.y));
+                for (var i = 0; i < polygon.Length; i++)
+                {
+                    var point = IsoWorld.Project(polygon[i]);
+                    vertices.Add(point);
+                    colors.Add(tint);
+                    uvs.Add(polygon[i] * uvScale);
+                }
+                for (var i = 1; i < polygon.Length - 1; i++)
+                {
+                    triangles.Add(index);
+                    triangles.Add(index + i + 1);
+                    triangles.Add(index + i);
+                }
+            }
+            var mesh = MakeMesh("Continuous Isometric Floor", vertices, triangles, colors, uvs);
+            var material = CreateTexturedMaterial(profile.FloorTexture);
+            CreateLayer(mesh.name, mesh, material, -20);
+        }
+
+        private void BuildContourWalls(DungeonContour contour, int maximumDepth)
+        {
+            var wallTexture = Resources.Load<Texture2D>(profile.WallTexture);
+            if (wallTexture != null)
+            {
+                wallTexture.wrapMode = TextureWrapMode.Repeat;
+                wallTexture.filterMode = FilterMode.Bilinear;
+            }
+
+            var capVertices = new List<Vector3>();
+            var capTriangles = new List<int>();
+            var capColors = new List<Color>();
+            var capUvs = new List<Vector2>();
+            var shadowVertices = new List<Vector3>();
+            var shadowTriangles = new List<int>();
+            var shadowColors = new List<Color>();
+            var shadowUvs = new List<Vector2>();
+
+            foreach (var segment in contour.Segments)
+            {
+                AddWallCap(capVertices, capTriangles, capColors, capUvs, segment.From, segment.To);
+                AddContactShadow(shadowVertices, shadowTriangles, shadowColors, shadowUvs, segment.From, segment.To);
+            }
+
+            var capMesh = MakeMesh("Continuous Wall Coping", capVertices, capTriangles, capColors, capUvs);
+            var capMaterial = CreateTexturedMaterial(profile.WallTexture);
+            CreateLayer(capMesh.name, capMesh, capMaterial, 900);
+            var shadowMesh = MakeMesh("Continuous Wall Contact Shadow", shadowVertices, shadowTriangles,
+                shadowColors, shadowUvs);
+            var shadowMaterial = new Material(DarkfallRenderMaterials.SpriteLit) { color = Color.white };
+            materials.Add(shadowMaterial);
+            CreateLayer(shadowMesh.name, shadowMesh, shadowMaterial, -5);
+
+            for (var depth = -2; depth <= maximumDepth + 2; depth++)
+            {
+                var vertices = new List<Vector3>();
+                var triangles = new List<int>();
+                var colors = new List<Color>();
+                var uvs = new List<Vector2>();
+                foreach (var segment in contour.Segments)
+                {
+                    var midpoint = (segment.From + segment.To) * .5f;
+                    if (Mathf.RoundToInt(midpoint.x + midpoint.y) != depth) continue;
+                    var projected = IsoWorld.Project(segment.To) - IsoWorld.Project(segment.From);
+                    var shade = projected.x >= 0 ? .88f : .72f;
+                    if (Mathf.Abs(projected.x) < .08f) shade = .8f;
+                    var readableWall = Color.Lerp(profile.WallTint, Color.white, .17f);
+                    AddWallFace(vertices, triangles, colors, uvs, segment.From, segment.To,
+                        readableWall * shade);
+                }
+                if (vertices.Count == 0) continue;
+                var mesh = MakeMesh("Contour Wall Facades · " + depth, vertices, triangles, colors, uvs);
+                var material = new Material(DarkfallRenderMaterials.SpriteLit)
+                    { color = Color.white, mainTexture = wallTexture };
+                materials.Add(material);
+                CreateLayer(mesh.name, mesh, material, 1040 + depth * IsoWorld.DepthPrecision);
+            }
+        }
+
+        private Material CreateTexturedMaterial(string path)
+        {
+            var material = new Material(DarkfallRenderMaterials.SpriteLit) { color = Color.white };
+            var texture = Resources.Load<Texture2D>(path);
+            if (texture != null)
+            {
+                texture.wrapMode = TextureWrapMode.Repeat;
+                texture.filterMode = FilterMode.Bilinear;
+                material.mainTexture = texture;
+            }
+            materials.Add(material);
+            return material;
+        }
+
+        private void AddWallCap(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
+            Vector2 from, Vector2 to)
+        {
+            var a = IsoWorld.Project(from) + Vector2.up * IsoWorld.WallHeight;
+            var b = IsoWorld.Project(to) + Vector2.up * IsoWorld.WallHeight;
+            var direction = (b - a).normalized;
+            var normal = Vector2.Perpendicular(direction) * .105f;
+            AddScreenQuad(v, t, c, uv, a - normal, b - normal, b + normal, a + normal,
+                Color.Lerp(profile.WallTint, Color.white, .2f), from, to);
+        }
+
+        private void BuildArchitecturalAccents(DungeonData data)
+        {
+            for (var roomIndex = 1; roomIndex < data.Rooms.Count; roomIndex++)
+            {
+                var bounds = data.Rooms[roomIndex].bounds;
+                var anchors = new List<Vector2>();
+                for (var x = bounds.xMin + 1; x < bounds.xMax - 1; x++)
+                for (var y = bounds.yMin + 1; y < bounds.yMax - 1; y++)
+                {
+                    if (!data.IsFloor(x, y)) continue;
+                    var walls = 0;
+                    if (!data.IsFloor(x - 1, y)) walls++;
+                    if (!data.IsFloor(x + 1, y)) walls++;
+                    if (!data.IsFloor(x, y - 1)) walls++;
+                    if (!data.IsFloor(x, y + 1)) walls++;
+                    if (walls == 0) continue;
+                    var point = new Vector2(x + .5f, y + .5f);
+                    if (Vector2.Distance(point, data.CellCenter(data.StartCell)) < 2.2f ||
+                        Vector2.Distance(point, data.CellCenter(data.ExitCell)) < 2.2f) continue;
+                    anchors.Add(point);
+                }
+                if (anchors.Count == 0) continue;
+                var hash = ((bounds.x * 92837111) ^ (bounds.y * 689287499) ^ (roomIndex * 283923481)) & int.MaxValue;
+                var count = bounds.width * bounds.height >= 90 ? 2 : 1;
+                for (var i = 0; i < count && anchors.Count > 0; i++)
+                {
+                    var anchorIndex = (hash + i * 17) % anchors.Count;
+                    var propIndex = profile.StructuralProps[(hash / (i + 3) + i) % profile.StructuralProps.Length];
+                    CreateProp(data, propIndex, anchors[anchorIndex], i == 0 ? .78f : .62f,
+                        "Wall Architecture", false, structuralDecor);
+                    anchors.RemoveAt(anchorIndex);
+                }
+            }
+        }
+
+        private void AddContactShadow(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
+            Vector2 from, Vector2 to)
+        {
+            var a = IsoWorld.Project(from);
+            var b = IsoWorld.Project(to);
+            var normal = Vector2.Perpendicular((b - a).normalized) * .026f;
+            AddScreenQuad(v, t, c, uv, a - normal, b - normal, b + normal, a + normal,
+                profile.ContactShadow, from, to);
+        }
+
+        private static void AddScreenQuad(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
+            Vector2 a, Vector2 b, Vector2 d, Vector2 e, Color color, Vector2 logicalFrom, Vector2 logicalTo)
+        {
+            var index = v.Count;
+            v.Add(a); v.Add(b); v.Add(d); v.Add(e);
+            t.Add(index); t.Add(index + 2); t.Add(index + 1);
+            t.Add(index); t.Add(index + 3); t.Add(index + 2);
+            c.Add(color); c.Add(color); c.Add(color); c.Add(color);
+            var length = Vector2.Distance(logicalFrom, logicalTo) * .16f;
+            uv.Add(Vector2.zero); uv.Add(new Vector2(length, 0));
+            uv.Add(new Vector2(length, .08f)); uv.Add(new Vector2(0, .08f));
         }
 
         public void Clear()
@@ -40,56 +216,24 @@ namespace Darkfall.World
             materials.Clear();
         }
 
-        private void BuildLayer(DungeonData data, bool floorLayer, Color color, float z, string texturePath)
+        private static void AddWallFace(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
+            Vector2 from, Vector2 to, Color color)
         {
-            var vertices = new List<Vector3>();
-            var triangles = new List<int>();
-            var colors = new List<Color>();
-            var uvs = new List<Vector2>();
-            for (var x = 0; x < data.Width; x++)
-            for (var y = 0; y < data.Height; y++)
-            {
-                var isFloor = data.IsFloor(x, y);
-                if (floorLayer != isFloor) continue;
-                if (!floorLayer && !TouchesFloor(data, x, y)) continue;
-                AddQuad(vertices, triangles, colors, uvs, x, y, 1, 1, z, color * RandomTint(x, y));
-            }
-
-            var mesh = MakeMesh(floorLayer ? "Dungeon Floor" : "Dungeon Wall Tops", vertices, triangles, colors, uvs);
-            var material = new Material(DarkfallRenderMaterials.SpriteLit) { color = Color.white };
-            var texture = Resources.Load<Texture2D>(texturePath);
-            if (texture != null)
-            {
-                texture.wrapMode = TextureWrapMode.Repeat;
-                texture.filterMode = FilterMode.Bilinear;
-                material.mainTexture = texture;
-            }
-            materials.Add(material);
-            CreateLayer(mesh.name, mesh, material, floorLayer ? -20 : -10);
-        }
-
-        private void BuildWallEdges(DungeonData data)
-        {
-            var vertices = new List<Vector3>();
-            var triangles = new List<int>();
-            var colors = new List<Color>();
-            var uvs = new List<Vector2>();
-            var edgeColor = profile.ContactShadow;
-            // Contact shadow only. The former .12 solid strip read as a UI border around rooms.
-            const float thickness = .032f;
-            for (var x = 0; x < data.Width; x++)
-            for (var y = 0; y < data.Height; y++)
-            {
-                if (!data.IsFloor(x, y)) continue;
-                if (!data.IsFloor(x - 1, y)) AddQuad(vertices, triangles, colors, uvs, x, y, thickness, 1, -.02f, edgeColor);
-                if (!data.IsFloor(x + 1, y)) AddQuad(vertices, triangles, colors, uvs, x + 1 - thickness, y, thickness, 1, -.02f, edgeColor);
-                if (!data.IsFloor(x, y - 1)) AddQuad(vertices, triangles, colors, uvs, x, y, 1, thickness, -.02f, edgeColor);
-                if (!data.IsFloor(x, y + 1)) AddQuad(vertices, triangles, colors, uvs, x, y + 1 - thickness, 1, thickness, -.02f, edgeColor);
-            }
-            var mesh = MakeMesh("Wall Edge Shadows", vertices, triangles, colors, uvs);
-            var material = new Material(DarkfallRenderMaterials.SpriteLit) { color = Color.white };
-            materials.Add(material);
-            CreateLayer(mesh.name, mesh, material, -5);
+            var index = v.Count;
+            var baseFrom = IsoWorld.Project(from);
+            var baseTo = IsoWorld.Project(to);
+            var topFrom = baseFrom + Vector2.up * IsoWorld.WallHeight;
+            var topTo = baseTo + Vector2.up * IsoWorld.WallHeight;
+            v.Add(new Vector3(baseFrom.x, baseFrom.y, 0));
+            v.Add(new Vector3(baseTo.x, baseTo.y, 0));
+            v.Add(new Vector3(topTo.x, topTo.y, 0));
+            v.Add(new Vector3(topFrom.x, topFrom.y, 0));
+            t.Add(index); t.Add(index + 2); t.Add(index + 1);
+            t.Add(index); t.Add(index + 3); t.Add(index + 2);
+            c.Add(color); c.Add(color); c.Add(color); c.Add(color);
+            var length = Vector2.Distance(from, to);
+            uv.Add(new Vector2(0, 0)); uv.Add(new Vector2(length * .16f, 0));
+            uv.Add(new Vector2(length * .16f, .22f)); uv.Add(new Vector2(0, .22f));
         }
 
         private void BuildDecor(DungeonData data)
@@ -161,16 +305,18 @@ namespace Darkfall.World
             prop.transform.SetParent(group, false);
             prop.transform.position = position;
             if (profile.Id != "ashen-catacombs" && (index == 0 || index == 8)) scale = .72f;
-            prop.transform.localScale = Vector3.one * scale;
-            var renderer = prop.AddComponent<SpriteRenderer>();
+            var visual = new GameObject("Projected Prop");
+            visual.transform.SetParent(prop.transform, false);
+            visual.transform.localScale = Vector3.one * scale;
+            var renderer = visual.AddComponent<SpriteRenderer>();
             renderer.sprite = EnvironmentSpriteAtlas.Prop(profile.Id, index);
             renderer.color = Color.white;
-            renderer.sortingOrder = 7;
             DarkfallRenderMaterials.MakeLit(renderer);
+            visual.AddComponent<IsoVisual>().Initialize(prop.transform, 0f, 1000);
             if (blocks)
             {
                 data.AddObstacle(position);
-                var caster = prop.AddComponent<ShadowCaster2D>();
+                var caster = visual.AddComponent<ShadowCaster2D>();
                 caster.castsShadows = true;
                 caster.selfShadows = false;
                 caster.alphaCutoff = .22f;
@@ -178,7 +324,7 @@ namespace Darkfall.World
             var customBiomeDecor = profile.Id != "ashen-catacombs";
             if ((!customBiomeDecor && index == 2) || (customBiomeDecor && index == 0))
             {
-                AddFlame(prop.transform, new Vector2(0, .24f), .56f, 9);
+                AddFlame(visual.transform, new Vector2(0, .24f), .56f, 9);
                 data.AddLightSource(position + new Vector2(0, .22f), profile.FireTint, 5.8f, .16f);
             }
             else if (customBiomeDecor && index == 3)
@@ -191,9 +337,9 @@ namespace Darkfall.World
             }
             else if (index == 8)
             {
-                AddFlame(prop.transform, new Vector2(-.37f, .31f), .105f, 9);
-                AddFlame(prop.transform, new Vector2(.19f, .29f), .10f, 9);
-                AddFlame(prop.transform, new Vector2(.37f, .13f), .09f, 9);
+                AddFlame(visual.transform, new Vector2(-.37f, .31f), .105f, 9);
+                AddFlame(visual.transform, new Vector2(.19f, .29f), .10f, 9);
+                AddFlame(visual.transform, new Vector2(.37f, .13f), .09f, 9);
                 data.AddLightSource(position + new Vector2(0, .2f), profile.FireTint * new Color(1, 1, 1, .62f), 3.6f, .1f);
             }
         }
@@ -214,49 +360,25 @@ namespace Darkfall.World
             flame.AddComponent<DungeonFlameAnimator>().Initialize(sortingOrder);
         }
 
-        private void BuildShadowCasters(DungeonData data)
+        private void BuildContourShadows(DungeonContour contour)
         {
-            var root = new GameObject("Composite Dungeon Shadows");
+            var root = new GameObject("Smoothed Isometric Shadows");
             root.transform.SetParent(transform, false);
             root.AddComponent<CompositeShadowCaster2D>();
-            var consumed = new bool[data.Width, data.Height];
-
-            for (var y = 0; y < data.Height; y++)
-            for (var x = 0; x < data.Width; x++)
-            {
-                if (consumed[x, y] || !IsBoundaryWall(data, x, y)) continue;
-                var width = 1;
-                while (x + width < data.Width && !consumed[x + width, y] && IsBoundaryWall(data, x + width, y)) width++;
-                var height = 1;
-                var canGrow = true;
-                while (y + height < data.Height && canGrow)
-                {
-                    for (var offset = 0; offset < width; offset++)
-                        if (consumed[x + offset, y + height] || !IsBoundaryWall(data, x + offset, y + height))
-                        {
-                            canGrow = false;
-                            break;
-                        }
-                    if (canGrow) height++;
-                }
-
-                for (var ox = 0; ox < width; ox++)
-                for (var oy = 0; oy < height; oy++) consumed[x + ox, y + oy] = true;
-                CreateShadowRectangle(root.transform, x, y, width, height);
-            }
+            foreach (var segment in contour.Segments)
+                CreateShadowEdge(root.transform, segment.From, segment.To);
         }
 
-        private static bool IsBoundaryWall(DungeonData data, int x, int y)
+        private static void CreateShadowEdge(Transform parent, Vector2 from, Vector2 to)
         {
-            return !data.IsFloor(x, y) && TouchesFloor(data, x, y);
-        }
-
-        private static void CreateShadowRectangle(Transform parent, int x, int y, int width, int height)
-        {
-            var shadow = new GameObject("Wall Shadow Caster");
+            var a = IsoWorld.Project(from) + Vector2.up * (IsoWorld.WallHeight * .55f);
+            var b = IsoWorld.Project(to) + Vector2.up * (IsoWorld.WallHeight * .55f);
+            var delta = b - a;
+            var shadow = new GameObject("Wall Shadow Edge");
             shadow.transform.SetParent(parent, false);
-            shadow.transform.position = new Vector3(x + width * .5f, y + height * .5f, 0);
-            shadow.transform.localScale = new Vector3(width, height, 1);
+            shadow.transform.position = (a + b) * .5f;
+            shadow.transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg);
+            shadow.transform.localScale = new Vector3(delta.magnitude, .12f, 1);
             var renderer = shadow.AddComponent<SpriteRenderer>();
             renderer.sprite = RuntimeAssets.Square;
             renderer.color = Color.clear;
@@ -290,36 +412,11 @@ namespace Darkfall.World
             renderer.sortingOrder = sortingOrder;
         }
 
-        private static bool TouchesFloor(DungeonData data, int x, int y)
-        {
-            for (var ox = -1; ox <= 1; ox++)
-            for (var oy = -1; oy <= 1; oy++)
-                if (data.IsFloor(x + ox, y + oy)) return true;
-            return false;
-        }
-
         private static float RandomTint(int x, int y)
         {
             var hash = (x * 73856093) ^ (y * 19349663);
             return .90f + Mathf.Abs(hash % 13) / 100f;
         }
 
-        private static void AddQuad(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
-            float x, float y, float width, float height, float z, Color color)
-        {
-            var index = v.Count;
-            v.Add(new Vector3(x, y, z));
-            v.Add(new Vector3(x + width, y, z));
-            v.Add(new Vector3(x + width, y + height, z));
-            v.Add(new Vector3(x, y + height, z));
-            t.Add(index); t.Add(index + 2); t.Add(index + 1);
-            t.Add(index); t.Add(index + 3); t.Add(index + 2);
-            c.Add(color); c.Add(color); c.Add(color); c.Add(color);
-            const float scale = .08f;
-            uv.Add(new Vector2(x * scale, y * scale));
-            uv.Add(new Vector2((x + width) * scale, y * scale));
-            uv.Add(new Vector2((x + width) * scale, (y + height) * scale));
-            uv.Add(new Vector2(x * scale, (y + height) * scale));
-        }
     }
 }

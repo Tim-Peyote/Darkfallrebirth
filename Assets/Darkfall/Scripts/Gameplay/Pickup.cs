@@ -1,4 +1,5 @@
 using Darkfall.Core;
+using Darkfall.World;
 using UnityEngine;
 
 namespace Darkfall.Gameplay
@@ -11,6 +12,7 @@ namespace Darkfall.Gameplay
         private int gold;
         private Vector3 restingPosition;
         private float animationPhase;
+        private Transform visual;
 
         public static void SpawnItem(Vector2 position, PlayerController target, ItemInstance loot)
         {
@@ -33,12 +35,15 @@ namespace Darkfall.Gameplay
             pickup.gold = amount;
             pickup.restingPosition = position;
             pickup.animationPhase = Random.value * Mathf.PI * 2f;
-            var renderer = pickupObject.AddComponent<SpriteRenderer>();
+            pickup.visual = new GameObject("Pickup Visual").transform;
+            pickup.visual.SetParent(pickupObject.transform, false);
+            var renderer = pickup.visual.gameObject.AddComponent<SpriteRenderer>();
             renderer.sprite = loot == null ? GoldSprite() : RuntimeItemIcons.Get(loot);
             renderer.color = Color.white;
             renderer.sortingOrder = 12;
             DarkfallRenderMaterials.MakeLit(renderer);
-            pickupObject.transform.localScale = Vector3.one * (loot == null ? .3f : .42f);
+            pickup.visual.localScale = Vector3.one * (loot == null ? .3f : .42f);
+            pickup.visual.gameObject.AddComponent<IsoVisual>().Initialize(pickupObject.transform, .08f, 1010);
 
         }
 
@@ -61,10 +66,10 @@ namespace Darkfall.Gameplay
         {
             var wave = Time.time * 2.4f + animationPhase;
             transform.position = restingPosition + Vector3.up * (Mathf.Sin(wave) * .075f);
-            transform.rotation = Quaternion.Euler(0, 0, Mathf.Sin(wave * .55f) * 4f);
+            if (visual != null) visual.rotation = Quaternion.Euler(0, 0, Mathf.Sin(wave * .55f) * 4f);
             var pulse = 1f + Mathf.Sin(wave * .8f) * .035f;
             var baseScale = item == null ? .3f : .42f;
-            transform.localScale = Vector3.one * baseScale * pulse;
+            if (visual != null) visual.localScale = Vector3.one * baseScale * pulse;
             if (player == null || Vector2.Distance(transform.position, player.transform.position) >= .78f) return;
             if (item != null)
             {

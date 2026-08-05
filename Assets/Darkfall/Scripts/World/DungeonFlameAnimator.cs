@@ -28,7 +28,8 @@ namespace Darkfall.World
         {
             if (spriteRenderer == null) return;
             var dungeon = GameManager.Instance?.Dungeon;
-            var position = transform.position;
+            var projectedOwner = GetComponentInParent<IsoVisual>();
+            var position = projectedOwner != null ? projectedOwner.LogicalPosition : (Vector2)transform.position;
             var targetVisibility = dungeon != null && dungeon.IsVisible(
                 Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y)) ? 1f : 0f;
             visibility = Mathf.MoveTowards(visibility, targetVisibility, Time.deltaTime * 7f);

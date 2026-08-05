@@ -95,6 +95,7 @@ namespace Darkfall.Gameplay
             spriteRenderer.sortingOrder = 15;
             DarkfallRenderMaterials.MakeLit(spriteRenderer);
             visual.localScale = Vector3.one * (boss ? 2.1f : 1.25f);
+            visual.gameObject.AddComponent<IsoVisual>().Initialize(transform, 0f, boss ? 1010 : 1000);
             gameObject.AddComponent<CircleCollider2D>().radius = 0.46f;
             Active.Add(this);
             abilityReadyAt = Time.time + 4.5f;
@@ -173,6 +174,7 @@ namespace Darkfall.Gameplay
             var animationFacing = motion == CharacterMotion.Walk && movement.sqrMagnitude > .00001f
                 ? movement.normalized
                 : facingDirection;
+            animationFacing = IsoWorld.ProjectDirection(animationFacing).normalized;
             spriteFacingDirection = DirectionalSpriteAtlas.StabilizeFourWay(animationFacing, spriteFacingDirection);
             var directional = DirectionalSpriteAtlas.Get(directionalSheet, spriteFacingDirection, motion,
                 animationTime, out var flipX);

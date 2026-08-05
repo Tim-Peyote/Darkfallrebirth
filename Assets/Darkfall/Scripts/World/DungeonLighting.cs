@@ -19,8 +19,8 @@ namespace Darkfall.World
             }
 
             var playerLight = new GameObject("Nox Player Freeform Light");
-            playerLight.transform.SetParent(player.transform, false);
-            playerLight.transform.localPosition = Vector3.zero;
+            playerLight.transform.SetParent(transform, false);
+            playerLight.AddComponent<IsoVisual>().Initialize(player.transform, .12f, 900);
             playerLight.AddComponent<NoxPlayerFreeformLight>().Initialize(dungeon, player);
         }
 
@@ -38,7 +38,7 @@ namespace Darkfall.World
         {
             var lightObject = new GameObject($"Shadowed World Light {index}");
             lightObject.transform.SetParent(transform, false);
-            lightObject.transform.position = source.Position;
+            lightObject.transform.position = IsoWorld.Project(source.Position, .18f);
             var light = lightObject.AddComponent<Light2D>();
             light.lightType = Light2D.LightType.Point;
             light.color = new Color(source.Color.r, source.Color.g, source.Color.b, 1f);
@@ -154,7 +154,8 @@ namespace Darkfall.World
 
         private void UpdateFacing()
         {
-            var facing = player.FacingDirection.sqrMagnitude > .001f ? player.FacingDirection.normalized : Vector2.right;
+            var logicalFacing = player.FacingDirection.sqrMagnitude > .001f ? player.FacingDirection.normalized : Vector2.right;
+            var facing = IsoWorld.ProjectDirection(logicalFacing).normalized;
             transform.localRotation = Quaternion.Euler(0, 0, Mathf.Atan2(facing.y, facing.x) * Mathf.Rad2Deg);
         }
 
