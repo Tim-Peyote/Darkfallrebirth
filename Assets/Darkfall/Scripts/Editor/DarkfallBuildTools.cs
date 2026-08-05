@@ -29,6 +29,12 @@ namespace Darkfall.Editor
             failures += Require(Resources.Load<Texture2D>("Sprites/Directional/enemy-melee-v2") != null, "Melee enemy sheet is missing");
             failures += Require(Resources.Load<Texture2D>("Sprites/Directional/enemy-ranged-v2") != null, "Ranged enemy sheet is missing");
             failures += Require(Resources.Load<Texture2D>("Sprites/Directional/enemy-caster-v2") != null, "Caster enemy sheet is missing");
+            var mimicSheet = Resources.Load<Texture2D>("Sprites/Directional/enemy-mimic-v1");
+            failures += Require(mimicSheet != null, "Mimic directional sheet is missing");
+            failures += Require(mimicSheet != null && mimicSheet.width == 1774 && mimicSheet.height == 887,
+                "Mimic directional sheet must match the 8x4 enemy grid dimensions");
+            failures += Require(TreasureChest.MimicChance > 0f && TreasureChest.MimicChance <= .03f,
+                "Mimic encounter chance must remain rare");
             failures += Require(Resources.Load<Texture2D>("Textures/dungeon-floor-v2") != null, "Dungeon floor v2 texture is missing");
             failures += Require(Resources.Load<Texture2D>("Textures/dungeon-wall-v2") != null, "Dungeon wall v2 texture is missing");
             failures += Require(Resources.Load<Texture2D>("Sprites/Environment/dungeon-props-v2") != null, "Dungeon prop atlas is missing");
@@ -79,6 +85,7 @@ namespace Darkfall.Editor
                 "Inventory interaction: backpack drag swap failed");
 
             var balance = GameBalance.RuntimeDefault();
+            failures += Require(balance.baseEnemyCount == 12, "Progression: default starting enemy budget must be 12");
             var earlyDungeon = DungeonGenerator.Generate(balance, 1, 4242);
             var middleDungeon = DungeonGenerator.Generate(balance, 5, 4242);
             var lateDungeon = DungeonGenerator.Generate(balance, 9, 4242);

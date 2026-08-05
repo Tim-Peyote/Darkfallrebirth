@@ -2,7 +2,7 @@
 
 ## Non-negotiable rules
 
-- Runtime character animation uses one PNG per frame. Never sample a character directly from a shared sheet.
+- Runtime hero animation uses one PNG per frame. Generic enemies use the documented directional sheet layout.
 - Runtime inventory art uses one PNG per `baseId`. Source atlases are import material only.
 - Every exported cell must keep its full transparent gutter. Do not trim a frame independently: trimming changes the pivot and makes animation jitter.
 - If generated art touches a cell edge, apply the same inset to every frame in the whole character set. Current hero safe-area is `16 px`.
@@ -18,6 +18,10 @@
 - Scrolls: `1536×512`, `6×2`, cell `256×256`.
 - Heroes: final export is separate `256×256` files under
   `Resources/Sprites/Characters/<hero>/<direction>/<state>.png`.
+- Directional enemies: `1774×887`, `8×4`. Rows are `down`, `left`, `right`, `up`.
+  Columns are `idle_1`, `idle_2`, `walk_1`, `walk_2`, `attack_1`, `attack_2`, `attack_3`, `hurt`.
+- Mimic: `Resources/Sprites/Directional/enemy-mimic-v1.png` follows the directional enemy grid.
+  Keep the complete transparent gutter around every silhouette; `DirectionalSpriteAtlas` slices it at runtime.
 
 For a grid cell `(column, row)`, use `x = column * 256`, `y = row * 256`.
 

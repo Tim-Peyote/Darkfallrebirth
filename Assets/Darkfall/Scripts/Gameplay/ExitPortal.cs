@@ -9,12 +9,12 @@ namespace Darkfall.Gameplay
         public static ExitPortal Active { get; private set; }
         private PlayerController player;
         private bool entered;
-        private bool unlocked;
+        private bool empowered;
         private Light2D portalLight;
         private SpriteRenderer spriteRenderer;
         private SpriteRenderer groundGlow;
         private float visibility;
-        public bool IsUnlocked => unlocked;
+        public bool IsEmpowered => empowered;
 
         public static ExitPortal Spawn(Vector2 position, PlayerController target)
         {
@@ -53,10 +53,10 @@ namespace Darkfall.Gameplay
             return portal;
         }
 
-        public void Unlock()
+        public void Empower()
         {
-            if (unlocked) return;
-            unlocked = true;
+            if (empowered) return;
+            empowered = true;
             CombatVfx.SpawnPulse(transform.position, new Color(1f, .26f, .045f), 2.4f, .55f);
         }
 
@@ -70,11 +70,6 @@ namespace Darkfall.Gameplay
         {
             if (Active == null || target == null || Vector2.Distance(Active.transform.position, target.transform.position) > 1.45f)
                 return false;
-            if (!Active.unlocked)
-            {
-                GameManager.Instance.ShowMessage($"Портал запечатан · осталось врагов: {EnemyController.Count}");
-                return true;
-            }
             Active.Enter();
             return true;
         }
@@ -84,7 +79,7 @@ namespace Darkfall.Gameplay
 
         private void Enter()
         {
-            if (entered || !unlocked) return;
+            if (entered) return;
             entered = true;
             GameManager.Instance.CompleteLevel();
         }
@@ -99,13 +94,13 @@ namespace Darkfall.Gameplay
             visibility = Mathf.MoveTowards(visibility, targetVisibility, Time.deltaTime * 6f);
             var lockedTint = new Color(.42f, .38f, .36f, visibility * .72f);
             var openTint = new Color(1f, .82f, .64f, visibility);
-            if (spriteRenderer != null) spriteRenderer.color = unlocked ? openTint : lockedTint;
+            if (spriteRenderer != null) spriteRenderer.color = empowered ? openTint : lockedTint;
             if (groundGlow != null)
-                groundGlow.color = unlocked
+                groundGlow.color = empowered
                     ? new Color(1f, .16f, .025f, visibility * (.42f + Mathf.Sin(Time.time * 2.1f) * .08f))
                     : new Color(.28f, .035f, .018f, visibility * .16f);
             if (portalLight != null)
-                portalLight.intensity = (unlocked ? .86f + Mathf.Sin(Time.time * 2.8f) * .12f : .12f) * visibility;
+                portalLight.intensity = (empowered ? .86f + Mathf.Sin(Time.time * 2.8f) * .12f : .12f) * visibility;
         }
 
         private void OnDestroy()

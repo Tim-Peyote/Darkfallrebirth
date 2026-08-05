@@ -6,9 +6,11 @@ namespace Darkfall.Gameplay
 {
     public sealed class TreasureChest : MonoBehaviour
     {
+        public const float MimicChance = .02f;
         private static readonly List<TreasureChest> Active = new List<TreasureChest>();
         private PlayerController player;
         private SpriteRenderer spriteRenderer;
+        private bool resolved;
         public readonly ItemInstance[] Items = new ItemInstance[12];
 
         public static void Spawn(Vector2 position, PlayerController target)
@@ -76,6 +78,18 @@ namespace Darkfall.Gameplay
             {
                 GameManager.Instance.ShowMessage("Сундук нельзя открыть в бою");
                 return;
+            }
+            if (!resolved)
+            {
+                resolved = true;
+                if (Random.value < MimicChance)
+                {
+                    Active.Remove(this);
+                    gameObject.SetActive(false);
+                    GameManager.Instance.SpawnMimic(transform.position);
+                    Destroy(gameObject);
+                    return;
+                }
             }
             spriteRenderer.sprite = GameSpriteAtlas.Chest(true);
             GameManager.Instance.Audio.PlayEffect("Inventory_open");

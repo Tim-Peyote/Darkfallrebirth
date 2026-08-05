@@ -704,9 +704,9 @@ namespace Darkfall.UI
             var portalDistance = ExitPortal.DistanceToNearest(game.Player);
             var chestDistance = TreasureChest.DistanceToNearest(game.Player);
             if (portalDistance <= 1.45f)
-                interactionHint.text = ExitPortal.Active != null && ExitPortal.Active.IsUnlocked
-                    ? "[E] СПУСТИТЬСЯ ГЛУБЖЕ"
-                    : $"ПОРТАЛ ЗАПЕЧАТАН  ·  ВРАГОВ {EnemyController.Count}";
+                interactionHint.text = EnemyController.Count > 0
+                    ? $"[E] СПУСТИТЬСЯ  ·  ВРАГОВ ОСТАНЕТСЯ {EnemyController.Count}"
+                    : "[E] СПУСТИТЬСЯ ГЛУБЖЕ";
             else
                 interactionHint.text = chestDistance <= 1.35f
                     ? (EnemyController.FindNearest(game.Player.transform.position, 150f / 32f) == null ? "[E] ОТКРЫТЬ СУНДУК" : "СУНДУК НЕДОСТУПЕН В БОЮ")

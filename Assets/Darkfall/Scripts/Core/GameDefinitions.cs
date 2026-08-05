@@ -60,7 +60,7 @@ namespace Darkfall.Core
         [Min(7)] public int maximumRoomSize = 16;
 
         [Header("Progression")]
-        [Min(1)] public int baseEnemyCount = 7;
+        [Min(1)] public int baseEnemyCount = 12;
         [Min(1)] public int bossEveryLevels = 10;
         [Min(0.01f)] public float enemyHealthPerLevel = 0.12f;
         [Min(0.01f)] public float enemyDamagePerLevel = 0.12f;

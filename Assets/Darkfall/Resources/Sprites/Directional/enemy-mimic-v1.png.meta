@@ -1,0 +1,943 @@
+fileFormatVersion: 2
+guid: 6f6fa29d2926d47eeb2d0c8512d04707
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2466594938732824778
+    second: enemy-mimic-v1_0
+  - first:
+      213: -3109549883172356717
+    second: enemy-mimic-v1_1
+  - first:
+      213: 2294668866222522553
+    second: enemy-mimic-v1_2
+  - first:
+      213: 9050485060740609398
+    second: enemy-mimic-v1_3
+  - first:
+      213: -2979303935931039955
+    second: enemy-mimic-v1_4
+  - first:
+      213: -7396515560781854673
+    second: enemy-mimic-v1_5
+  - first:
+      213: -3927478034810219953
+    second: enemy-mimic-v1_6
+  - first:
+      213: 6815120161806343464
+    second: enemy-mimic-v1_7
+  - first:
+      213: -5881545732716318122
+    second: enemy-mimic-v1_8
+  - first:
+      213: -3115237353246557000
+    second: enemy-mimic-v1_9
+  - first:
+      213: 1369688897013247822
+    second: enemy-mimic-v1_10
+  - first:
+      213: 302092052561547210
+    second: enemy-mimic-v1_11
+  - first:
+      213: 521606820558030062
+    second: enemy-mimic-v1_12
+  - first:
+      213: 8651166382595831441
+    second: enemy-mimic-v1_13
+  - first:
+      213: 4358033414281469943
+    second: enemy-mimic-v1_14
+  - first:
+      213: 5585668449924670715
+    second: enemy-mimic-v1_15
+  - first:
+      213: -4715197428059903310
+    second: enemy-mimic-v1_16
+  - first:
+      213: 2915099099315198857
+    second: enemy-mimic-v1_17
+  - first:
+      213: 1694416023296708706
+    second: enemy-mimic-v1_18
+  - first:
+      213: -6040194781242990880
+    second: enemy-mimic-v1_19
+  - first:
+      213: -9023508392282347036
+    second: enemy-mimic-v1_20
+  - first:
+      213: -4085465149582477148
+    second: enemy-mimic-v1_21
+  - first:
+      213: 175144966284343305
+    second: enemy-mimic-v1_22
+  - first:
+      213: -8654350283149585945
+    second: enemy-mimic-v1_23
+  - first:
+      213: 7496923804137653926
+    second: enemy-mimic-v1_24
+  - first:
+      213: -4137359275189536220
+    second: enemy-mimic-v1_25
+  - first:
+      213: 4814279684545542898
+    second: enemy-mimic-v1_26
+  - first:
+      213: 6042206868025260472
+    second: enemy-mimic-v1_27
+  - first:
+      213: -5288927402657827884
+    second: enemy-mimic-v1_28
+  - first:
+      213: 6436255359441140273
+    second: enemy-mimic-v1_29
+  - first:
+      213: 6845595348554118558
+    second: enemy-mimic-v1_30
+  - first:
+      213: 3810584891473863293
+    second: enemy-mimic-v1_31
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: enemy-mimic-v1_0
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 662
+        width: 155
+        height: 146
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 637bd08c8f4e4cdd0800000000000000
+      internalID: -2466594938732824778
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_1
+      rect:
+        serializedVersion: 2
+        x: 252
+        y: 662
+        width: 155
+        height: 145
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39d772a3bd8a8d4d0800000000000000
+      internalID: -3109549883172356717
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_2
+      rect:
+        serializedVersion: 2
+        x: 461
+        y: 657
+        width: 169
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b087581d2d48df10800000000000000
+      internalID: 2294668866222522553
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_3
+      rect:
+        serializedVersion: 2
+        x: 679
+        y: 657
+        width: 185
+        height: 159
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6757c621638c99d70800000000000000
+      internalID: 9050485060740609398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_4
+      rect:
+        serializedVersion: 2
+        x: 923
+        y: 657
+        width: 153
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d2f38e4fad267a6d0800000000000000
+      internalID: -2979303935931039955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_5
+      rect:
+        serializedVersion: 2
+        x: 1146
+        y: 657
+        width: 153
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f28c2ff294c4a5990800000000000000
+      internalID: -7396515560781854673
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_6
+      rect:
+        serializedVersion: 2
+        x: 1363
+        y: 663
+        width: 152
+        height: 150
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f42dcf7398bce79c0800000000000000
+      internalID: -3927478034810219953
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_7
+      rect:
+        serializedVersion: 2
+        x: 1567
+        y: 658
+        width: 176
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82dd11addab249e50800000000000000
+      internalID: 6815120161806343464
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_8
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 446
+        width: 155
+        height: 163
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 652ba3f515d806ea0800000000000000
+      internalID: -5881545732716318122
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_9
+      rect:
+        serializedVersion: 2
+        x: 254
+        y: 446
+        width: 154
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bcf5b8e12474c4d0800000000000000
+      internalID: -3115237353246557000
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_10
+      rect:
+        serializedVersion: 2
+        x: 470
+        y: 446
+        width: 157
+        height: 169
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4f654f7bcc120310800000000000000
+      internalID: 1369688897013247822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_11
+      rect:
+        serializedVersion: 2
+        x: 683
+        y: 445
+        width: 169
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: acf466a0f1f313400800000000000000
+      internalID: 302092052561547210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_12
+      rect:
+        serializedVersion: 2
+        x: 935
+        y: 443
+        width: 151
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee448c3c3ae1d3700800000000000000
+      internalID: 521606820558030062
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_13
+      rect:
+        serializedVersion: 2
+        x: 1154
+        y: 443
+        width: 150
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 196fc673dfd1f0870800000000000000
+      internalID: 8651166382595831441
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_14
+      rect:
+        serializedVersion: 2
+        x: 1366
+        y: 444
+        width: 155
+        height: 165
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ff9789ec48da7c30800000000000000
+      internalID: 4358033414281469943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_15
+      rect:
+        serializedVersion: 2
+        x: 1575
+        y: 444
+        width: 157
+        height: 174
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf4edde6cd7448d40800000000000000
+      internalID: 5585668449924670715
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_16
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 238
+        width: 156
+        height: 166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ba67aedbe0409eb0800000000000000
+      internalID: -4715197428059903310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_17
+      rect:
+        serializedVersion: 2
+        x: 244
+        y: 239
+        width: 156
+        height: 165
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98b5ebb9f23847820800000000000000
+      internalID: 2915099099315198857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_18
+      rect:
+        serializedVersion: 2
+        x: 460
+        y: 234
+        width: 171
+        height: 169
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26094525566c38710800000000000000
+      internalID: 1694416023296708706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_19
+      rect:
+        serializedVersion: 2
+        x: 686
+        y: 234
+        width: 170
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0eed7d949daec2ca0800000000000000
+      internalID: -6040194781242990880
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_20
+      rect:
+        serializedVersion: 2
+        x: 918
+        y: 233
+        width: 151
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e921420dee06c280800000000000000
+      internalID: -9023508392282347036
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_21
+      rect:
+        serializedVersion: 2
+        x: 1138
+        y: 238
+        width: 152
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a8f5e897138d47c0800000000000000
+      internalID: -4085465149582477148
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_22
+      rect:
+        serializedVersion: 2
+        x: 1359
+        y: 233
+        width: 154
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 908739b3b6d3e6200800000000000000
+      internalID: 175144966284343305
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_23
+      rect:
+        serializedVersion: 2
+        x: 1584
+        y: 233
+        width: 160
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e1511b254295e780800000000000000
+      internalID: -8654350283149585945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_24
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 41
+        width: 156
+        height: 148
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a68bcdba7c6a0860800000000000000
+      internalID: 7496923804137653926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_25
+      rect:
+        serializedVersion: 2
+        x: 251
+        y: 41
+        width: 156
+        height: 148
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42af82ee8a52596c0800000000000000
+      internalID: -4137359275189536220
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_26
+      rect:
+        serializedVersion: 2
+        x: 462
+        y: 33
+        width: 171
+        height: 156
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2fa77beadd1cfc240800000000000000
+      internalID: 4814279684545542898
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_27
+      rect:
+        serializedVersion: 2
+        x: 679
+        y: 35
+        width: 185
+        height: 155
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b9321c222b3ad350800000000000000
+      internalID: 6042206868025260472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_28
+      rect:
+        serializedVersion: 2
+        x: 913
+        y: 40
+        width: 165
+        height: 174
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d330c99c84f996b0800000000000000
+      internalID: -5288927402657827884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_29
+      rect:
+        serializedVersion: 2
+        x: 1138
+        y: 36
+        width: 163
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13a713f062c225950800000000000000
+      internalID: 6436255359441140273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_30
+      rect:
+        serializedVersion: 2
+        x: 1365
+        y: 42
+        width: 156
+        height: 148
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9572a233b0700f50800000000000000
+      internalID: 6845595348554118558
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-mimic-v1_31
+      rect:
+        serializedVersion: 2
+        x: 1571
+        y: 37
+        width: 175
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7225caf4cae1e430800000000000000
+      internalID: 3810584891473863293
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -79,7 +79,8 @@ namespace Darkfall.Gameplay
             ranged = definition.projectileSpeed > 0 || definition.hasBow;
             gameObject.name = definition.type;
             var lowerType = definition.type.ToLowerInvariant();
-            directionalSheet = lowerType.Contains("archer") || lowerType.Contains("spitter") || lowerType.Contains("assassin")
+            directionalSheet = lowerType.Contains("mimic") ? "enemy-mimic-v1" :
+                lowerType.Contains("archer") || lowerType.Contains("spitter") || lowerType.Contains("assassin")
                 ? "enemy-ranged-v2"
                 : lowerType.Contains("mage") || lowerType.Contains("wraith") || lowerType.Contains("demon") ||
                   lowerType.Contains("lich") || lowerType.Contains("dragon") ? "enemy-caster-v2" : "enemy-melee-v2";
@@ -87,7 +88,8 @@ namespace Darkfall.Gameplay
             visual = new GameObject("Animated Visual").transform;
             visual.SetParent(transform, false);
             spriteRenderer = visual.gameObject.AddComponent<SpriteRenderer>();
-            spriteRenderer.sprite = GameSpriteAtlas.Enemy(definition.type);
+            spriteRenderer.sprite = DirectionalSpriteAtlas.Get(directionalSheet, Vector2.down, CharacterMotion.Idle, 0f)
+                                    ?? GameSpriteAtlas.Enemy(definition.type);
             spriteRenderer.color = boss ? new Color(1f, 0.42f, 0.42f) : ParseColor(definition.color);
             spriteRenderer.sortingOrder = 15;
             DarkfallRenderMaterials.MakeLit(spriteRenderer);

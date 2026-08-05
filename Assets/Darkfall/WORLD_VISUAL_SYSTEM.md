@@ -40,10 +40,11 @@ generation, collision or gameplay.
 
 ### Exit portal
 
-- A single portal is created at the farthest room when the level is built, initially sealed.
-- Clearing the enemy budget unlocks it; a fallback runtime check also handles non-standard enemy removal.
-- The unlocked portal receives emissive ground glow, stronger native 2D light and a cross-shaped minimap marker.
-- Close interaction uses an explicit `[E]` prompt. The sealed prompt reports the remaining enemy count.
+- A single portal is created at the farthest room when the level is built and is always usable.
+- Leaving early is a valid economy decision: remaining enemies simply mean forfeited gold and loot.
+- Clearing the enemy budget empowers the portal with emissive ground glow, stronger native 2D light and a
+  cross-shaped minimap marker. A fallback runtime check handles non-standard enemy removal.
+- Close interaction uses an explicit `[E]` prompt and reports how many enemies will be left behind.
 
 ### Lighting
 

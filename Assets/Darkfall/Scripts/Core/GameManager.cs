@@ -80,7 +80,7 @@ namespace Darkfall.Core
                 else TogglePause();
             }
             if (Player == null || IsPaused) return;
-            if (EnemyController.Count == 0 && ExitPortal.Active != null && !ExitPortal.Active.IsUnlocked)
+            if (EnemyController.Count == 0 && ExitPortal.Active != null && !ExitPortal.Active.IsEmpowered)
                 OpenExitPortal();
             if (GameInput.InteractPressed && !ExitPortal.InteractNearest(Player)) TreasureChest.InteractNearest(Player);
             var quickSlot = GameInput.QuickSlotPressed;
@@ -170,7 +170,7 @@ namespace Darkfall.Core
                     TreasureChest.Spawn(Dungeon.CellCenter(PickSpawnCell(enemyBudget + i + 3)), Player);
             }
             var portal = ExitPortal.Spawn(Dungeon.CellCenter(Dungeon.ExitCell), Player);
-            if (EnemyController.Count == 0) portal.Unlock();
+            if (EnemyController.Count == 0) portal.Empower();
             NotifyStatsChanged();
         }
 
@@ -228,6 +228,30 @@ namespace Darkfall.Core
             enemyObject.AddComponent<EnemyController>().Initialize(Dungeon, Player, Depth, false, definition);
         }
 
+        public void SpawnMimic(Vector2 position)
+        {
+            if (Dungeon == null || Player == null || !Dungeon.CanOccupy(position, .22f)) return;
+            var definition = new LegacyEnemy
+            {
+                type = "Chest Mimic",
+                color = "#FFFFFF",
+                hp = 48f,
+                damage = 21f,
+                speed = 68f,
+                attackRange = 46f,
+                reward = 38f,
+                levelRequirement = 1,
+                levelTier = 1,
+                abilities = Array.Empty<string>()
+            };
+            var enemyObject = new GameObject(definition.type);
+            enemyObject.transform.SetParent(levelRoot);
+            enemyObject.transform.position = position;
+            enemyObject.AddComponent<EnemyController>().Initialize(Dungeon, Player, Depth, false, definition);
+            CombatVfx.SpawnPulse(position, new Color(.72f, .18f, .055f), 1.4f, .3f);
+            ShowMessage("Сундук оказался мимиком!");
+        }
+
         public void EnemyDefeated(Vector2 position, bool boss, float reward)
         {
             SessionKills++;
@@ -246,9 +270,9 @@ namespace Darkfall.Core
 
         private void OpenExitPortal()
         {
-            if (ExitPortal.Active == null || ExitPortal.Active.IsUnlocked) return;
-            ExitPortal.Active.Unlock();
-            OverlayRequested?.Invoke("Путь открыт — портал отмечен на карте");
+            if (ExitPortal.Active == null || ExitPortal.Active.IsEmpowered) return;
+            ExitPortal.Active.Empower();
+            OverlayRequested?.Invoke("Этаж зачищен — портал отмечен на карте");
         }
 
         public void NextLevel()

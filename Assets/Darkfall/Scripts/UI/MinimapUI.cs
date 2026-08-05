@@ -63,11 +63,8 @@ namespace Darkfall.UI
             var portal = ExitPortal.Active;
             if (portal != null)
             {
-                var portalCell = new Vector2Int(Mathf.FloorToInt(portal.transform.position.x), Mathf.FloorToInt(portal.transform.position.y));
-                if (portal.IsUnlocked || game.Dungeon.IsExplored(portalCell.x, portalCell.y))
-                    SetMarker(colors, portal.transform.position, portal.IsUnlocked
-                        ? new Color32(245, 126, 35, 255)
-                        : new Color32(116, 100, 84, 255));
+                if (portal.IsEmpowered)
+                    SetMarker(colors, portal.transform.position, new Color32(245, 126, 35, 255));
             }
             Set(colors, game.Player.transform.position, new Color32(231, 189, 92, 255));
             texture.SetPixels32(colors);
