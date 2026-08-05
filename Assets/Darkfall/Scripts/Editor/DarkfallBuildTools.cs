@@ -152,6 +152,22 @@ namespace Darkfall.Editor
                 throw new InvalidOperationException($"Build failed: {report.summary.result}");
         }
 
+        public static void BuildWindows()
+        {
+            ValidateProject();
+            ConfigureBuild();
+            Directory.CreateDirectory("Builds/Windows");
+            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            {
+                scenes = new[] { MainScene },
+                locationPathName = "Builds/Windows/Darkfall Depths.exe",
+                target = BuildTarget.StandaloneWindows64,
+                options = BuildOptions.CleanBuildCache
+            });
+            if (report.summary.result != BuildResult.Succeeded)
+                throw new InvalidOperationException($"Build failed: {report.summary.result}");
+        }
+
         private static int Require(bool condition, string message)
         {
             if (condition) return 0;
