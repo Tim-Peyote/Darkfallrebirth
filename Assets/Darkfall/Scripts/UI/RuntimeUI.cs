@@ -50,6 +50,9 @@ namespace Darkfall.UI
         private Text shopGold;
         private Image shopHero;
         private Text shopHeroStats;
+        private UIHeroIdleAnimator shopHeroAnimator;
+        private HeroClass shopAnimatedClass;
+        private bool shopAnimatorInitialized;
         private readonly Text[] shopOfferTexts = new Text[5];
         private readonly Button[] shopOfferButtons = new Button[5];
         private HeroClass selected = HeroClass.Mage;
@@ -395,32 +398,72 @@ namespace Darkfall.UI
 
         private void BuildShop()
         {
-            shop = Panel("Shop", canvas.transform, new Color(.004f, .006f, .008f, .94f));
-            var card = Panel("Shop Card", shop.transform, Color.white);
-            DarkFantasySkin.Apply(card.GetComponent<Image>(), DarkFantasySkin.Panel, new Color(.9f, .72f, .35f));
-            SetRect(card.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(1180, 820), Vector2.zero);
-            AddText(card.transform, "ПРИВАЛ В ГЛУБИНАХ", 36, new Vector2(0, 340), new Vector2(900, 58), new Color(.9f, .75f, .42f), TextAnchor.MiddleCenter);
-            AddText(card.transform, "Подготовьтесь к следующему спуску", 16, new Vector2(0, 302), new Vector2(700, 30), DarkFantasySkin.MutedText, TextAnchor.MiddleCenter);
-            AddDivider(card.transform, 278, 940);
-            shopGold = AddText(card.transform, "", 20, new Vector2(340, 245), new Vector2(500, 36), new Color(.84f, .8f, .7f), TextAnchor.MiddleRight);
+            shop = new GameObject("Sanctuary Shop", typeof(RectTransform), typeof(RawImage));
+            shop.transform.SetParent(canvas.transform, false);
+            Stretch(shop.GetComponent<RectTransform>());
+            var background = shop.GetComponent<RawImage>();
+            background.texture = Resources.Load<Texture2D>("Art/shop-sanctuary");
+            background.color = background.texture != null ? Color.white : new Color(.025f, .018f, .012f, 1f);
+            background.raycastTarget = false;
+            shop.AddComponent<RawImageCover>();
+
+            var veil = Panel("Sanctuary Atmosphere", shop.transform, new Color(.006f, .007f, .008f, .34f));
+            veil.GetComponent<Image>().raycastTarget = false;
+            var safe = Panel("Shop Safe Area", shop.transform, Color.clear);
+            safe.GetComponent<Image>().raycastTarget = false;
+            safe.AddComponent<SafeAreaFitter>();
+
+            var header = Panel("Merchant Header", safe.transform, Color.white);
+            DarkFantasySkin.Apply(header.GetComponent<Image>(), DarkFantasySkin.Tooltip, new Color(.72f, .48f, .20f));
+            SetRect(header.GetComponent<RectTransform>(), new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(1740, 92), new Vector2(0, -62));
+            AddText(header.transform, "УБЕЖИЩЕ СКУПЩИКА", 32, new Vector2(-600, 8), new Vector2(470, 42),
+                new Color(.94f, .79f, .51f), TextAnchor.MiddleLeft);
+            AddText(header.transform, "Реликвии и услуги между погружениями", 15, new Vector2(-545, -24), new Vector2(580, 24),
+                DarkFantasySkin.MutedText, TextAnchor.MiddleLeft);
+            shopGold = AddText(header.transform, string.Empty, 22, new Vector2(650, 0), new Vector2(360, 44),
+                new Color(.95f, .72f, .28f), TextAnchor.MiddleRight);
+
+            var heroCard = Panel("Traveller", safe.transform, Color.white);
+            DarkFantasySkin.Apply(heroCard.GetComponent<Image>(), DarkFantasySkin.Tooltip, new Color(.36f, .28f, .19f));
+            SetRect(heroCard.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(440, 790), new Vector2(-632, -48));
+            AddText(heroCard.transform, "ПУТНИК", 18, new Vector2(0, 344), new Vector2(360, 34),
+                new Color(.82f, .68f, .44f), TextAnchor.MiddleCenter);
+            AddDivider(heroCard.transform, 315, 342);
             shopHero = new GameObject("Hero Preview", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
-            shopHero.transform.SetParent(card.transform, false);
+            shopHero.transform.SetParent(heroCard.transform, false);
             shopHero.preserveAspect = true;
             shopHero.raycastTarget = false;
-            SetRect(shopHero.rectTransform, new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(340, 500), new Vector2(-370, 6));
-            shopHeroStats = AddText(card.transform, "", 15, new Vector2(-370, -250), new Vector2(360, 72),
-                new Color(.78f, .71f, .58f), TextAnchor.MiddleCenter);
+            SetRect(shopHero.rectTransform, new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(360, 470), new Vector2(0, 78));
+            shopHeroAnimator = shopHero.gameObject.AddComponent<UIHeroIdleAnimator>();
+            var statsSurface = Panel("Traveller Stats", heroCard.transform, Color.white);
+            DarkFantasySkin.Apply(statsSurface.GetComponent<Image>(), DarkFantasySkin.Slot);
+            SetRect(statsSurface.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(370, 180), new Vector2(0, -270));
+            shopHeroStats = AddText(statsSurface.transform, string.Empty, 16, Vector2.zero, new Vector2(326, 142),
+                new Color(.86f, .82f, .73f), TextAnchor.MiddleLeft);
+
+            var offersCard = Panel("Relic Counter", safe.transform, Color.white);
+            DarkFantasySkin.Apply(offersCard.GetComponent<Image>(), DarkFantasySkin.Panel, new Color(.62f, .40f, .17f));
+            SetRect(offersCard.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(1120, 790), new Vector2(280, -48));
+            AddText(offersCard.transform, "ДОСТУПНЫЕ УСИЛЕНИЯ", 26, new Vector2(-325, 342), new Vector2(420, 40),
+                DarkFantasySkin.Text, TextAnchor.MiddleLeft);
+            AddText(offersCard.transform, "Покупка действует до конца забега", 15, new Vector2(300, 342), new Vector2(430, 28),
+                DarkFantasySkin.MutedText, TextAnchor.MiddleRight);
+            AddDivider(offersCard.transform, 310, 1010);
             for (var i = 0; i < 5; i++)
             {
                 var index = i;
-                var offer = AddButton(card.transform, "", new Vector2(215, 190 - i * 93), new Vector2(650, 72),
+                var offer = AddButton(offersCard.transform, string.Empty, new Vector2(0, 244 - i * 112), new Vector2(1010, 94),
                     () => { game.BuyShopOffer(index); RefreshShop(); }, new Color(.20f, .14f, .08f));
                 shopOfferButtons[i] = offer.GetComponent<Button>();
                 shopOfferTexts[i] = offer.GetComponentInChildren<Text>();
                 shopOfferTexts[i].alignment = TextAnchor.MiddleLeft;
+                shopOfferTexts[i].fontSize = 18;
+                shopOfferTexts[i].lineSpacing = .92f;
             }
-            AddButton(card.transform, "ПРОДОЛЖИТЬ СПУСК", new Vector2(210, -340), new Vector2(520, 58), game.ContinueAfterShop,
-                new Color(.12f, .4f, .5f));
+            AddButton(offersCard.transform, "ПОКИНУТЬ УБЕЖИЩЕ", new Vector2(250, -340), new Vector2(510, 60), game.ContinueAfterShop,
+                new Color(.48f, .27f, .10f));
+            AddText(offersCard.transform, "Следующая глубина ждёт", 14, new Vector2(-308, -340), new Vector2(370, 28),
+                DarkFantasySkin.MutedText, TextAnchor.MiddleLeft);
             shop.SetActive(false);
         }
 
@@ -473,12 +516,26 @@ namespace Darkfall.UI
 
         private void RefreshShop()
         {
-            shopGold.text = $"Золото: {game.Gold}";
+            shopGold.text = $"ЗОЛОТО   {game.Gold:0}";
             if (game.Player != null)
             {
                 shopHero.sprite = DirectionalSpriteAtlas.HeroPortrait(game.Player.Hero.heroClass);
-                shopHeroStats.text = $"{game.Player.Hero.displayName.ToUpperInvariant()}\n" +
-                                     $"HP {game.Player.Health:0}/{game.Player.MaxHealth:0}   УРОН {game.Player.Damage:0.#}   ЗАЩИТА {game.Player.Defense:0.#}";
+                if (!shopAnimatorInitialized || shopAnimatedClass != game.Player.Hero.heroClass)
+                {
+                    shopAnimatedClass = game.Player.Hero.heroClass;
+                    shopAnimatorInitialized = true;
+                    shopHeroAnimator.Initialize(shopAnimatedClass, .35f);
+                }
+                // Preview art has different occupied silhouette heights inside the same 256px
+                // canvas. Compensate through the RectTransform so every traveller owns the same
+                // visual weight in the merchant scene without stretching individual frames.
+                shopHero.rectTransform.sizeDelta = shopAnimatedClass == HeroClass.Rogue ? new Vector2(500, 560) :
+                    shopAnimatedClass == HeroClass.Warrior ? new Vector2(370, 480) : new Vector2(360, 470);
+                shopHeroStats.text = $"{game.Player.Hero.displayName.ToUpperInvariant()}\n\n" +
+                                     $"ЗДОРОВЬЕ   {game.Player.Health:0} / {game.Player.MaxHealth:0}\n" +
+                                     $"УРОН       {game.Player.Damage:0.#}\n" +
+                                     $"ЗАЩИТА     {game.Player.Defense:0.#}\n" +
+                                     $"КРИТ       {game.Player.CriticalChance * 100f:0}%";
             }
             for (var i = 0; i < shopOfferTexts.Length; i++)
             {
@@ -491,8 +548,9 @@ namespace Darkfall.UI
                 var offer = game.ShopOffers[i];
                 var count = game.PurchaseCount(offer.id);
                 var maxed = count >= offer.maxPurchases;
-                shopOfferTexts[i].text = $"{offer.icon}  {offer.name}\n{offer.description}     " +
-                                         $"Цена: {game.ShopPrice(offer)}     Куплено: {count}/{offer.maxPurchases}";
+                var purchase = maxed ? "ПРЕДЕЛ ДОСТИГНУТ" : $"{game.ShopPrice(offer)} ЗОЛ.   ·   УРОВЕНЬ {count}/{offer.maxPurchases}";
+                shopOfferTexts[i].text = $"{offer.name.ToUpperInvariant()}\n" +
+                                         $"{offer.description}    ·    {purchase}";
                 shopOfferButtons[i].interactable = !maxed && game.Gold >= game.ShopPrice(offer);
             }
         }

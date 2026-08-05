@@ -37,6 +37,7 @@ namespace Darkfall.Gameplay
         private float attackAnimationUntil;
         private float hitAnimationUntil;
         private string directionalSheet;
+        private float visualScale = 1f;
 
         public float Health { get; private set; }
         public float MaxHealth => hero.maxHealth + EquipmentStat(item => item.maxHp);
@@ -75,7 +76,12 @@ namespace Darkfall.Gameplay
             spriteRenderer.color = Color.white;
             spriteRenderer.sortingOrder = 20;
             DarkfallRenderMaterials.MakeLit(spriteRenderer);
-            visual.localScale = Vector3.one * 1.35f;
+            // The source sheets have deliberately different transparent gutters and silhouette
+            // heights. A single transform scale made the rogue visibly undersized and caused the
+            // apparent size to jump when a directional frame changed.
+            visualScale = hero.heroClass == HeroClass.Rogue ? 1.38f :
+                hero.heroClass == HeroClass.Warrior ? .96f : 1f;
+            visual.localScale = Vector3.one * visualScale;
             directionalSheet = hero.heroClass == HeroClass.Mage ? "mage-v2" :
                 hero.heroClass == HeroClass.Warrior ? "warrior-v2" : "rogue-v2";
             gameObject.AddComponent<CircleCollider2D>().radius = 0.45f;
@@ -166,7 +172,7 @@ namespace Darkfall.Gameplay
             {
                 spriteRenderer.sprite = directional;
                 spriteRenderer.flipX = flipX;
-                visual.localScale = Vector3.one;
+                visual.localScale = Vector3.one * visualScale;
                 visual.localPosition = Vector3.zero;
                 visual.localRotation = Quaternion.identity;
                 return;

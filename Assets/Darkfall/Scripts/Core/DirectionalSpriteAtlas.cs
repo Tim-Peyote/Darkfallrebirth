@@ -83,17 +83,7 @@ namespace Darkfall.Core
             else direction = facing.y > 0f ? "up" : "down";
 
             var frame = MotionFrame(motion, time);
-            var pixelsPerUnit = 180f;
-            // The generated mage contacts repeatedly used the same visible leg. The independently
-            // authored left contact contains the missing anatomical phase; mirror that source for
-            // right-facing playback and compensate its 209px silhouette to the 200px side baseline.
-            if (hero == "mage" && horizontal && motion == CharacterMotion.Walk && frame == "walk_3")
-            {
-                direction = "left";
-                frame = "walk_2";
-                flipX = facing.x > 0f;
-                pixelsPerUnit = 188f;
-            }
+            const float pixelsPerUnit = 180f;
             var path = $"Sprites/Characters/{hero}/{direction}/{frame}";
             if (HeroCache.TryGetValue(path, out sprite)) return sprite != null;
             var texture = Resources.Load<Texture2D>(path);

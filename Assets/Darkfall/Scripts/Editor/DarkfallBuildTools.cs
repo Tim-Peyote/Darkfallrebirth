@@ -20,6 +20,7 @@ namespace Darkfall.Editor
             var failures = 0;
             failures += Require(File.Exists(MainScene), "Main scene is missing");
             failures += Require(Resources.Load<Texture2D>("Art/Main") != null, "Main menu art is missing");
+            failures += Require(Resources.Load<Texture2D>("Art/shop-sanctuary") != null, "Unique shop sanctuary art is missing");
             failures += Require(Resources.Load<AudioClip>("Audio/Main") != null, "Main music is missing");
             failures += Require(Resources.Load<Font>("Fonts/PTSans-Regular") != null, "Body UI font is missing");
             failures += Require(Resources.Load<Font>("Fonts/CormorantGaramond") != null, "Heading UI font is missing");
@@ -102,6 +103,13 @@ namespace Darkfall.Editor
                 failures += Require(dungeon.CanOccupy(start + Vector2.right * .3f, .22f), $"Seed {seed}: start blocks right movement");
                 failures += Require(dungeon.CanOccupy(start + Vector2.up * .3f, .22f), $"Seed {seed}: start blocks upward movement");
                 failures += Require(dungeon.CanOccupy(start + Vector2.down * .3f, .22f), $"Seed {seed}: start blocks downward movement");
+                for (var room = 1; room < dungeon.Rooms.Count; room++)
+                {
+                    var previous = dungeon.CellCenter(dungeon.Rooms[room - 1].Center);
+                    var current = dungeon.CellCenter(dungeon.Rooms[room].Center);
+                    failures += Require(HasWalkableRoute(dungeon, previous, current),
+                        $"Seed {seed}: generated passage {room - 1}->{room} is disconnected");
+                }
             }
             var bossArena = DungeonGenerator.Generate(balance, 10, 1010);
             failures += Require(bossArena.Width == 30 && bossArena.Height == 30, "Boss arena must be 30x30");
@@ -149,6 +157,31 @@ namespace Darkfall.Editor
             if (condition) return 0;
             Debug.LogError(message);
             return 1;
+        }
+
+        private static bool HasWalkableRoute(DungeonData dungeon, Vector2 from, Vector2 to)
+        {
+            var start = new Vector2Int(Mathf.FloorToInt(from.x), Mathf.FloorToInt(from.y));
+            var goal = new Vector2Int(Mathf.FloorToInt(to.x), Mathf.FloorToInt(to.y));
+            var queue = new System.Collections.Generic.Queue<Vector2Int>();
+            var visited = new bool[dungeon.Width, dungeon.Height];
+            queue.Enqueue(start);
+            visited[start.x, start.y] = true;
+            var directions = new[] { Vector2Int.left, Vector2Int.right, Vector2Int.up, Vector2Int.down };
+            while (queue.Count > 0)
+            {
+                var cell = queue.Dequeue();
+                if (cell == goal) return true;
+                foreach (var direction in directions)
+                {
+                    var next = cell + direction;
+                    if (next.x < 0 || next.y < 0 || next.x >= dungeon.Width || next.y >= dungeon.Height ||
+                        visited[next.x, next.y] || !dungeon.CanOccupy(dungeon.CellCenter(next), .22f)) continue;
+                    visited[next.x, next.y] = true;
+                    queue.Enqueue(next);
+                }
+            }
+            return false;
         }
 
         private static int ValidateHeroFrames(string hero)

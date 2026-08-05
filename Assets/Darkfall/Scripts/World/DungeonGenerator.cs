@@ -124,12 +124,23 @@ namespace Darkfall.World
 
         private static void CarveHorizontal(bool[,] floor, int from, int to, int y)
         {
-            for (var x = Mathf.Min(from, to); x <= Mathf.Max(from, to); x++) floor[x, y] = true;
+            // Two-cell corridors keep the rendered opening and the actor's collision envelope
+            // visually aligned. One-cell corridors were technically passable at their centre,
+            // but read as wall trim and snagged the player at every L-shaped connection.
+            for (var x = Mathf.Min(from, to); x <= Mathf.Max(from, to); x++)
+            {
+                floor[x, y] = true;
+                if (y + 1 < floor.GetLength(1)) floor[x, y + 1] = true;
+            }
         }
 
         private static void CarveVertical(bool[,] floor, int from, int to, int x)
         {
-            for (var y = Mathf.Min(from, to); y <= Mathf.Max(from, to); y++) floor[x, y] = true;
+            for (var y = Mathf.Min(from, to); y <= Mathf.Max(from, to); y++)
+            {
+                floor[x, y] = true;
+                if (x + 1 < floor.GetLength(0)) floor[x + 1, y] = true;
+            }
         }
     }
 }
