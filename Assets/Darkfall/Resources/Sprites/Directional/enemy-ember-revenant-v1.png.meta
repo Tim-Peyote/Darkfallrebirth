@@ -1,0 +1,1268 @@
+fileFormatVersion: 2
+guid: 9fb9927ccd61a45cbad45d634af2f7f4
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4901091858531634146
+    second: enemy-ember-revenant-v1_0
+  - first:
+      213: -1856365065333523675
+    second: enemy-ember-revenant-v1_1
+  - first:
+      213: -5608046492344950835
+    second: enemy-ember-revenant-v1_2
+  - first:
+      213: 2146371266614713595
+    second: enemy-ember-revenant-v1_3
+  - first:
+      213: -6009700432102850764
+    second: enemy-ember-revenant-v1_4
+  - first:
+      213: -9061396010313973822
+    second: enemy-ember-revenant-v1_5
+  - first:
+      213: -735831088872810926
+    second: enemy-ember-revenant-v1_6
+  - first:
+      213: 494021720804369437
+    second: enemy-ember-revenant-v1_7
+  - first:
+      213: -8425160186322975289
+    second: enemy-ember-revenant-v1_8
+  - first:
+      213: -7219510815737315932
+    second: enemy-ember-revenant-v1_9
+  - first:
+      213: 4473157832668152561
+    second: enemy-ember-revenant-v1_10
+  - first:
+      213: -1221928842130606081
+    second: enemy-ember-revenant-v1_11
+  - first:
+      213: -7136267860051846046
+    second: enemy-ember-revenant-v1_12
+  - first:
+      213: 8356270413379631019
+    second: enemy-ember-revenant-v1_13
+  - first:
+      213: 6186801985721611484
+    second: enemy-ember-revenant-v1_14
+  - first:
+      213: 8809412385101795063
+    second: enemy-ember-revenant-v1_15
+  - first:
+      213: -1709744541297021332
+    second: enemy-ember-revenant-v1_16
+  - first:
+      213: -6509665748280398277
+    second: enemy-ember-revenant-v1_17
+  - first:
+      213: 259587054324878641
+    second: enemy-ember-revenant-v1_18
+  - first:
+      213: -8724989251844831353
+    second: enemy-ember-revenant-v1_19
+  - first:
+      213: -987180450446619171
+    second: enemy-ember-revenant-v1_20
+  - first:
+      213: 7902484040593755890
+    second: enemy-ember-revenant-v1_21
+  - first:
+      213: -1375835790534669017
+    second: enemy-ember-revenant-v1_22
+  - first:
+      213: -2950189846886815617
+    second: enemy-ember-revenant-v1_23
+  - first:
+      213: 2242908271347578906
+    second: enemy-ember-revenant-v1_24
+  - first:
+      213: -8660501238361383687
+    second: enemy-ember-revenant-v1_25
+  - first:
+      213: 1010332113608227689
+    second: enemy-ember-revenant-v1_26
+  - first:
+      213: -6242224126421334299
+    second: enemy-ember-revenant-v1_27
+  - first:
+      213: -3621521567652595542
+    second: enemy-ember-revenant-v1_28
+  - first:
+      213: 1123332923449387812
+    second: enemy-ember-revenant-v1_29
+  - first:
+      213: 8680299228126906678
+    second: enemy-ember-revenant-v1_30
+  - first:
+      213: 3413171692564034760
+    second: enemy-ember-revenant-v1_31
+  - first:
+      213: 1104829200635304742
+    second: enemy-ember-revenant-v1_32
+  - first:
+      213: -2466296314683232145
+    second: enemy-ember-revenant-v1_33
+  - first:
+      213: -2053613952019076585
+    second: enemy-ember-revenant-v1_34
+  - first:
+      213: -5953927326556170438
+    second: enemy-ember-revenant-v1_35
+  - first:
+      213: 7079291639843816772
+    second: enemy-ember-revenant-v1_36
+  - first:
+      213: -2747353283464632513
+    second: enemy-ember-revenant-v1_37
+  - first:
+      213: 3636348251949171240
+    second: enemy-ember-revenant-v1_38
+  - first:
+      213: -4766070268154141893
+    second: enemy-ember-revenant-v1_39
+  - first:
+      213: -1882270432578501082
+    second: enemy-ember-revenant-v1_40
+  - first:
+      213: -1248650553804629255
+    second: enemy-ember-revenant-v1_41
+  - first:
+      213: 1267167060932136040
+    second: enemy-ember-revenant-v1_42
+  - first:
+      213: 1779605202448084627
+    second: enemy-ember-revenant-v1_43
+  - first:
+      213: 7450558599192261608
+    second: enemy-ember-revenant-v1_44
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_0
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 673
+        width: 131
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2eb4657041d240440800000000000000
+      internalID: 4901091858531634146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_1
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 670
+        width: 132
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52bb95bfecddc36e0800000000000000
+      internalID: -1856365065333523675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_2
+      rect:
+        serializedVersion: 2
+        x: 477
+        y: 667
+        width: 135
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dcf57eb8d673c22b0800000000000000
+      internalID: -5608046492344950835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_3
+      rect:
+        serializedVersion: 2
+        x: 697
+        y: 670
+        width: 135
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bfcdca68b4179cd10800000000000000
+      internalID: 2146371266614713595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_4
+      rect:
+        serializedVersion: 2
+        x: 940
+        y: 672
+        width: 137
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43f7ff93c41499ca0800000000000000
+      internalID: -6009700432102850764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_5
+      rect:
+        serializedVersion: 2
+        x: 1141
+        y: 670
+        width: 187
+        height: 179
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2cff71486547f3280800000000000000
+      internalID: -9061396010313973822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_6
+      rect:
+        serializedVersion: 2
+        x: 1290
+        y: 846
+        width: 22
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2561c05f58dc9c5f0800000000000000
+      internalID: -735831088872810926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_7
+      rect:
+        serializedVersion: 2
+        x: 1366
+        y: 672
+        width: 132
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d142fdb332e1bd600800000000000000
+      internalID: 494021720804369437
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_8
+      rect:
+        serializedVersion: 2
+        x: 1589
+        y: 676
+        width: 128
+        height: 156
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c5847ee271d31b80800000000000000
+      internalID: -8425160186322975289
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_9
+      rect:
+        serializedVersion: 2
+        x: 1716
+        y: 816
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4adf2e7e9252fcb90800000000000000
+      internalID: -7219510815737315932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_10
+      rect:
+        serializedVersion: 2
+        x: 1714
+        y: 806
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f201785959d31e30800000000000000
+      internalID: 4473157832668152561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_11
+      rect:
+        serializedVersion: 2
+        x: 1571
+        y: 760
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff730003136da0fe0800000000000000
+      internalID: -1221928842130606081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_12
+      rect:
+        serializedVersion: 2
+        x: 1578
+        y: 747
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26c929bd032e6fc90800000000000000
+      internalID: -7136267860051846046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_13
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 450
+        width: 104
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba77994eaaf67f370800000000000000
+      internalID: 8356270413379631019
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_14
+      rect:
+        serializedVersion: 2
+        x: 264
+        y: 451
+        width: 110
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd43e9e70afebd550800000000000000
+      internalID: 6186801985721611484
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_15
+      rect:
+        serializedVersion: 2
+        x: 485
+        y: 451
+        width: 118
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fe4be5d3e1514a70800000000000000
+      internalID: 8809412385101795063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_16
+      rect:
+        serializedVersion: 2
+        x: 707
+        y: 451
+        width: 125
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6ee357f564c548e0800000000000000
+      internalID: -1709744541297021332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_17
+      rect:
+        serializedVersion: 2
+        x: 926
+        y: 454
+        width: 139
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3e283bdd7509a5a0800000000000000
+      internalID: -6509665748280398277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_18
+      rect:
+        serializedVersion: 2
+        x: 1128
+        y: 454
+        width: 203
+        height: 175
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13d0351fc0d3a9300800000000000000
+      internalID: 259587054324878641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_19
+      rect:
+        serializedVersion: 2
+        x: 1374
+        y: 450
+        width: 106
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78700be908c9ae680800000000000000
+      internalID: -8724989251844831353
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_20
+      rect:
+        serializedVersion: 2
+        x: 1573
+        y: 456
+        width: 140
+        height: 150
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ddd4be15c94dc42f0800000000000000
+      internalID: -987180450446619171
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_21
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 229
+        width: 103
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2fec8c2ad534bad60800000000000000
+      internalID: 7902484040593755890
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_22
+      rect:
+        serializedVersion: 2
+        x: 291
+        y: 231
+        width: 108
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72d89e353ac08ece0800000000000000
+      internalID: -1375835790534669017
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_23
+      rect:
+        serializedVersion: 2
+        x: 494
+        y: 231
+        width: 127
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f78e85c07f1de07d0800000000000000
+      internalID: -2950189846886815617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_24
+      rect:
+        serializedVersion: 2
+        x: 725
+        y: 229
+        width: 117
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1835797039602f10800000000000000
+      internalID: 2242908271347578906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_25
+      rect:
+        serializedVersion: 2
+        x: 930
+        y: 233
+        width: 139
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fc93ae4208bfc780800000000000000
+      internalID: -8660501238361383687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_26
+      rect:
+        serializedVersion: 2
+        x: 1135
+        y: 231
+        width: 171
+        height: 169
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96bb9c054bb650e00800000000000000
+      internalID: 1010332113608227689
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_27
+      rect:
+        serializedVersion: 2
+        x: 1247
+        y: 395
+        width: 17
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e68840da3a2f59a0800000000000000
+      internalID: -6242224126421334299
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_28
+      rect:
+        serializedVersion: 2
+        x: 1403
+        y: 228
+        width: 105
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa8b6a56255cdbdc0800000000000000
+      internalID: -3621521567652595542
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_29
+      rect:
+        serializedVersion: 2
+        x: 1301
+        y: 351
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42ba3ba9751e69f00800000000000000
+      internalID: 1123332923449387812
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_30
+      rect:
+        serializedVersion: 2
+        x: 1599
+        y: 341
+        width: 14
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6390a94682e967870800000000000000
+      internalID: 8680299228126906678
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_31
+      rect:
+        serializedVersion: 2
+        x: 1606
+        y: 235
+        width: 140
+        height: 149
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c4b2b412950e5f20800000000000000
+      internalID: 3413171692564034760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_32
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 11
+        width: 128
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62b9859ed44255f00800000000000000
+      internalID: 1104829200635304742
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_33
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 11
+        width: 128
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f60737c9194f5cdd0800000000000000
+      internalID: -2466296314683232145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_34
+      rect:
+        serializedVersion: 2
+        x: 499
+        y: 7
+        width: 130
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71aed1cbdf81083e0800000000000000
+      internalID: -2053613952019076585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_35
+      rect:
+        serializedVersion: 2
+        x: 722
+        y: 8
+        width: 125
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a37d02a44a66f5da0800000000000000
+      internalID: -5953927326556170438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_36
+      rect:
+        serializedVersion: 2
+        x: 923
+        y: 10
+        width: 126
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 445884e1d32be3260800000000000000
+      internalID: 7079291639843816772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_37
+      rect:
+        serializedVersion: 2
+        x: 1141
+        y: 7
+        width: 171
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f37669aaeb07fd9d0800000000000000
+      internalID: -2747353283464632513
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_38
+      rect:
+        serializedVersion: 2
+        x: 1311
+        y: 170
+        width: 7
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8220b0d0877e67230800000000000000
+      internalID: 3636348251949171240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_39
+      rect:
+        serializedVersion: 2
+        x: 1388
+        y: 10
+        width: 128
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b332f14c7548bddb0800000000000000
+      internalID: -4766070268154141893
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_40
+      rect:
+        serializedVersion: 2
+        x: 1588
+        y: 18
+        width: 115
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62600f6a305d0e5e0800000000000000
+      internalID: -1882270432578501082
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_41
+      rect:
+        serializedVersion: 2
+        x: 1690
+        y: 184
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fa51ebdfe6ebaee0800000000000000
+      internalID: -1248650553804629255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_42
+      rect:
+        serializedVersion: 2
+        x: 1318
+        y: 161
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86c8fe96ab1e59110800000000000000
+      internalID: 1267167060932136040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_43
+      rect:
+        serializedVersion: 2
+        x: 1686
+        y: 167
+        width: 16
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39eea5cb08d62b810800000000000000
+      internalID: 1779605202448084627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ember-revenant-v1_44
+      rect:
+        serializedVersion: 2
+        x: 1706
+        y: 162
+        width: 6
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e3361b3293b56760800000000000000
+      internalID: 7450558599192261608
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

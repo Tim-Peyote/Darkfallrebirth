@@ -1,0 +1,1393 @@
+fileFormatVersion: 2
+guid: 5885819cf130c4633a299c5e7e35bf05
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6826451384114892975
+    second: enemy-obsidian-acolyte-v1_0
+  - first:
+      213: 6988135019283435586
+    second: enemy-obsidian-acolyte-v1_1
+  - first:
+      213: 2798718031303487972
+    second: enemy-obsidian-acolyte-v1_2
+  - first:
+      213: -908597183841221937
+    second: enemy-obsidian-acolyte-v1_3
+  - first:
+      213: -5936090836066331615
+    second: enemy-obsidian-acolyte-v1_4
+  - first:
+      213: 5256134525639634422
+    second: enemy-obsidian-acolyte-v1_5
+  - first:
+      213: -5484057236061011601
+    second: enemy-obsidian-acolyte-v1_6
+  - first:
+      213: -7762411967149932374
+    second: enemy-obsidian-acolyte-v1_7
+  - first:
+      213: -3448523049064210819
+    second: enemy-obsidian-acolyte-v1_8
+  - first:
+      213: -7283516139190421862
+    second: enemy-obsidian-acolyte-v1_9
+  - first:
+      213: -3769840848318807407
+    second: enemy-obsidian-acolyte-v1_10
+  - first:
+      213: -3488795263854264526
+    second: enemy-obsidian-acolyte-v1_11
+  - first:
+      213: 2249642231017942358
+    second: enemy-obsidian-acolyte-v1_12
+  - first:
+      213: -5050384854531396481
+    second: enemy-obsidian-acolyte-v1_13
+  - first:
+      213: 5392929766740484474
+    second: enemy-obsidian-acolyte-v1_14
+  - first:
+      213: 8443682480442013051
+    second: enemy-obsidian-acolyte-v1_15
+  - first:
+      213: -8390122409464801382
+    second: enemy-obsidian-acolyte-v1_16
+  - first:
+      213: 5258519694733297205
+    second: enemy-obsidian-acolyte-v1_17
+  - first:
+      213: 8999072708073992157
+    second: enemy-obsidian-acolyte-v1_18
+  - first:
+      213: -2403989151435280341
+    second: enemy-obsidian-acolyte-v1_19
+  - first:
+      213: -3155103734120698111
+    second: enemy-obsidian-acolyte-v1_20
+  - first:
+      213: 7093443428568818399
+    second: enemy-obsidian-acolyte-v1_21
+  - first:
+      213: -5221484569748327818
+    second: enemy-obsidian-acolyte-v1_22
+  - first:
+      213: -3032562654314189888
+    second: enemy-obsidian-acolyte-v1_23
+  - first:
+      213: 4152614121469403571
+    second: enemy-obsidian-acolyte-v1_24
+  - first:
+      213: -1256675981589882371
+    second: enemy-obsidian-acolyte-v1_25
+  - first:
+      213: -8911098509371958887
+    second: enemy-obsidian-acolyte-v1_26
+  - first:
+      213: -5820353898263577818
+    second: enemy-obsidian-acolyte-v1_27
+  - first:
+      213: 3534343184445667131
+    second: enemy-obsidian-acolyte-v1_28
+  - first:
+      213: 2689447670878589201
+    second: enemy-obsidian-acolyte-v1_29
+  - first:
+      213: 8987737036252327799
+    second: enemy-obsidian-acolyte-v1_30
+  - first:
+      213: 10145772238968158
+    second: enemy-obsidian-acolyte-v1_31
+  - first:
+      213: -3170784684772815287
+    second: enemy-obsidian-acolyte-v1_32
+  - first:
+      213: 3949376738162562955
+    second: enemy-obsidian-acolyte-v1_33
+  - first:
+      213: -4069089291858513761
+    second: enemy-obsidian-acolyte-v1_34
+  - first:
+      213: -4121531351523717108
+    second: enemy-obsidian-acolyte-v1_35
+  - first:
+      213: -8782981926517427633
+    second: enemy-obsidian-acolyte-v1_36
+  - first:
+      213: 3117091420416233718
+    second: enemy-obsidian-acolyte-v1_37
+  - first:
+      213: -5104602065834313496
+    second: enemy-obsidian-acolyte-v1_38
+  - first:
+      213: -2853650522740660238
+    second: enemy-obsidian-acolyte-v1_39
+  - first:
+      213: 926601490988131560
+    second: enemy-obsidian-acolyte-v1_40
+  - first:
+      213: 8617717256032996500
+    second: enemy-obsidian-acolyte-v1_41
+  - first:
+      213: 1220487218503290088
+    second: enemy-obsidian-acolyte-v1_42
+  - first:
+      213: -8706742454713208752
+    second: enemy-obsidian-acolyte-v1_43
+  - first:
+      213: 5014000395605561528
+    second: enemy-obsidian-acolyte-v1_44
+  - first:
+      213: -3549014914410422091
+    second: enemy-obsidian-acolyte-v1_45
+  - first:
+      213: 1278203259923795095
+    second: enemy-obsidian-acolyte-v1_46
+  - first:
+      213: 7447183990113729292
+    second: enemy-obsidian-acolyte-v1_47
+  - first:
+      213: 1243353393329097115
+    second: enemy-obsidian-acolyte-v1_48
+  - first:
+      213: 3090967235985765825
+    second: enemy-obsidian-acolyte-v1_49
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_0
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 675
+        width: 111
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15fab5d52a29341a0800000000000000
+      internalID: -6826451384114892975
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_1
+      rect:
+        serializedVersion: 2
+        x: 287
+        y: 675
+        width: 111
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2405bda76c7daf060800000000000000
+      internalID: 6988135019283435586
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_2
+      rect:
+        serializedVersion: 2
+        x: 504
+        y: 669
+        width: 114
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e13352a83b07d620800000000000000
+      internalID: 2798718031303487972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_3
+      rect:
+        serializedVersion: 2
+        x: 724
+        y: 667
+        width: 113
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc2493ddca30463f0800000000000000
+      internalID: -908597183841221937
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_4
+      rect:
+        serializedVersion: 2
+        x: 942
+        y: 675
+        width: 110
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 12490d9d5d4ce9da0800000000000000
+      internalID: -5936090836066331615
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_5
+      rect:
+        serializedVersion: 2
+        x: 1132
+        y: 669
+        width: 192
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6fdaa6cb08a81f840800000000000000
+      internalID: 5256134525639634422
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_6
+      rect:
+        serializedVersion: 2
+        x: 1317
+        y: 817
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f614ca4eff6b4e3b0800000000000000
+      internalID: -5484057236061011601
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_7
+      rect:
+        serializedVersion: 2
+        x: 1392
+        y: 672
+        width: 112
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa089c1617f564490800000000000000
+      internalID: -7762411967149932374
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_8
+      rect:
+        serializedVersion: 2
+        x: 1608
+        y: 668
+        width: 110
+        height: 155
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7ed7c4de826420d0800000000000000
+      internalID: -3448523049064210819
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_9
+      rect:
+        serializedVersion: 2
+        x: 1703
+        y: 821
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a96fabf39a0cbea90800000000000000
+      internalID: -7283516139190421862
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_10
+      rect:
+        serializedVersion: 2
+        x: 1715
+        y: 803
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1924330d8b5deabc0800000000000000
+      internalID: -3769840848318807407
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_11
+      rect:
+        serializedVersion: 2
+        x: 1718
+        y: 763
+        width: 9
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23fb6e3213f459fc0800000000000000
+      internalID: -3488795263854264526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_12
+      rect:
+        serializedVersion: 2
+        x: 1715
+        y: 744
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65daa83a0b5583f10800000000000000
+      internalID: 2249642231017942358
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_13
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 461
+        width: 97
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7ca4ae9bbd69e9b0800000000000000
+      internalID: -5050384854531396481
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_14
+      rect:
+        serializedVersion: 2
+        x: 283
+        y: 461
+        width: 99
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a716235cc0987da40800000000000000
+      internalID: 5392929766740484474
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_15
+      rect:
+        serializedVersion: 2
+        x: 503
+        y: 464
+        width: 101
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b757feaba7cfd2570800000000000000
+      internalID: 8443682480442013051
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_16
+      rect:
+        serializedVersion: 2
+        x: 725
+        y: 459
+        width: 103
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a975ec11f1c409b80800000000000000
+      internalID: -8390122409464801382
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_17
+      rect:
+        serializedVersion: 2
+        x: 936
+        y: 457
+        width: 90
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53649f03dc30af840800000000000000
+      internalID: 5258519694733297205
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_18
+      rect:
+        serializedVersion: 2
+        x: 1102
+        y: 457
+        width: 221
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ddfa9a8e2f023ec70800000000000000
+      internalID: 8999072708073992157
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_19
+      rect:
+        serializedVersion: 2
+        x: 1310
+        y: 602
+        width: 24
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b20bec88a9053aed0800000000000000
+      internalID: -2403989151435280341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_20
+      rect:
+        serializedVersion: 2
+        x: 1331
+        y: 615
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10f2a3aced1d634d0800000000000000
+      internalID: -3155103734120698111
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_21
+      rect:
+        serializedVersion: 2
+        x: 1390
+        y: 457
+        width: 101
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd26c223739f07260800000000000000
+      internalID: 7093443428568818399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_22
+      rect:
+        serializedVersion: 2
+        x: 1599
+        y: 451
+        width: 122
+        height: 152
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 672b7fbc27f8987b0800000000000000
+      internalID: -5221484569748327818
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_23
+      rect:
+        serializedVersion: 2
+        x: 1718
+        y: 569
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0cbac76455c2ae5d0800000000000000
+      internalID: -3032562654314189888
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_24
+      rect:
+        serializedVersion: 2
+        x: 1718
+        y: 532
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b1647fba8c01a930800000000000000
+      internalID: 4152614121469403571
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_25
+      rect:
+        serializedVersion: 2
+        x: 1728
+        y: 542
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df9d1975ad36f8ee0800000000000000
+      internalID: -1256675981589882371
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_26
+      rect:
+        serializedVersion: 2
+        x: 1724
+        y: 526
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9991f566e1b655480800000000000000
+      internalID: -8911098509371958887
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_27
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 243
+        width: 100
+        height: 175
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62b70f297f2f93fa0800000000000000
+      internalID: -5820353898263577818
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_28
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 243
+        width: 101
+        height: 175
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b37f43786628c0130800000000000000
+      internalID: 3534343184445667131
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_29
+      rect:
+        serializedVersion: 2
+        x: 518
+        y: 245
+        width: 99
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 11158b84866d25520800000000000000
+      internalID: 2689447670878589201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_30
+      rect:
+        serializedVersion: 2
+        x: 733
+        y: 243
+        width: 102
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77f2174273bdabc70800000000000000
+      internalID: 8987737036252327799
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_31
+      rect:
+        serializedVersion: 2
+        x: 957
+        y: 237
+        width: 90
+        height: 179
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e55964ea68b042000800000000000000
+      internalID: 10145772238968158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_32
+      rect:
+        serializedVersion: 2
+        x: 1114
+        y: 235
+        width: 183
+        height: 179
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94e0ed4f02c1ff3d0800000000000000
+      internalID: -3170784684772815287
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_33
+      rect:
+        serializedVersion: 2
+        x: 1289
+        y: 407
+        width: 17
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b87de5af7310fc630800000000000000
+      internalID: 3949376738162562955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_34
+      rect:
+        serializedVersion: 2
+        x: 1398
+        y: 241
+        width: 101
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f907d6719d0b787c0800000000000000
+      internalID: -4069089291858513761
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_35
+      rect:
+        serializedVersion: 2
+        x: 1292
+        y: 374
+        width: 24
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c001bc592116dc6c0800000000000000
+      internalID: -4121531351523717108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_36
+      rect:
+        serializedVersion: 2
+        x: 1604
+        y: 236
+        width: 117
+        height: 149
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f42b049d8749c1680800000000000000
+      internalID: -8782981926517427633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_37
+      rect:
+        serializedVersion: 2
+        x: 1619
+        y: 380
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f0d35eb122224b20800000000000000
+      internalID: 3117091420416233718
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_38
+      rect:
+        serializedVersion: 2
+        x: 1601
+        y: 318
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e8783a677fc829b0800000000000000
+      internalID: -5104602065834313496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_39
+      rect:
+        serializedVersion: 2
+        x: 1122
+        y: 25
+        width: 176
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f76fe608fbc568d0800000000000000
+      internalID: -2853650522740660238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_40
+      rect:
+        serializedVersion: 2
+        x: 1281
+        y: 213
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e4e1be8523fbdc00800000000000000
+      internalID: 926601490988131560
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_41
+      rect:
+        serializedVersion: 2
+        x: 50
+        y: 31
+        width: 114
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49cc99c8f28489770800000000000000
+      internalID: 8617717256032996500
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_42
+      rect:
+        serializedVersion: 2
+        x: 269
+        y: 31
+        width: 114
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ec0bc7a8aa00f010800000000000000
+      internalID: 1220487218503290088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_43
+      rect:
+        serializedVersion: 2
+        x: 491
+        y: 32
+        width: 113
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 050b1042edf6b2780800000000000000
+      internalID: -8706742454713208752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_44
+      rect:
+        serializedVersion: 2
+        x: 710
+        y: 27
+        width: 113
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b0dcb36bce459540800000000000000
+      internalID: 5014000395605561528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_45
+      rect:
+        serializedVersion: 2
+        x: 935
+        y: 31
+        width: 100
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b0e0042dbd5fbec0800000000000000
+      internalID: -3549014914410422091
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_46
+      rect:
+        serializedVersion: 2
+        x: 1119
+        y: 170
+        width: 8
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79c018ab7171db110800000000000000
+      internalID: 1278203259923795095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_47
+      rect:
+        serializedVersion: 2
+        x: 1292
+        y: 181
+        width: 19
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0b74b3d166b95760800000000000000
+      internalID: 7447183990113729292
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_48
+      rect:
+        serializedVersion: 2
+        x: 1376
+        y: 31
+        width: 114
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9948abd257414110800000000000000
+      internalID: 1243353393329097115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-obsidian-acolyte-v1_49
+      rect:
+        serializedVersion: 2
+        x: 1597
+        y: 34
+        width: 123
+        height: 154
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c57d41135255ea20800000000000000
+      internalID: 3090967235985765825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

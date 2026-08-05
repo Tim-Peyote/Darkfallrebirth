@@ -10,6 +10,18 @@ The run has no hard final depth. A boss arena appears every 10 levels. Defeating
 | 31–40 | Charnel Gardens | roots, mineral remains, moss and sickly green light |
 | 41–50 | Obsidian Sanctum | ritual obsidian, dark metal, muted violet flame |
 
+## Signature inhabitants and decor
+
+Each chapter keeps the shared underground enemy pool and adds a local inhabitant with a 42% selection weight whenever that biome is active:
+
+- Ashen Catacombs — Ash Warden.
+- Ember Vaults — Ember Revenant.
+- Drowned Crypt — Drowned Sentinel.
+- Charnel Gardens — Spore Stalker.
+- Obsidian Sanctum — Obsidian Acolyte.
+
+The four late-game chapters each own a 12-prop atlas: lantern, altar, urn, crystal, rack, container, conduit, statue, basin, post, obelisk and rubble. Ashen Catacombs retain the original 12-prop dungeon set. Pools use both clutter and structural placements, and biome lantern/crystal slots register matching dynamic light sources.
+
 After depth 50 the five visual chapters repeat while gameplay scaling continues. Boss definitions currently cycle through the three catalogued bosses.
 
 ## Extension contract

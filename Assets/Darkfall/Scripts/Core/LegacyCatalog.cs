@@ -26,7 +26,7 @@ namespace Darkfall.Core
     [Serializable]
     public sealed class LegacyEnemy
     {
-        public string type, color;
+        public string type, color, biome, sheet;
         public float hp, damage, speed, attackRange, reward, projectileSpeed;
         public int levelRequirement, levelTier;
         public bool hasBow, canFreeze, canPoison, canStun, canTeleport, canReflect;

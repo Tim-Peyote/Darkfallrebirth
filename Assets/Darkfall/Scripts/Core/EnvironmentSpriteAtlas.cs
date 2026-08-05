@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Darkfall.Core
 {
@@ -10,6 +11,33 @@ namespace Darkfall.Core
         private static readonly Sprite[] Flames = new Sprite[4];
         private static Texture2D texture;
         private static Texture2D flameTexture;
+        private static readonly Dictionary<string, Sprite[]> BiomeProps = new Dictionary<string, Sprite[]>();
+
+        public static Sprite Prop(string biome, int index)
+        {
+            var atlasName = biome == "ember-vaults" ? "ember" : biome == "drowned-crypt" ? "drowned" :
+                biome == "charnel-gardens" ? "charnel" : biome == "obsidian-sanctum" ? "obsidian" : null;
+            if (atlasName == null) return Prop(index);
+            if (!BiomeProps.TryGetValue(atlasName, out var sprites))
+            {
+                var atlas = Resources.Load<Texture2D>("Sprites/Environment/Biomes/" + atlasName + "-decor");
+                if (atlas == null) return Prop(index);
+                atlas.filterMode = FilterMode.Bilinear;
+                atlas.wrapMode = TextureWrapMode.Clamp;
+                sprites = new Sprite[Columns * Rows];
+                var width = atlas.width / (float)Columns;
+                var height = atlas.height / (float)Rows;
+                for (var row = 0; row < Rows; row++)
+                for (var column = 0; column < Columns; column++)
+                {
+                    var rect = new Rect(column * width, atlas.height - (row + 1) * height, width, height);
+                    sprites[row * Columns + column] = Sprite.Create(atlas, rect, new Vector2(.5f, .18f), 300f,
+                        0, SpriteMeshType.Tight);
+                }
+                BiomeProps[atlasName] = sprites;
+            }
+            return sprites[Mathf.Clamp(index, 0, sprites.Length - 1)];
+        }
 
         public static Sprite Prop(int index)
         {

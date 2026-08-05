@@ -57,7 +57,18 @@ namespace Darkfall.Editor
                                 DungeonVisualProfile.ForDepth(31).Id != DungeonVisualProfile.ForDepth(41).Id,
                 "Each post-boss chapter through depth 50 must use a distinct biome");
             failures += Require(LegacyCatalog.Data.characters?.Length == 3, "Legacy parity: expected 3 heroes");
-            failures += Require(LegacyCatalog.Data.enemies?.Length == 12, "Legacy parity: expected 12 enemy types");
+            failures += Require(LegacyCatalog.Data.enemies?.Length == 17, "Expected 12 shared and 5 biome enemy types");
+            var biomeAssets = new[] { "ember", "drowned", "charnel", "obsidian" };
+            foreach (var biome in biomeAssets)
+                failures += Require(Resources.Load<Texture2D>($"Sprites/Environment/Biomes/{biome}-decor") != null,
+                    $"Biome decor atlas is missing: {biome}");
+            var biomeEnemySheets = new[]
+            {
+                "enemy-ash-warden-v1", "enemy-ember-revenant-v1", "enemy-drowned-sentinel-v1",
+                "enemy-spore-stalker-v1", "enemy-obsidian-acolyte-v1"
+            };
+            foreach (var sheet in biomeEnemySheets)
+                failures += ValidateDirectionalSheet(sheet, "Biome enemy");
             failures += Require(LegacyCatalog.Data.bosses?.Length == 3, "Legacy parity: expected 3 bosses");
             failures += Require(LegacyCatalog.Data.items?.Length == 46, "Legacy parity: expected 46 base items");
             foreach (var item in LegacyCatalog.Items)

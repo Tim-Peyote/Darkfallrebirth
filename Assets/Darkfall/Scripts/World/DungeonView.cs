@@ -158,8 +158,8 @@ namespace Darkfall.World
             prop.transform.position = position;
             prop.transform.localScale = Vector3.one * scale;
             var renderer = prop.AddComponent<SpriteRenderer>();
-            renderer.sprite = EnvironmentSpriteAtlas.Prop(index);
-            renderer.color = profile.DecorTint;
+            renderer.sprite = EnvironmentSpriteAtlas.Prop(profile.Id, index);
+            renderer.color = Color.white;
             renderer.sortingOrder = 7;
             DarkfallRenderMaterials.MakeLit(renderer);
             if (blocks)
@@ -170,10 +170,15 @@ namespace Darkfall.World
                 caster.selfShadows = false;
                 caster.alphaCutoff = .22f;
             }
-            if (index == 2)
+            var customBiomeDecor = profile.Id != "ashen-catacombs";
+            if ((!customBiomeDecor && index == 2) || (customBiomeDecor && index == 0))
             {
                 AddFlame(prop.transform, new Vector2(0, .24f), .56f, 9);
                 data.AddLightSource(position + new Vector2(0, .22f), profile.FireTint, 5.8f, .16f);
+            }
+            else if (customBiomeDecor && index == 3)
+            {
+                data.AddLightSource(position + new Vector2(0, .28f), profile.FireTint, 4.6f, .13f);
             }
             else if (index == 8)
             {

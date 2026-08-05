@@ -222,9 +222,19 @@ namespace Darkfall.Core
             else
             {
                 var eligible = new System.Collections.Generic.List<LegacyEnemy>();
+                var local = new System.Collections.Generic.List<LegacyEnemy>();
+                var biome = DungeonVisualProfile.ForDepth(Depth).Id;
                 foreach (var candidate in LegacyCatalog.Data.enemies)
-                    if (candidate.levelRequirement <= Depth) eligible.Add(candidate);
-                definition = eligible[UnityEngine.Random.Range(0, eligible.Count)];
+                    if (candidate.levelRequirement <= Depth &&
+                        (string.IsNullOrEmpty(candidate.biome) || candidate.biome == biome))
+                    {
+                        eligible.Add(candidate);
+                        if (candidate.biome == biome) local.Add(candidate);
+                    }
+                // Signature inhabitants must be visible often enough to establish the biome, while
+                // shared undead still connect adjacent chapters into one underground ecosystem.
+                var pool = local.Count > 0 && UnityEngine.Random.value < .42f ? local : eligible;
+                definition = pool[UnityEngine.Random.Range(0, pool.Count)];
             }
             var enemyObject = new GameObject(definition.type);
             enemyObject.transform.SetParent(levelRoot);

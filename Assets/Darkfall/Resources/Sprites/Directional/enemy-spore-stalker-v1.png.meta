@@ -1,0 +1,943 @@
+fileFormatVersion: 2
+guid: fbffc33bd90df46439c056dd479f934f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2151742342480308052
+    second: enemy-spore-stalker-v1_0
+  - first:
+      213: 7150180481816361304
+    second: enemy-spore-stalker-v1_1
+  - first:
+      213: 1210845158398987382
+    second: enemy-spore-stalker-v1_2
+  - first:
+      213: 3509570612010502391
+    second: enemy-spore-stalker-v1_3
+  - first:
+      213: 4074604083951881566
+    second: enemy-spore-stalker-v1_4
+  - first:
+      213: -8887854633127561645
+    second: enemy-spore-stalker-v1_5
+  - first:
+      213: 7278486392135303028
+    second: enemy-spore-stalker-v1_6
+  - first:
+      213: 1325989815645385603
+    second: enemy-spore-stalker-v1_7
+  - first:
+      213: -4067640159343603895
+    second: enemy-spore-stalker-v1_8
+  - first:
+      213: 6077160040893078419
+    second: enemy-spore-stalker-v1_9
+  - first:
+      213: 328698793527000361
+    second: enemy-spore-stalker-v1_10
+  - first:
+      213: 6156022611658115875
+    second: enemy-spore-stalker-v1_11
+  - first:
+      213: -6667811259876023804
+    second: enemy-spore-stalker-v1_12
+  - first:
+      213: 6642464074198129771
+    second: enemy-spore-stalker-v1_13
+  - first:
+      213: 2851383691573457648
+    second: enemy-spore-stalker-v1_14
+  - first:
+      213: 5990883037307054657
+    second: enemy-spore-stalker-v1_15
+  - first:
+      213: 1195215690232535062
+    second: enemy-spore-stalker-v1_16
+  - first:
+      213: -1952893320495309741
+    second: enemy-spore-stalker-v1_17
+  - first:
+      213: 7264695761280269551
+    second: enemy-spore-stalker-v1_18
+  - first:
+      213: 4303197961993086617
+    second: enemy-spore-stalker-v1_19
+  - first:
+      213: 5750741843010367727
+    second: enemy-spore-stalker-v1_20
+  - first:
+      213: 7499557648021340620
+    second: enemy-spore-stalker-v1_21
+  - first:
+      213: 3889289053960167545
+    second: enemy-spore-stalker-v1_22
+  - first:
+      213: 4375191621044248328
+    second: enemy-spore-stalker-v1_23
+  - first:
+      213: -3154492371090997451
+    second: enemy-spore-stalker-v1_24
+  - first:
+      213: -5728394702675877803
+    second: enemy-spore-stalker-v1_25
+  - first:
+      213: 8296854443092806769
+    second: enemy-spore-stalker-v1_26
+  - first:
+      213: -715545156571514279
+    second: enemy-spore-stalker-v1_27
+  - first:
+      213: 608804263503160552
+    second: enemy-spore-stalker-v1_28
+  - first:
+      213: 4280367318747620921
+    second: enemy-spore-stalker-v1_29
+  - first:
+      213: 1541499854695046754
+    second: enemy-spore-stalker-v1_30
+  - first:
+      213: 425446704636099882
+    second: enemy-spore-stalker-v1_31
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_0
+      rect:
+        serializedVersion: 2
+        x: 50
+        y: 696
+        width: 139
+        height: 164
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca85b4c6db97322e0800000000000000
+      internalID: -2151742342480308052
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_1
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 684
+        width: 139
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8597892d34b8a3360800000000000000
+      internalID: 7150180481816361304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_2
+      rect:
+        serializedVersion: 2
+        x: 475
+        y: 678
+        width: 151
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67c8f589149cdc010800000000000000
+      internalID: 1210845158398987382
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_3
+      rect:
+        serializedVersion: 2
+        x: 688
+        y: 681
+        width: 151
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f8490b80ef74b030800000000000000
+      internalID: 3509570612010502391
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_4
+      rect:
+        serializedVersion: 2
+        x: 916
+        y: 682
+        width: 183
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5dce4083d6eb8830800000000000000
+      internalID: 4074604083951881566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_5
+      rect:
+        serializedVersion: 2
+        x: 1141
+        y: 682
+        width: 199
+        height: 174
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3563f111d4ff7a480800000000000000
+      internalID: -8887854633127561645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_6
+      rect:
+        serializedVersion: 2
+        x: 1371
+        y: 688
+        width: 148
+        height: 166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47f3db18fc0620560800000000000000
+      internalID: 7278486392135303028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_7
+      rect:
+        serializedVersion: 2
+        x: 1598
+        y: 688
+        width: 131
+        height: 161
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 383345146bcd66210800000000000000
+      internalID: 1325989815645385603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_8
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 470
+        width: 127
+        height: 169
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94f063c83d6dc87c0800000000000000
+      internalID: -4067640159343603895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_9
+      rect:
+        serializedVersion: 2
+        x: 283
+        y: 473
+        width: 118
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39b51a8ebd8665450800000000000000
+      internalID: 6077160040893078419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_10
+      rect:
+        serializedVersion: 2
+        x: 491
+        y: 469
+        width: 144
+        height: 174
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92db64aafc5cf8400800000000000000
+      internalID: 328698793527000361
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_11
+      rect:
+        serializedVersion: 2
+        x: 703
+        y: 470
+        width: 135
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32b872503f59e6550800000000000000
+      internalID: 6156022611658115875
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_12
+      rect:
+        serializedVersion: 2
+        x: 912
+        y: 470
+        width: 193
+        height: 174
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4026db99cfc2773a0800000000000000
+      internalID: -6667811259876023804
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_13
+      rect:
+        serializedVersion: 2
+        x: 1140
+        y: 470
+        width: 214
+        height: 156
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6c9fd7d1e5ce2c50800000000000000
+      internalID: 6642464074198129771
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_14
+      rect:
+        serializedVersion: 2
+        x: 1383
+        y: 471
+        width: 147
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f2f3963c56229720800000000000000
+      internalID: 2851383691573457648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_15
+      rect:
+        serializedVersion: 2
+        x: 1597
+        y: 472
+        width: 128
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14aa991a164e32350800000000000000
+      internalID: 5990883037307054657
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_16
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 249
+        width: 121
+        height: 165
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61898467652469010800000000000000
+      internalID: 1195215690232535062
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_17
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 246
+        width: 119
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35cd4a33fdde5e4e0800000000000000
+      internalID: -1952893320495309741
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_18
+      rect:
+        serializedVersion: 2
+        x: 468
+        y: 247
+        width: 132
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fec756c0e4261d460800000000000000
+      internalID: 7264695761280269551
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_19
+      rect:
+        serializedVersion: 2
+        x: 688
+        y: 247
+        width: 122
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99668c24fb708bb30800000000000000
+      internalID: 4303197961993086617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_20
+      rect:
+        serializedVersion: 2
+        x: 899
+        y: 248
+        width: 152
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe0bb9bcc3dbecf40800000000000000
+      internalID: 5750741843010367727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_21
+      rect:
+        serializedVersion: 2
+        x: 1087
+        y: 247
+        width: 221
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc140ee42f7c31860800000000000000
+      internalID: 7499557648021340620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_22
+      rect:
+        serializedVersion: 2
+        x: 1373
+        y: 252
+        width: 147
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9706c1ac9c789f530800000000000000
+      internalID: 3889289053960167545
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_23
+      rect:
+        serializedVersion: 2
+        x: 1588
+        y: 251
+        width: 132
+        height: 161
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80f9b9c399dc7bc30800000000000000
+      internalID: 4375191621044248328
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_24
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 33
+        width: 137
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53ff076d6edf834d0800000000000000
+      internalID: -3154492371090997451
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_25
+      rect:
+        serializedVersion: 2
+        x: 262
+        y: 31
+        width: 141
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55066c54e57a080b0800000000000000
+      internalID: -5728394702675877803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_26
+      rect:
+        serializedVersion: 2
+        x: 476
+        y: 26
+        width: 152
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17c0ba94829542370800000000000000
+      internalID: 8296854443092806769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_27
+      rect:
+        serializedVersion: 2
+        x: 698
+        y: 30
+        width: 146
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95abdc1a87fd116f0800000000000000
+      internalID: -715545156571514279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_28
+      rect:
+        serializedVersion: 2
+        x: 925
+        y: 24
+        width: 121
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e469d78048e27800800000000000000
+      internalID: 608804263503160552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_29
+      rect:
+        serializedVersion: 2
+        x: 1095
+        y: 26
+        width: 194
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 936a426e56be66b30800000000000000
+      internalID: 4280367318747620921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_30
+      rect:
+        serializedVersion: 2
+        x: 1374
+        y: 29
+        width: 153
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26e1a6c53f1846510800000000000000
+      internalID: 1541499854695046754
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-spore-stalker-v1_31
+      rect:
+        serializedVersion: 2
+        x: 1604
+        y: 24
+        width: 109
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2df1b4168d77e500800000000000000
+      internalID: 425446704636099882
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -79,7 +79,8 @@ namespace Darkfall.Gameplay
             ranged = definition.projectileSpeed > 0 || definition.hasBow;
             gameObject.name = definition.type;
             var lowerType = definition.type.ToLowerInvariant();
-            directionalSheet = lowerType.Contains("mimic") ? "enemy-mimic-v1" :
+            directionalSheet = !string.IsNullOrEmpty(definition.sheet) ? definition.sheet :
+                lowerType.Contains("mimic") ? "enemy-mimic-v1" :
                 lowerType.Contains("archer") || lowerType.Contains("spitter") || lowerType.Contains("assassin")
                 ? "enemy-ranged-v2"
                 : lowerType.Contains("mage") || lowerType.Contains("wraith") || lowerType.Contains("demon") ||
