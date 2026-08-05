@@ -239,6 +239,7 @@ namespace Darkfall.Gameplay
             {
                 case HeroClass.Rogue:
                     var direction = GameInput.Move.sqrMagnitude > 0.01f ? GameInput.Move.normalized : Vector2.right;
+                    facingDirection = direction;
                     var destination = (Vector2)transform.position;
                     var dashOrigin = destination;
                     for (var i = 0; i < 10; i++)
@@ -250,19 +251,22 @@ namespace Darkfall.Gameplay
                     transform.position = destination;
                     CombatVfx.SpawnAfterimage(dashOrigin, CurrentSprite, new Color(.28f, .12f, .48f, .8f), facingDirection);
                     CombatVfx.SpawnAfterimage(destination, CurrentSprite, new Color(.72f, .38f, 1f, .72f), facingDirection);
-                    CombatVfx.SpawnPulse(destination, new Color(.55f, .2f, .9f), 1.35f, .32f);
+                    CombatVfx.SpawnImpact(dashOrigin, ProjectileVisualStyle.Cursed, new Color(.4f, .16f, .72f), .72f);
+                    CombatVfx.SpawnImpact(destination, ProjectileVisualStyle.Cursed, new Color(.72f, .34f, 1f), .9f);
+                    CombatVfx.SpawnStatus(transform, StatusVisualStyle.Dash, .34f, .8f);
                     abilityReadyAt = Time.time + 3f;
                     GameManager.Instance.Audio.PlayEffect("Dash");
                     break;
                 case HeroClass.Warrior:
                     shieldUntil = Time.time + 4f;
-                    CombatVfx.SpawnAura(transform, new Color(1f, .68f, .22f), 4f, 1.05f);
-                    CombatVfx.SpawnPulse(transform.position, new Color(1f, .58f, .18f), 1.8f, .38f);
+                    CombatVfx.SpawnImpact(transform.position, ProjectileVisualStyle.Arcane, new Color(1f, .58f, .18f), 1.35f);
+                    CombatVfx.SpawnStatus(transform, StatusVisualStyle.Ward, 4f, 1.45f);
                     abilityReadyAt = Time.time + 8f;
                     GameManager.Instance.Audio.PlayEffect("Armor");
                     break;
                 default:
-                    CombatVfx.SpawnPulse(transform.position, new Color(.72f, .18f, 1f), 4.1f, .58f);
+                    CombatVfx.SpawnImpact(transform.position, ProjectileVisualStyle.Arcane, new Color(.72f, .18f, 1f), 2.7f);
+                    CombatVfx.SpawnStatus(transform, StatusVisualStyle.ArcaneCharge, .65f, 1.35f);
                     var enemies = EnemyController.Snapshot();
                     for (var i = 0; i < enemies.Count; i++)
                         if (enemies[i] != null && Vector2.Distance(transform.position, enemies[i].transform.position) <= 4f)
@@ -304,7 +308,8 @@ namespace Darkfall.Gameplay
 
         public void ApplyDebuff(float duration, float damage = 1, float speed = 1, float defense = 1, bool stunned = false)
         {
-            var label = stunned ? "ОГЛУШЕНИЕ" : speed < .999f ? "ЗАМЕДЛЕНИЕ" :
+            var frozen = !stunned && speed <= .35f;
+            var label = stunned ? "ОГЛУШЕНИЕ" : frozen ? "ЗАМОРОЗКА" : speed < .999f ? "ЗАМЕДЛЕНИЕ" :
                 defense < .999f ? "УЯЗВИМОСТЬ" : damage < .999f ? "СЛАБОСТЬ" : "ПРОКЛЯТИЕ";
             var debuff = new ActiveDebuff
                 { damage = damage, speed = speed, defense = defense, stunned = stunned, label = label, expiresAt = Time.time + duration };
@@ -313,6 +318,8 @@ namespace Darkfall.Gameplay
             SpeedMultiplier *= speed;
             DefenseMultiplier *= defense;
             if (stunned) IsStunned = true;
+            if (stunned) CombatVfx.SpawnStatus(transform, StatusVisualStyle.Stun, duration, 1.15f);
+            else if (speed < .999f) CombatVfx.SpawnStatus(transform, StatusVisualStyle.Freeze, duration, frozen ? 1.2f : .82f);
             debuff.routine = StartCoroutine(RemoveDebuffAfter(debuff, duration));
             GameManager.Instance.NotifyStatsChanged();
         }
@@ -322,6 +329,7 @@ namespace Darkfall.Gameplay
             var debuff = new ActiveDebuff { label = "ПЕРИОДИЧЕСКИЙ УРОН", expiresAt = Time.time + duration };
             debuffs.Add(debuff);
             debuff.routine = StartCoroutine(DamageOverTime(debuff, damage, duration, interval));
+            CombatVfx.SpawnStatus(transform, StatusVisualStyle.Poison, duration, .9f);
             GameManager.Instance.NotifyStatsChanged();
         }
 
@@ -331,6 +339,7 @@ namespace Darkfall.Gameplay
             foreach (var debuff in copy) RemoveDebuff(debuff);
             debuffs.Clear();
             IsStunned = false;
+            CombatVfx.ClearNegativeStatuses(transform);
         }
 
         private System.Collections.IEnumerator RemoveDebuffAfter(ActiveDebuff debuff, float duration)

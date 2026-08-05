@@ -51,10 +51,23 @@ swiftc Tools/ArtPipeline/ValidateSprite.swift -o /tmp/darkfall-validate-sprite
 /tmp/darkfall-validate-sprite path/to/frame.png path/to/next-frame.png
 ```
 
-The runtime hero set contains `idle`, `walk_1..4`, `attack_1..3`, and `hurt_1..2` for `down`, `up`,
-and canonical `right`. The four walking images must alternate neutral/contact poses; the current
-generated sets play in `1, 2, 4, 3` order so opposite leg contacts are separated by a neutral pose.
+The runtime hero set contains `idle_1..4`, `walk_1..4`, `attack_1..3`, and `hurt_1..2` for `down`, `up`,
+and canonical `right`. Side walking frames are authored in playback order: contact A, passing A,
+contact B, passing B. Frames 1 and 3 must visibly use opposite leading legs while keeping identical
+head size, torso length, overall volume and ground baseline.
 Runtime still consumes individual `256×256` frames.
+
+Idle is a slow one-shot-style breathing loop played as `1, 2, 3, 4, 3, 2`. Feet and the sprite pivot
+must stay fixed; breathing is authored in shoulders, hands, cloth and equipment rather than by scaling
+the entire renderer.
+
+After extracting a generated grid, normalize every frame against the shipped directional `idle.png`.
+This preserves both apparent character height and the visible foot baseline instead of independently
+enlarging every silhouette to fill its cell:
+
+```bash
+swift Tools/ArtPipeline/NormalizeToReference.swift input.png direction/idle.png output.png
+```
 
 Generated hero grids use a uniform `#ff00ff` matte. Convert it before slicing:
 

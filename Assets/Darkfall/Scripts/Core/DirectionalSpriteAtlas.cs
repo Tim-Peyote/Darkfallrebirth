@@ -9,9 +9,9 @@ namespace Darkfall.Core
     {
         private const int Columns = 8;
         private const int Rows = 4;
-        // Generated walk frames are authored as neutral, contact A, contact B, neutral.
-        // Reordering avoids playing both extreme leg poses back-to-back.
-        private static readonly int[] HeroWalkOrder = { 1, 2, 4, 3 };
+        // Authored side cycles are contact A, passing A, contact B, passing B.
+        private static readonly int[] HeroWalkOrder = { 1, 2, 3, 4 };
+        private static readonly int[] HeroIdleOrder = { 1, 2, 3, 4, 3, 2 };
         private static readonly Dictionary<string, Sprite[]> Cache = new Dictionary<string, Sprite[]>();
         private static readonly Dictionary<string, Sprite> HeroCache = new Dictionary<string, Sprite>();
 
@@ -71,8 +71,9 @@ namespace Darkfall.Core
             var hero = HeroName(sheet);
             if (hero == null) return false;
 
+            var horizontal = Mathf.Abs(facing.x) > Mathf.Abs(facing.y);
             string direction;
-            if (Mathf.Abs(facing.x) > Mathf.Abs(facing.y))
+            if (horizontal)
             {
                 // One canonical side keeps gait, weapon and reaction timing identical in both directions.
                 // SpriteRenderer.flipX affects rendering only, so gameplay colliders remain stable.
@@ -82,9 +83,26 @@ namespace Darkfall.Core
             else direction = facing.y > 0f ? "up" : "down";
 
             var frame = MotionFrame(motion, time);
+            var pixelsPerUnit = 180f;
+            // The generated mage contacts repeatedly used the same visible leg. The independently
+            // authored left contact contains the missing anatomical phase; mirror that source for
+            // right-facing playback and compensate its 209px silhouette to the 200px side baseline.
+            if (hero == "mage" && horizontal && motion == CharacterMotion.Walk && frame == "walk_3")
+            {
+                direction = "left";
+                frame = "walk_2";
+                flipX = facing.x > 0f;
+                pixelsPerUnit = 188f;
+            }
             var path = $"Sprites/Characters/{hero}/{direction}/{frame}";
             if (HeroCache.TryGetValue(path, out sprite)) return sprite != null;
             var texture = Resources.Load<Texture2D>(path);
+            if (texture == null && motion == CharacterMotion.Idle)
+            {
+                // Compatibility for imported characters that have not received an authored idle cycle yet.
+                path = $"Sprites/Characters/{hero}/{direction}/idle";
+                texture = Resources.Load<Texture2D>(path);
+            }
             if (texture == null)
             {
                 HeroCache[path] = null;
@@ -94,7 +112,7 @@ namespace Darkfall.Core
             texture.filterMode = FilterMode.Point;
             texture.wrapMode = TextureWrapMode.Clamp;
             sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-                new Vector2(.5f, .08f), 180f, 0, SpriteMeshType.FullRect);
+                new Vector2(.5f, .08f), pixelsPerUnit, 0, SpriteMeshType.FullRect);
             sprite.name = $"{hero}-{direction}-{frame}";
             HeroCache[path] = sprite;
             return true;
@@ -118,7 +136,7 @@ namespace Darkfall.Core
                 case CharacterMotion.Walk: return $"walk_{HeroWalkOrder[Mathf.FloorToInt(time * 8f) % HeroWalkOrder.Length]}";
                 case CharacterMotion.Attack: return $"attack_{Mathf.Clamp(Mathf.FloorToInt(time * 12.5f) + 1, 1, 3)}";
                 case CharacterMotion.Hit: return $"hurt_{Mathf.Clamp(Mathf.FloorToInt(time * 9f) + 1, 1, 2)}";
-                default: return "idle";
+                default: return $"idle_{HeroIdleOrder[Mathf.FloorToInt(time * 2.4f) % HeroIdleOrder.Length]}";
             }
         }
 
@@ -161,8 +179,10 @@ namespace Darkfall.Core
                 case CharacterMotion.Walk: return 2 + Mathf.FloorToInt(time * 8f) % 2;
                 case CharacterMotion.Attack:
                     // The ranged sheet keeps the projectile in a separate cell; never swap the actor for that cell.
-                    if (sheet == "enemy-ranged-v2") return Mathf.FloorToInt(time * 12f) % 2 == 0 ? 4 : 6;
-                    return 4 + Mathf.FloorToInt(time * 14f) % 3;
+                    if (sheet == "enemy-ranged-v2") return time < .14f ? 4 : 6;
+                    // Attacks are one-shot sequences. Looping during the short attack window caused
+                    // the pose to jump back to wind-up before returning to idle.
+                    return 4 + Mathf.Clamp(Mathf.FloorToInt(time / .093f), 0, 2);
                 case CharacterMotion.Hit: return 7;
                 default: return Mathf.FloorToInt(time * 2.2f) % 2;
             }

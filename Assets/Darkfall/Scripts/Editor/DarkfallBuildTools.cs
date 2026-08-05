@@ -159,7 +159,7 @@ namespace Darkfall.Editor
             var directions = new[] { "down", "up", "right" };
             var frames = new[]
             {
-                "idle", "walk_1", "walk_2", "walk_3", "walk_4",
+                "idle_1", "idle_2", "idle_3", "idle_4", "walk_1", "walk_2", "walk_3", "walk_4",
                 "attack_1", "attack_2", "attack_3", "hurt_1", "hurt_2"
             };
             foreach (var direction in directions)

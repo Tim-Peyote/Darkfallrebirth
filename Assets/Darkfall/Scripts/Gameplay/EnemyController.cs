@@ -167,7 +167,12 @@ namespace Darkfall.Gameplay
                 movement.sqrMagnitude > .00001f ? CharacterMotion.Walk : CharacterMotion.Idle;
             var animationTime = motion == CharacterMotion.Hit ? Time.time - (hitAnimationUntil - .2f) :
                 motion == CharacterMotion.Attack ? Time.time - (attackAnimationUntil - .28f) : Time.time;
-            spriteFacingDirection = DirectionalSpriteAtlas.StabilizeFourWay(facingDirection, spriteFacingDirection);
+            // Movement follows the direction the body actually travelled. Attack and hit reactions
+            // stay locked to the target, so an enemy cannot moonwalk or react with its back turned.
+            var animationFacing = motion == CharacterMotion.Walk && movement.sqrMagnitude > .00001f
+                ? movement.normalized
+                : facingDirection;
+            spriteFacingDirection = DirectionalSpriteAtlas.StabilizeFourWay(animationFacing, spriteFacingDirection);
             var directional = DirectionalSpriteAtlas.Get(directionalSheet, spriteFacingDirection, motion,
                 animationTime, out var flipX);
             if (directional != null)
@@ -233,11 +238,31 @@ namespace Darkfall.Gameplay
         public static List<EnemyController> Snapshot() => new List<EnemyController>(Active);
         public static void ClearRegistry() => Active.Clear();
 
-        public void ApplySlow(float factor, float duration) => StartCoroutine(SlowRoutine(factor, duration));
-        public void ApplyStun(float duration) => stunnedUntil = Mathf.Max(stunnedUntil, Time.time + duration);
-        public void ApplyFear(float duration) => afraidUntil = Mathf.Max(afraidUntil, Time.time + duration);
-        public void ApplyChaos(float duration) => chaoticUntil = Mathf.Max(chaoticUntil, Time.time + duration);
-        public void ApplyDamageOverTime(float amount, float duration, float interval) => StartCoroutine(DamageOverTime(amount, duration, interval));
+        public void ApplySlow(float factor, float duration)
+        {
+            CombatVfx.SpawnStatus(transform, StatusVisualStyle.Freeze, duration, factor <= .5f ? 1.15f : .8f);
+            StartCoroutine(SlowRoutine(factor, duration));
+        }
+        public void ApplyStun(float duration)
+        {
+            stunnedUntil = Mathf.Max(stunnedUntil, Time.time + duration);
+            CombatVfx.SpawnStatus(transform, StatusVisualStyle.Stun, duration, 1.05f);
+        }
+        public void ApplyFear(float duration)
+        {
+            afraidUntil = Mathf.Max(afraidUntil, Time.time + duration);
+            CombatVfx.SpawnStatus(transform, StatusVisualStyle.Fear, duration, 1f);
+        }
+        public void ApplyChaos(float duration)
+        {
+            chaoticUntil = Mathf.Max(chaoticUntil, Time.time + duration);
+            CombatVfx.SpawnStatus(transform, StatusVisualStyle.Fear, duration, 1.15f);
+        }
+        public void ApplyDamageOverTime(float amount, float duration, float interval)
+        {
+            CombatVfx.SpawnStatus(transform, StatusVisualStyle.Poison, duration, .9f);
+            StartCoroutine(DamageOverTime(amount, duration, interval));
+        }
         private System.Collections.IEnumerator SlowRoutine(float factor, float duration)
         {
             speed *= factor;

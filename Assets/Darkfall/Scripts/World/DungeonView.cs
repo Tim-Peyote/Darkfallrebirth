@@ -122,12 +122,34 @@ namespace Darkfall.World
                     CreateProp(data, accent, new Vector2(bounds.xMin + 1.2f, bounds.yMax - 1.15f), .72f,
                         "Wall Accent", false, structuralDecor);
                 }
+
+                // Layer several small, non-blocking props through the room instead of decorating
+                // only its corners. Density scales with area and stays deterministic for the seed.
+                var scatterCount = Mathf.Clamp(bounds.width * bounds.height / 38, 1, 4);
+                var scatterAnchors = new[]
+                {
+                    new Vector2(.28f, .24f), new Vector2(.72f, .31f),
+                    new Vector2(.36f, .72f), new Vector2(.68f, .76f)
+                };
+                for (var scatter = 0; scatter < scatterCount; scatter++)
+                {
+                    var anchor = scatterAnchors[(scatter + hash) % scatterAnchors.Length];
+                    var position = new Vector2(
+                        Mathf.Lerp(bounds.xMin + 1.15f, bounds.xMax - 1.15f, anchor.x),
+                        Mathf.Lerp(bounds.yMin + 1.1f, bounds.yMax - 1.1f, anchor.y));
+                    var propIndex = profile.ClutterProps[(hash / (scatter + 3) + scatter * 5) % profile.ClutterProps.Length];
+                    CreateProp(data, propIndex, position, .46f + scatter % 2 * .12f,
+                        "Ambient Clutter", false, clutterDecor);
+                }
             }
         }
 
         private void CreateProp(DungeonData data, int index, Vector2 position, float scale, string objectName, bool blocks,
             Transform group)
         {
+            if (!data.IsFloor(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y))) return;
+            if (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 1.25f ||
+                Vector2.Distance(position, data.CellCenter(data.ExitCell)) < 1.25f) return;
             if (blocks && (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 2f ||
                            Vector2.Distance(position, data.CellCenter(data.ExitCell)) < 2f))
                 blocks = false;

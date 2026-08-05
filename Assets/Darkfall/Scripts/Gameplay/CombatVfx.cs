@@ -6,6 +6,7 @@ using UnityEngine.Rendering.Universal;
 namespace Darkfall.Gameplay
 {
     public enum ProjectileVisualStyle { Arcane, Cursed, Shard }
+    public enum StatusVisualStyle { Freeze, Stun, Fear, Poison, Ward, ArcaneCharge, Dash }
 
     public static class CombatVfx
     {
@@ -111,6 +112,54 @@ namespace Darkfall.Gameplay
             renderer.sortingOrder = 18;
             DarkfallRenderMaterials.MakeEmissive(renderer);
             root.AddComponent<FadeSprite>().Initialize(renderer, .3f, .94f);
+        }
+
+        public static void SpawnStatus(Transform target, StatusVisualStyle status, float duration, float scale = 1f)
+        {
+            if (target == null || duration <= 0f) return;
+            var existing = target.Find("Status VFX · " + status);
+            if (existing != null) Object.Destroy(existing.gameObject);
+
+            var root = new GameObject("Status VFX · " + status);
+            root.transform.SetParent(target, false);
+            var projectileStyle = status == StatusVisualStyle.Freeze ? ProjectileVisualStyle.Shard :
+                status == StatusVisualStyle.Stun || status == StatusVisualStyle.Ward ? ProjectileVisualStyle.Arcane :
+                ProjectileVisualStyle.Cursed;
+            var color = status == StatusVisualStyle.Freeze ? new Color(.28f, .78f, 1f) :
+                status == StatusVisualStyle.Stun ? new Color(1f, .78f, .24f) :
+                status == StatusVisualStyle.Fear ? new Color(.66f, .22f, .9f) :
+                status == StatusVisualStyle.Poison ? new Color(.28f, .78f, .24f) :
+                status == StatusVisualStyle.Ward ? new Color(1f, .58f, .16f) :
+                status == StatusVisualStyle.Dash ? new Color(.64f, .3f, .92f) : new Color(.78f, .28f, 1f);
+            var renderer = root.AddComponent<SpriteRenderer>();
+            renderer.sprite = LoadFrames("Impacts", projectileStyle)[0];
+            renderer.color = color;
+            renderer.sortingOrder = status == StatusVisualStyle.Ward ? 16 : 28;
+            DarkfallRenderMaterials.MakeEmissive(renderer);
+            var y = status == StatusVisualStyle.Stun || status == StatusVisualStyle.Fear ? 1.05f :
+                status == StatusVisualStyle.Freeze ? .28f : .16f;
+            root.transform.localPosition = new Vector3(0, y, 0);
+            root.transform.localScale = Vector3.one * (.48f * scale);
+            root.AddComponent<SheetAnimation>().Initialize(renderer, LoadFrames("Impacts", projectileStyle),
+                status == StatusVisualStyle.Stun ? 8f : 10f, true, false, false);
+            var light = root.AddComponent<Light2D>();
+            light.lightType = Light2D.LightType.Point;
+            light.color = color;
+            light.intensity = .22f;
+            light.pointLightOuterRadius = .72f * scale;
+            light.falloffIntensity = .9f;
+            root.AddComponent<TimedStatusVisual>().Initialize(duration, status == StatusVisualStyle.Stun || status == StatusVisualStyle.Fear);
+        }
+
+        public static void ClearNegativeStatuses(Transform target)
+        {
+            if (target == null) return;
+            var negative = new[] { StatusVisualStyle.Freeze, StatusVisualStyle.Stun, StatusVisualStyle.Fear, StatusVisualStyle.Poison };
+            foreach (var status in negative)
+            {
+                var effect = target.Find("Status VFX · " + status);
+                if (effect != null) Object.Destroy(effect.gameObject);
+            }
         }
 
         public static void SpawnAura(Transform target, Color color, float duration, float radius)
@@ -276,6 +325,20 @@ namespace Darkfall.Gameplay
             var t = Mathf.Clamp01((Time.time - startedAt) / duration);
             if (target != null) target.color = new Color(target.color.r, target.color.g, target.color.b, alpha * (1f - t));
             if (t >= 1f) Destroy(gameObject);
+        }
+    }
+
+    internal sealed class TimedStatusVisual : MonoBehaviour
+    {
+        private float expiresAt;
+        private bool bob;
+        private Vector3 origin;
+        public void Initialize(float duration, bool shouldBob)
+        { expiresAt = Time.time + duration; bob = shouldBob; origin = transform.localPosition; }
+        private void Update()
+        {
+            if (bob) transform.localPosition = origin + Vector3.up * (Mathf.Sin(Time.time * 7f) * .055f);
+            if (Time.time >= expiresAt) Destroy(gameObject);
         }
     }
 
