@@ -363,7 +363,13 @@ namespace Darkfall.Core
             Audio.SetPaused(false);
             Audio.PlayMusic("stage1");
             runtimeUI.ShowGame();
-            OverlayRequested?.Invoke(Depth % Balance.bossEveryLevels == 0 ? "Страж глубины пробудился" : $"Глубина {Depth}");
+            var visualProfile = DungeonVisualProfile.ForDepth(Depth);
+            var announcement = Depth % Balance.bossEveryLevels == 0
+                ? $"{visualProfile.DisplayName} · Страж глубины пробудился"
+                : Depth > 1 && (Depth - 1) % Balance.bossEveryLevels == 0
+                    ? $"НОВАЯ ОБЛАСТЬ · {visualProfile.DisplayName}"
+                    : $"{visualProfile.DisplayName} · Глубина {Depth}";
+            OverlayRequested?.Invoke(announcement);
         }
 
         public void AddGold(int amount)

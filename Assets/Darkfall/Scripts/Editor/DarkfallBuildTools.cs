@@ -35,6 +35,14 @@ namespace Darkfall.Editor
                 "Mimic encounter chance must remain rare");
             failures += Require(Resources.Load<Texture2D>("Textures/dungeon-floor-v2") != null, "Dungeon floor v2 texture is missing");
             failures += Require(Resources.Load<Texture2D>("Textures/dungeon-wall-v2") != null, "Dungeon wall v2 texture is missing");
+            var biomeTextures = new[] { "ember", "drowned", "charnel", "obsidian" };
+            foreach (var biome in biomeTextures)
+            {
+                failures += Require(Resources.Load<Texture2D>($"Textures/Biomes/{biome}-floor") != null,
+                    $"Biome floor texture is missing: {biome}");
+                failures += Require(Resources.Load<Texture2D>($"Textures/Biomes/{biome}-wall") != null,
+                    $"Biome wall texture is missing: {biome}");
+            }
             failures += Require(Resources.Load<Texture2D>("Sprites/Environment/dungeon-props-v2") != null, "Dungeon prop atlas is missing");
             for (var prop = 0; prop < 12; prop++)
                 failures += Require(Resources.Load<Texture2D>($"Sprites/Environment/Props/prop-{prop}") != null,
@@ -44,6 +52,10 @@ namespace Darkfall.Editor
                     $"Individual flame frame is missing: {frame}");
             failures += Require(DungeonVisualProfile.ForDepth(1).Id != DungeonVisualProfile.ForDepth(11).Id,
                 "Biome profile must change after depth 10");
+            failures += Require(DungeonVisualProfile.ForDepth(11).Id != DungeonVisualProfile.ForDepth(21).Id &&
+                                DungeonVisualProfile.ForDepth(21).Id != DungeonVisualProfile.ForDepth(31).Id &&
+                                DungeonVisualProfile.ForDepth(31).Id != DungeonVisualProfile.ForDepth(41).Id,
+                "Each post-boss chapter through depth 50 must use a distinct biome");
             failures += Require(LegacyCatalog.Data.characters?.Length == 3, "Legacy parity: expected 3 heroes");
             failures += Require(LegacyCatalog.Data.enemies?.Length == 12, "Legacy parity: expected 12 enemy types");
             failures += Require(LegacyCatalog.Data.bosses?.Length == 3, "Legacy parity: expected 3 bosses");

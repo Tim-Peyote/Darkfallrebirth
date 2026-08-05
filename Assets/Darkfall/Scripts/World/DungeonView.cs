@@ -125,7 +125,7 @@ namespace Darkfall.World
 
                 // Layer several small, non-blocking props through the room instead of decorating
                 // only its corners. Density scales with area and stays deterministic for the seed.
-                var scatterCount = Mathf.Clamp(bounds.width * bounds.height / 38, 1, 4);
+                var scatterCount = Mathf.Clamp(Mathf.RoundToInt(bounds.width * bounds.height / 38f * profile.DecorDensity), 1, 6);
                 var scatterAnchors = new[]
                 {
                     new Vector2(.28f, .24f), new Vector2(.72f, .31f),
@@ -159,7 +159,7 @@ namespace Darkfall.World
             prop.transform.localScale = Vector3.one * scale;
             var renderer = prop.AddComponent<SpriteRenderer>();
             renderer.sprite = EnvironmentSpriteAtlas.Prop(index);
-            renderer.color = Color.white;
+            renderer.color = profile.DecorTint;
             renderer.sortingOrder = 7;
             DarkfallRenderMaterials.MakeLit(renderer);
             if (blocks)
