@@ -91,10 +91,10 @@ namespace Darkfall.UI
             DarkFantasySkin.Apply(header.GetComponent<Image>(), DarkFantasySkin.Tooltip, new Color(.31f, .39f, .43f));
             SetRect(header.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
                 new Vector2(1490, 88), new Vector2(0, 364));
-            Text(header.transform, "DARKFALL · РЕЖИМ РАЗРАБОТЧИКА", 28, new Vector2(-490, 14), new Vector2(890, 42),
+            Text(header.transform, "DARKFALL · РЕЖИМ РАЗРАБОТЧИКА", 28, new Vector2(-213, 14), new Vector2(1000, 42),
                 new Color(.82f, .9f, .93f), TextAnchor.MiddleLeft, true);
             Text(header.transform, "` / F10 — открыть или закрыть · изменения действуют только в текущем забеге", 14,
-                new Vector2(-376, -18), new Vector2(1118, 24), DarkFantasySkin.MutedText, TextAnchor.MiddleLeft);
+                new Vector2(-213, -18), new Vector2(1000, 24), DarkFantasySkin.MutedText, TextAnchor.MiddleLeft);
             Button(header.transform, "ЗАКРЫТЬ", new Vector2(632, 0), new Vector2(176, 46), Close);
 
             BuildProgressColumn(card.transform);

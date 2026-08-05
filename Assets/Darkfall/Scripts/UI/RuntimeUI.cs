@@ -454,7 +454,7 @@ namespace Darkfall.UI
             var offersCard = Panel("Relic Counter", safe.transform, Color.white);
             DarkFantasySkin.Apply(offersCard.GetComponent<Image>(), DarkFantasySkin.Panel, new Color(.62f, .40f, .17f));
             SetRect(offersCard.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(1120, 790), new Vector2(280, -48));
-            AddText(offersCard.transform, "ДОСТУПНЫЕ УСИЛЕНИЯ", 26, new Vector2(-325, 342), new Vector2(420, 40),
+            AddText(offersCard.transform, "ДОСТУПНЫЕ УСИЛЕНИЯ", 26, new Vector2(-295, 342), new Vector2(420, 40),
                 DarkFantasySkin.Text, TextAnchor.MiddleLeft);
             AddText(offersCard.transform, "Выберите товар, затем подтвердите сделку", 15, new Vector2(300, 342), new Vector2(430, 28),
                 DarkFantasySkin.MutedText, TextAnchor.MiddleRight);
