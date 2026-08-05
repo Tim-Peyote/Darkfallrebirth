@@ -21,7 +21,6 @@ namespace Darkfall.World
         public float AmbientIntensity { get; private set; }
         public float WallReadability { get; private set; }
         public float WallHeight { get; private set; }
-        public int PilasterEvery { get; private set; }
         public float ArchitectureDensity { get; private set; }
         public float WallFill { get; private set; }
 
@@ -87,7 +86,6 @@ namespace Darkfall.World
                 AmbientIntensity = .16f,
                 WallReadability = .38f,
                 WallHeight = .9f,
-                PilasterEvery = 7,
                 ArchitectureDensity = 1f,
                 WallFill = .34f
             };
@@ -95,19 +93,19 @@ namespace Darkfall.World
             {
                 case "ember-vaults":
                     profile.AmbientIntensity = .17f; profile.WallReadability = .34f;
-                    profile.WallHeight = 1.02f; profile.PilasterEvery = 5; profile.ArchitectureDensity = 1.2f;
+                    profile.WallHeight = 1.02f; profile.ArchitectureDensity = 1.2f;
                     profile.WallFill = .3f; break;
                 case "drowned-crypt":
                     profile.AmbientIntensity = .18f; profile.WallReadability = .4f;
-                    profile.WallHeight = .88f; profile.PilasterEvery = 8; profile.ArchitectureDensity = 1.12f;
+                    profile.WallHeight = .88f; profile.ArchitectureDensity = 1.12f;
                     profile.WallFill = .38f; break;
                 case "charnel-gardens":
                     profile.AmbientIntensity = .16f; profile.WallReadability = .36f;
-                    profile.WallHeight = .82f; profile.PilasterEvery = 9; profile.ArchitectureDensity = 1.35f;
+                    profile.WallHeight = .82f; profile.ArchitectureDensity = 1.35f;
                     profile.WallFill = .32f; break;
                 case "obsidian-sanctum":
                     profile.AmbientIntensity = .14f; profile.WallReadability = .44f;
-                    profile.WallHeight = 1.08f; profile.PilasterEvery = 4; profile.ArchitectureDensity = 1.28f;
+                    profile.WallHeight = 1.08f; profile.ArchitectureDensity = 1.28f;
                     profile.WallFill = .24f; break;
             }
             return profile;
