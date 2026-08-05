@@ -22,6 +22,13 @@ namespace Darkfall.Editor
             failures += Require(Resources.Load<Texture2D>("Art/Main") != null, "Main menu art is missing");
             failures += Require(Resources.Load<Texture2D>("Art/shop-sanctuary") != null, "Unique shop sanctuary art is missing");
             failures += Require(Resources.Load<AudioClip>("Audio/Main") != null, "Main music is missing");
+            for (var biomeTrack = 1; biomeTrack <= 5; biomeTrack++)
+                failures += Require(Resources.Load<AudioClip>($"Audio/{biomeTrack}") != null,
+                    $"Biome music is missing: {biomeTrack}");
+            failures += Require(Resources.Load<AudioClip>("Audio/boss") != null, "Boss music is missing");
+            foreach (var tavernTrack in new[] { "tavern", "tavern2", "tavern3" })
+                failures += Require(Resources.Load<AudioClip>($"Audio/{tavernTrack}") != null,
+                    $"Tavern music is missing: {tavernTrack}");
             failures += Require(Resources.Load<Font>("Fonts/PTSans-Regular") != null, "Body UI font is missing");
             failures += Require(Resources.Load<Font>("Fonts/CormorantGaramond") != null, "Heading UI font is missing");
             failures += ValidateHeroFrames("mage");

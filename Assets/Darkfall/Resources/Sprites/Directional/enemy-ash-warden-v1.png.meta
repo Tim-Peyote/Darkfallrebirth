@@ -1,0 +1,943 @@
+fileFormatVersion: 2
+guid: 7c21fe255d7e446f1bc49ab097cbee5e
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5559386112372326772
+    second: enemy-ash-warden-v1_0
+  - first:
+      213: -5940521525429100146
+    second: enemy-ash-warden-v1_1
+  - first:
+      213: -3262869519673198624
+    second: enemy-ash-warden-v1_2
+  - first:
+      213: -7221614365280972367
+    second: enemy-ash-warden-v1_3
+  - first:
+      213: -5880737203169140327
+    second: enemy-ash-warden-v1_4
+  - first:
+      213: -7033427901873449161
+    second: enemy-ash-warden-v1_5
+  - first:
+      213: -7386754083143819221
+    second: enemy-ash-warden-v1_6
+  - first:
+      213: 9154667481477491591
+    second: enemy-ash-warden-v1_7
+  - first:
+      213: -1011144251439160324
+    second: enemy-ash-warden-v1_8
+  - first:
+      213: 8029466030001681660
+    second: enemy-ash-warden-v1_9
+  - first:
+      213: 7738759656373612888
+    second: enemy-ash-warden-v1_10
+  - first:
+      213: 1696332464145251514
+    second: enemy-ash-warden-v1_11
+  - first:
+      213: 4749489307981013086
+    second: enemy-ash-warden-v1_12
+  - first:
+      213: -4700569262816602551
+    second: enemy-ash-warden-v1_13
+  - first:
+      213: -62168025599115189
+    second: enemy-ash-warden-v1_14
+  - first:
+      213: 7908721894388796230
+    second: enemy-ash-warden-v1_15
+  - first:
+      213: -6505135087184063729
+    second: enemy-ash-warden-v1_16
+  - first:
+      213: 3661700615419030477
+    second: enemy-ash-warden-v1_17
+  - first:
+      213: -7175112461070785910
+    second: enemy-ash-warden-v1_18
+  - first:
+      213: -9029132609599710681
+    second: enemy-ash-warden-v1_19
+  - first:
+      213: -6194728645222369903
+    second: enemy-ash-warden-v1_20
+  - first:
+      213: -7913068538426390728
+    second: enemy-ash-warden-v1_21
+  - first:
+      213: 5739048774159164253
+    second: enemy-ash-warden-v1_22
+  - first:
+      213: 8023747665458804119
+    second: enemy-ash-warden-v1_23
+  - first:
+      213: -7570952704233601888
+    second: enemy-ash-warden-v1_24
+  - first:
+      213: -6178589302785674779
+    second: enemy-ash-warden-v1_25
+  - first:
+      213: -8890012479300657499
+    second: enemy-ash-warden-v1_26
+  - first:
+      213: 3741956199262536747
+    second: enemy-ash-warden-v1_27
+  - first:
+      213: -5293704727446574250
+    second: enemy-ash-warden-v1_28
+  - first:
+      213: -4177194831844512506
+    second: enemy-ash-warden-v1_29
+  - first:
+      213: 535587367966914304
+    second: enemy-ash-warden-v1_30
+  - first:
+      213: -4576128414158881521
+    second: enemy-ash-warden-v1_31
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_0
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 670
+        width: 107
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 471413dd638e62d40800000000000000
+      internalID: 5559386112372326772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_1
+      rect:
+        serializedVersion: 2
+        x: 277
+        y: 670
+        width: 107
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e81ac3895270f8da0800000000000000
+      internalID: -5940521525429100146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_2
+      rect:
+        serializedVersion: 2
+        x: 489
+        y: 672
+        width: 123
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e7fd639575f7b2d0800000000000000
+      internalID: -3262869519673198624
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_3
+      rect:
+        serializedVersion: 2
+        x: 736
+        y: 670
+        width: 102
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b1d19c1ffba7cb90800000000000000
+      internalID: -7221614365280972367
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_4
+      rect:
+        serializedVersion: 2
+        x: 923
+        y: 673
+        width: 133
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 991eda3dbac636ea0800000000000000
+      internalID: -5880737203169140327
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_5
+      rect:
+        serializedVersion: 2
+        x: 1170
+        y: 681
+        width: 173
+        height: 169
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7371383869e346e90800000000000000
+      internalID: -7033427901873449161
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_6
+      rect:
+        serializedVersion: 2
+        x: 1402
+        y: 680
+        width: 81
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b20eb0f4c4afc7990800000000000000
+      internalID: -7386754083143819221
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_7
+      rect:
+        serializedVersion: 2
+        x: 1577
+        y: 676
+        width: 157
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78b29462299eb0f70800000000000000
+      internalID: 9154667481477491591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_8
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 456
+        width: 122
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf36a4c19a1b7f1f0800000000000000
+      internalID: -1011144251439160324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_9
+      rect:
+        serializedVersion: 2
+        x: 266
+        y: 456
+        width: 121
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf4f056ffc46e6f60800000000000000
+      internalID: 8029466030001681660
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_10
+      rect:
+        serializedVersion: 2
+        x: 511
+        y: 457
+        width: 113
+        height: 175
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 851f540e7e8956b60800000000000000
+      internalID: 7738759656373612888
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_11
+      rect:
+        serializedVersion: 2
+        x: 739
+        y: 457
+        width: 109
+        height: 175
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: abc375a73659a8710800000000000000
+      internalID: 1696332464145251514
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_12
+      rect:
+        serializedVersion: 2
+        x: 955
+        y: 454
+        width: 197
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5069ba9c5399e140800000000000000
+      internalID: 4749489307981013086
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_13
+      rect:
+        serializedVersion: 2
+        x: 1171
+        y: 456
+        width: 165
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94652bff82934ceb0800000000000000
+      internalID: -4700569262816602551
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_14
+      rect:
+        serializedVersion: 2
+        x: 1399
+        y: 455
+        width: 75
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4007c59282232ff0800000000000000
+      internalID: -62168025599115189
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_15
+      rect:
+        serializedVersion: 2
+        x: 1575
+        y: 457
+        width: 170
+        height: 154
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64b066629ac61cd60800000000000000
+      internalID: 7908721894388796230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_16
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 236
+        width: 126
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f03d6789a1e19b5a0800000000000000
+      internalID: -6505135087184063729
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_17
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 236
+        width: 124
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dcb61e72f49f0d230800000000000000
+      internalID: 3661700615419030477
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_18
+      rect:
+        serializedVersion: 2
+        x: 514
+        y: 236
+        width: 125
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a82a5666b31ec6c90800000000000000
+      internalID: -7175112461070785910
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_19
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 239
+        width: 118
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72ad9eedab312b280800000000000000
+      internalID: -9029132609599710681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_20
+      rect:
+        serializedVersion: 2
+        x: 937
+        y: 239
+        width: 131
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 19575954e17e70aa0800000000000000
+      internalID: -6194728645222369903
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_21
+      rect:
+        serializedVersion: 2
+        x: 1169
+        y: 243
+        width: 167
+        height: 167
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83786cbe6122f2290800000000000000
+      internalID: -7913068538426390728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_22
+      rect:
+        serializedVersion: 2
+        x: 1412
+        y: 236
+        width: 64
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d53e56c047235af40800000000000000
+      internalID: 5739048774159164253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_23
+      rect:
+        serializedVersion: 2
+        x: 1577
+        y: 237
+        width: 172
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 795ba077df31a5f60800000000000000
+      internalID: 8023747665458804119
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_24
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 35
+        width: 86
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a48fdcc0a29ee690800000000000000
+      internalID: -7570952704233601888
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_25
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 35
+        width: 86
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e17e62c3cd314aa0800000000000000
+      internalID: -6178589302785674779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_26
+      rect:
+        serializedVersion: 2
+        x: 522
+        y: 35
+        width: 115
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ae9e7a50c450a480800000000000000
+      internalID: -8890012479300657499
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_27
+      rect:
+        serializedVersion: 2
+        x: 749
+        y: 35
+        width: 114
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b244d1666591ee330800000000000000
+      internalID: 3741956199262536747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_28
+      rect:
+        serializedVersion: 2
+        x: 885
+        y: 25
+        width: 159
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65badbef89bf886b0800000000000000
+      internalID: -5293704727446574250
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_29
+      rect:
+        serializedVersion: 2
+        x: 1172
+        y: 33
+        width: 97
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60d6f42ae6f9706c0800000000000000
+      internalID: -4177194831844512506
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_30
+      rect:
+        serializedVersion: 2
+        x: 1403
+        y: 35
+        width: 85
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 007badd9fd9ce6700800000000000000
+      internalID: 535587367966914304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ash-warden-v1_31
+      rect:
+        serializedVersion: 2
+        x: 1617
+        y: 27
+        width: 107
+        height: 153
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0dfc73e3735e70c0800000000000000
+      internalID: -4576128414158881521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

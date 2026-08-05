@@ -36,6 +36,7 @@ namespace Darkfall.Core
         private readonly Dictionary<string, int> shopPurchases = new Dictionary<string, int>();
         private bool[] shopOfferSold = Array.Empty<bool>();
         private bool blockingModal;
+        private int lastTavernTrack = -1;
         private bool developerConsoleOpen;
         private bool developerPreviousPause;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -136,7 +137,7 @@ namespace Darkfall.Core
             blockingModal = false;
             Time.timeScale = 1;
             Audio.SetPaused(false);
-            Audio.PlayMusic("stage1");
+            PlayDepthMusic();
             runtimeUI.ShowGame();
         }
 
@@ -341,6 +342,26 @@ namespace Darkfall.Core
                 ShopOffers[i] = pool[index];
                 pool.RemoveAt(index);
             }
+            PlayRandomTavernMusic();
+        }
+
+        private void PlayDepthMusic()
+        {
+            if (Depth % Balance.bossEveryLevels == 0)
+            {
+                Audio.PlayMusic("boss");
+                return;
+            }
+            var biomeTrack = Mathf.Max(0, (Depth - 1) / 10) % 5 + 1;
+            Audio.PlayMusic(biomeTrack.ToString());
+        }
+
+        private void PlayRandomTavernMusic()
+        {
+            var next = UnityEngine.Random.Range(0, 3);
+            if (next == lastTavernTrack) next = (next + UnityEngine.Random.Range(1, 3)) % 3;
+            lastTavernTrack = next;
+            Audio.PlayMusic(next == 0 ? "tavern" : $"tavern{next + 1}");
         }
 
         public int PurchaseCount(string id) => shopPurchases.TryGetValue(id, out var count) ? count : 0;
@@ -371,7 +392,7 @@ namespace Darkfall.Core
             blockingModal = false;
             Time.timeScale = 1;
             Audio.SetPaused(false);
-            Audio.PlayMusic("stage1");
+            PlayDepthMusic();
             runtimeUI.ShowGame();
             var visualProfile = DungeonVisualProfile.ForDepth(Depth);
             var announcement = Depth % Balance.bossEveryLevels == 0
@@ -422,6 +443,7 @@ namespace Darkfall.Core
             if (Player == null) return;
             Depth++;
             BuildLevel();
+            PlayDepthMusic();
             NotifyStatsChanged();
         }
 
