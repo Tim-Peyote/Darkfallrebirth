@@ -138,15 +138,45 @@ namespace Darkfall.Editor
                 "Progression: regular enemy budget must grow with depth");
             for (var seed = 0; seed < 100; seed++)
             {
-                var dungeon = DungeonGenerator.Generate(balance, 1 + seed % 25, seed);
+                var generatedDepth = 1 + seed % 25;
+                var dungeon = DungeonGenerator.Generate(balance, generatedDepth, seed);
                 failures += Require(dungeon.Rooms.Count >= 2, $"Seed {seed}: insufficient rooms");
                 failures += Require(dungeon.IsFloor(dungeon.StartCell.x, dungeon.StartCell.y), $"Seed {seed}: invalid start");
                 failures += Require(dungeon.IsFloor(dungeon.ExitCell.x, dungeon.ExitCell.y), $"Seed {seed}: invalid exit");
+                var internalStairs = 0;
+                var levelExits = 0;
+                foreach (var feature in dungeon.Architecture)
+                {
+                    if (feature.Kind == DungeonArchitectureKind.LevelExitStairs)
+                    {
+                        levelExits++;
+                        continue;
+                    }
+                    if (feature.Kind == DungeonArchitectureKind.ElevationStairs) internalStairs++;
+                    var passageX = Mathf.FloorToInt(feature.Position.x);
+                    var passageY = Mathf.FloorToInt(feature.Position.y);
+                    var validThreshold = feature.Vertical
+                        ? dungeon.IsFloor(passageX - 1, passageY) && dungeon.IsFloor(passageX, passageY)
+                        : dungeon.IsFloor(passageX, passageY - 1) && dungeon.IsFloor(passageX, passageY);
+                    failures += Require(validThreshold,
+                        $"Seed {seed}: {feature.Kind} is not attached to a valid room passage");
+                }
+                failures += Require(levelExits == 1, $"Seed {seed}: expected exactly one level-exit stair");
+                if (generatedDepth % 10 != 0)
+                    failures += Require(internalStairs > 0,
+                        $"Seed {seed}: expected at least one internal elevation stair");
                 var start = dungeon.CellCenter(dungeon.StartCell);
                 failures += Require(dungeon.CanOccupy(start + Vector2.left * .3f, .22f), $"Seed {seed}: start blocks left movement");
                 failures += Require(dungeon.CanOccupy(start + Vector2.right * .3f, .22f), $"Seed {seed}: start blocks right movement");
                 failures += Require(dungeon.CanOccupy(start + Vector2.up * .3f, .22f), $"Seed {seed}: start blocks upward movement");
                 failures += Require(dungeon.CanOccupy(start + Vector2.down * .3f, .22f), $"Seed {seed}: start blocks downward movement");
+                // Exercise the same blocking placements used by structural decor. Rejected props
+                // are intentionally absent; accepted props must preserve every room route below.
+                foreach (var generatedRoom in dungeon.Rooms)
+                {
+                    var bounds = generatedRoom.bounds;
+                    dungeon.TryAddObstaclePreservingRoutes(new Vector2(bounds.xMin + 1.2f, bounds.yMin + 1.1f));
+                }
                 for (var room = 1; room < dungeon.Rooms.Count; room++)
                 {
                     var previous = dungeon.CellCenter(dungeon.Rooms[room - 1].Center);

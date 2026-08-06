@@ -27,6 +27,34 @@ namespace Darkfall.World
         }
     }
 
+    public enum DungeonArchitectureKind
+    {
+        OpenArch,
+        ElevationStairs,
+        LevelExitStairs
+    }
+
+    /// <summary>
+    /// A semantic architecture placement emitted by the generator. The view is deliberately not
+    /// allowed to invent doors, stairs or arches from random wall accents: these features belong
+    /// to the dungeon grammar and therefore have a valid topological location.
+    /// </summary>
+    public readonly struct DungeonArchitectureFeature
+    {
+        public readonly DungeonArchitectureKind Kind;
+        public readonly Vector2 Position;
+        public readonly bool Vertical;
+        public readonly bool FlipX;
+
+        public DungeonArchitectureFeature(DungeonArchitectureKind kind, Vector2 position, bool vertical, bool flipX)
+        {
+            Kind = kind;
+            Position = position;
+            Vertical = vertical;
+            FlipX = flipX;
+        }
+    }
+
     public sealed class DungeonData
     {
         private readonly bool[,] floor;
@@ -34,10 +62,12 @@ namespace Darkfall.World
         private readonly bool[,] visible;
         private readonly bool[,] obstacles;
         private readonly List<DungeonLightSource> lightSources = new List<DungeonLightSource>();
+        private readonly List<DungeonArchitectureFeature> architecture = new List<DungeonArchitectureFeature>();
         public int Width { get; }
         public int Height { get; }
         public IReadOnlyList<DungeonRoom> Rooms { get; }
         public IReadOnlyList<DungeonLightSource> LightSources => lightSources;
+        public IReadOnlyList<DungeonArchitectureFeature> Architecture => architecture;
         public Vector2Int StartCell => Rooms[0].Center;
         public Vector2Int ExitCell => Rooms[Rooms.Count - 1].Center;
 
@@ -65,17 +95,58 @@ namespace Darkfall.World
 
         public bool BlocksVision(int x, int y) => !IsFloor(x, y) || obstacles[x, y];
 
-        public void AddObstacle(Vector2 position)
+        public bool TryAddObstaclePreservingRoutes(Vector2 position)
         {
             var x = Mathf.FloorToInt(position.x);
             var y = Mathf.FloorToInt(position.y);
-            if (x >= 0 && y >= 0 && x < Width && y < Height) obstacles[x, y] = true;
+            if (!IsFloor(x, y) || obstacles[x, y]) return false;
+
+            // A blocking prop belongs in open room volume, never in a one/two-cell throat.
+            var openNeighbours = 0;
+            if (IsWalkable(x - 1, y)) openNeighbours++;
+            if (IsWalkable(x + 1, y)) openNeighbours++;
+            if (IsWalkable(x, y - 1)) openNeighbours++;
+            if (IsWalkable(x, y + 1)) openNeighbours++;
+            if (openNeighbours < 3) return false;
+
+            obstacles[x, y] = true;
+            if (AllRoomCentersReachable()) return true;
+            obstacles[x, y] = false;
+            return false;
+        }
+
+        private bool AllRoomCentersReachable()
+        {
+            var start = StartCell;
+            if (!IsWalkable(start.x, start.y)) return false;
+            var reached = new bool[Width, Height];
+            var queue = new Queue<Vector2Int>();
+            var directions = new[] { Vector2Int.left, Vector2Int.right, Vector2Int.up, Vector2Int.down };
+            reached[start.x, start.y] = true;
+            queue.Enqueue(start);
+            while (queue.Count > 0)
+            {
+                var cell = queue.Dequeue();
+                foreach (var direction in directions)
+                {
+                    var next = cell + direction;
+                    if (next.x < 0 || next.y < 0 || next.x >= Width || next.y >= Height ||
+                        reached[next.x, next.y] || !IsWalkable(next.x, next.y)) continue;
+                    reached[next.x, next.y] = true;
+                    queue.Enqueue(next);
+                }
+            }
+            foreach (var room in Rooms)
+                if (!reached[room.Center.x, room.Center.y]) return false;
+            return true;
         }
 
         public void AddLightSource(Vector2 position, Color color, float radius, float flicker = .1f)
         {
             lightSources.Add(new DungeonLightSource(position, color, radius, flicker));
         }
+
+        internal void AddArchitecture(DungeonArchitectureFeature feature) => architecture.Add(feature);
 
         public void BeginVisibilityUpdate()
         {

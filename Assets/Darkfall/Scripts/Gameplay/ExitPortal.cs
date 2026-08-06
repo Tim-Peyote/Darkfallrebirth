@@ -72,7 +72,8 @@ namespace Darkfall.Gameplay
 
         public static bool InteractNearest(PlayerController target)
         {
-            if (Active == null || target == null || Vector2.Distance(Active.transform.position, target.transform.position) > 1.45f)
+            if (Active == null || target == null || !Active.empowered ||
+                Vector2.Distance(Active.transform.position, target.transform.position) > 1.45f)
                 return false;
             Active.Enter();
             return true;

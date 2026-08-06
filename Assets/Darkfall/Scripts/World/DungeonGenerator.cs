@@ -82,7 +82,46 @@ namespace Darkfall.World
                 CarveConnection(floor, rooms[first].Center, rooms[second].Center, random);
             }
 
-            return new DungeonData(floor, rooms);
+            EnsureRoomConnectivity(floor, rooms, random);
+
+            var dungeon = new DungeonData(floor, rooms);
+            BuildArchitectureGrammar(dungeon, depth, seed);
+            return dungeon;
+        }
+
+        private static void EnsureRoomConnectivity(bool[,] floor, List<DungeonRoom> rooms, System.Random random)
+        {
+            for (var room = 1; room < rooms.Count; room++)
+            {
+                var previous = rooms[room - 1].Center;
+                var current = rooms[room].Center;
+                if (HasFloorRoute(floor, previous, current)) continue;
+                CarveConnection(floor, previous, current, random);
+            }
+        }
+
+        private static bool HasFloorRoute(bool[,] floor, Vector2Int start, Vector2Int goal)
+        {
+            if (!floor[start.x, start.y] || !floor[goal.x, goal.y]) return false;
+            var visited = new bool[floor.GetLength(0), floor.GetLength(1)];
+            var queue = new Queue<Vector2Int>();
+            var directions = new[] { Vector2Int.left, Vector2Int.right, Vector2Int.up, Vector2Int.down };
+            queue.Enqueue(start);
+            visited[start.x, start.y] = true;
+            while (queue.Count > 0)
+            {
+                var cell = queue.Dequeue();
+                if (cell == goal) return true;
+                foreach (var direction in directions)
+                {
+                    var next = cell + direction;
+                    if (next.x < 0 || next.y < 0 || next.x >= floor.GetLength(0) || next.y >= floor.GetLength(1) ||
+                        visited[next.x, next.y] || !floor[next.x, next.y]) continue;
+                    visited[next.x, next.y] = true;
+                    queue.Enqueue(next);
+                }
+            }
+            return false;
         }
 
         private static DungeonData GenerateBossArena()
@@ -105,11 +144,14 @@ namespace Darkfall.World
                 for (var x = pillar.x; x < pillar.x + 2; x++)
                 for (var y = pillar.y; y < pillar.y + 2; y++)
                     floor[x, y] = false;
-            return new DungeonData(floor, new List<DungeonRoom>
+            var dungeon = new DungeonData(floor, new List<DungeonRoom>
             {
                 new DungeonRoom { bounds = new RectInt(5, 14, 2, 2) },
                 new DungeonRoom { bounds = new RectInt(23, 14, 2, 2) }
             });
+            dungeon.AddArchitecture(new DungeonArchitectureFeature(DungeonArchitectureKind.LevelExitStairs,
+                dungeon.CellCenter(dungeon.ExitCell), false, false));
+            return dungeon;
         }
 
         private static void MakeFarthestRoomLast(List<DungeonRoom> rooms)
@@ -138,79 +180,174 @@ namespace Darkfall.World
 
         private static void CarveRoom(bool[,] floor, RectInt room, System.Random random, int biomeStyle)
         {
-            // Cathedral-like chambers are still grid-authored for reliable gameplay, but their
-            // silhouette is composed rather than exposed as a rectangle. Chamfers, shallow bays
-            // and asymmetric recesses give the renderer useful architectural corners without
-            // creating tiny collision traps.
-            var chamfer = Mathf.Clamp(Mathf.Min(room.width, room.height) / 4, 1, 3);
-            if (biomeStyle == 1) chamfer = Mathf.Min(chamfer, 2);
-            var symmetricCut = biomeStyle == 4 ? random.Next(1, chamfer + 1) : -1;
-            var cutTopLeft = symmetricCut > 0 ? symmetricCut : random.Next(1, chamfer + 1);
-            var cutTopRight = symmetricCut > 0 ? symmetricCut : random.Next(1, chamfer + 1);
-            var cutBottomLeft = symmetricCut > 0 ? symmetricCut : random.Next(1, chamfer + 1);
-            var cutBottomRight = symmetricCut > 0 ? symmetricCut : random.Next(1, chamfer + 1);
+            // Diablo's macro layout is orthogonal. Its richness comes from connected rooms,
+            // chambers, halls and later context substitutions, not from shaving every room into
+            // a marching-squares polygon. Keeping the base room rectangular gives wall pieces a
+            // stable grammar and makes every corner an actual corner.
             for (var x = room.xMin; x < room.xMax; x++)
             for (var y = room.yMin; y < room.yMax; y++)
-            {
-                var left = x - room.xMin;
-                var right = room.xMax - 1 - x;
-                var bottom = y - room.yMin;
-                var top = room.yMax - 1 - y;
-                if (left + top < cutTopLeft || right + top < cutTopRight ||
-                    left + bottom < cutBottomLeft || right + bottom < cutBottomRight) continue;
                 floor[x, y] = true;
-            }
-
-            // Shallow recesses break the four-wall rectangle into readable bays and niches.
-            if (room.width >= 9 && room.height >= 8)
-            {
-                var recessWidth = Mathf.Clamp(room.width / 4, 2, 4);
-                var recessDepth = random.Next(1, Mathf.Min(3, room.height / 3));
-                var recessX = random.Next(room.xMin + 1, room.xMax - recessWidth - 1);
-                var fromTop = random.Next(0, 2) == 0;
-                var recessY = fromTop ? room.yMax - recessDepth : room.yMin;
-                for (var x = recessX; x < recessX + recessWidth; x++)
-                for (var y = recessY; y < recessY + recessDepth; y++) floor[x, y] = false;
-
-                if (room.width >= 12 && random.Next(0, 3) != 0)
-                {
-                    var sideHeight = Mathf.Clamp(room.height / 3, 3, 5);
-                    var sideY = random.Next(room.yMin + 1, room.yMax - sideHeight - 1);
-                    var fromRight = random.Next(0, 2) == 0;
-                    var sideX = fromRight ? room.xMax - 1 : room.xMin;
-                    for (var y = sideY; y < sideY + sideHeight; y++) floor[sideX, y] = false;
-                }
-                if (biomeStyle == 3 && room.height >= 11)
-                {
-                    var organicWidth = Mathf.Clamp(room.width / 5, 2, 4);
-                    var organicX = random.Next(room.xMin + 1, room.xMax - organicWidth - 1);
-                    for (var x = organicX; x < organicX + organicWidth; x++) floor[x, room.yMin] = false;
-                }
-            }
         }
 
         private static void CarveConnection(bool[,] floor, Vector2Int from, Vector2Int to, System.Random random)
         {
-            // A widened Bresenham passage avoids the repeated right-angle elbows of the previous
-            // generator. Small landings at both ends make entrances read as authored thresholds.
+            // The logical corridor is orthogonal, as in Diablo's DRLG. The isometric projection
+            // supplies the diagonal screen direction; a Bresenham corridor only creates a noisy
+            // staircase of fake architectural corners.
             var width = random.Next(0, 4) == 0 ? 3 : 2;
-            var x = from.x;
-            var y = from.y;
-            var dx = Mathf.Abs(to.x - from.x);
-            var dy = Mathf.Abs(to.y - from.y);
-            var sx = from.x < to.x ? 1 : -1;
-            var sy = from.y < to.y ? 1 : -1;
-            var error = dx - dy;
-            while (true)
+            if (random.Next(0, 2) == 0)
             {
-                CarveDisc(floor, x, y, width);
-                if (x == to.x && y == to.y) break;
-                var twice = error * 2;
-                if (twice > -dy) { error -= dy; x += sx; }
-                if (twice < dx) { error += dx; y += sy; }
+                CarveAxisCorridor(floor, from, new Vector2Int(to.x, from.y), width);
+                CarveAxisCorridor(floor, new Vector2Int(to.x, from.y), to, width);
+            }
+            else
+            {
+                CarveAxisCorridor(floor, from, new Vector2Int(from.x, to.y), width);
+                CarveAxisCorridor(floor, new Vector2Int(from.x, to.y), to, width);
             }
             CarveDisc(floor, from.x, from.y, width + 1);
             CarveDisc(floor, to.x, to.y, width + 1);
+        }
+
+        private static void CarveAxisCorridor(bool[,] floor, Vector2Int from, Vector2Int to, int width)
+        {
+            var step = new Vector2Int(Math.Sign(to.x - from.x), Math.Sign(to.y - from.y));
+            var current = from;
+            while (true)
+            {
+                CarveDisc(floor, current.x, current.y, width);
+                if (current == to) break;
+                current += step;
+            }
+        }
+
+        private static void BuildArchitectureGrammar(DungeonData data, int depth, int seed)
+        {
+            var candidates = new List<ArchitectureThreshold>();
+            for (var roomIndex = 0; roomIndex < data.Rooms.Count; roomIndex++)
+            {
+                var bounds = data.Rooms[roomIndex].bounds;
+                FindHorizontalThresholds(data, roomIndex, bounds.xMin, bounds.xMax,
+                    bounds.yMin, bounds.yMin - 1, bounds.yMin, false, candidates);
+                FindHorizontalThresholds(data, roomIndex, bounds.xMin, bounds.xMax,
+                    bounds.yMax - 1, bounds.yMax, bounds.yMax, false, candidates);
+                FindVerticalThresholds(data, roomIndex, bounds.yMin, bounds.yMax,
+                    bounds.xMin, bounds.xMin - 1, bounds.xMin, true, candidates);
+                FindVerticalThresholds(data, roomIndex, bounds.yMin, bounds.yMax,
+                    bounds.xMax - 1, bounds.xMax, bounds.xMax, true, candidates);
+            }
+
+            var thresholds = new List<ArchitectureThreshold>();
+            foreach (var candidate in candidates)
+            {
+                // The authored threshold kits span a two/three-cell passage. A broad overlap is a
+                // merged room, while a one-cell throat is deliberately left visually open.
+                if (candidate.Width < 2 || candidate.Width > 3) continue;
+                var duplicate = false;
+                foreach (var accepted in thresholds)
+                    if (Vector2.Distance(accepted.Position, candidate.Position) < 2.25f)
+                    {
+                        duplicate = true;
+                        break;
+                    }
+                if (!duplicate) thresholds.Add(candidate);
+            }
+
+            // Internal elevation changes are passages, not alternate exit art. Promote a small,
+            // deterministic subset of valid room thresholds to stairs; every remaining threshold
+            // becomes an open arch. Start/exit approaches stay clear and the count grows with the
+            // scale of the floor.
+            var stairBudget = Mathf.Clamp(1 + depth / 12 + data.Rooms.Count / 18, 1, 4);
+            thresholds.Sort((a, b) => ArchitectureScore(a, seed).CompareTo(ArchitectureScore(b, seed)));
+            var internalStairs = new List<Vector2>();
+            foreach (var threshold in thresholds)
+            {
+                var kind = DungeonArchitectureKind.OpenArch;
+                if (internalStairs.Count < stairBudget && threshold.RoomIndex > 0 &&
+                    threshold.RoomIndex < data.Rooms.Count - 1 &&
+                    Vector2.Distance(threshold.Position, data.CellCenter(data.StartCell)) > 6f &&
+                    Vector2.Distance(threshold.Position, data.CellCenter(data.ExitCell)) > 6f)
+                {
+                    var separated = true;
+                    foreach (var previous in internalStairs)
+                        if (Vector2.Distance(previous, threshold.Position) < 9f)
+                        {
+                            separated = false;
+                            break;
+                        }
+                    if (separated)
+                    {
+                        kind = DungeonArchitectureKind.ElevationStairs;
+                        internalStairs.Add(threshold.Position);
+                    }
+                }
+                data.AddArchitecture(new DungeonArchitectureFeature(kind, threshold.Position,
+                    threshold.Vertical, threshold.FlipX));
+            }
+
+            data.AddArchitecture(new DungeonArchitectureFeature(DungeonArchitectureKind.LevelExitStairs,
+                data.CellCenter(data.ExitCell), false, false));
+        }
+
+        private static int ArchitectureScore(ArchitectureThreshold threshold, int seed)
+        {
+            unchecked
+            {
+                var value = seed ^ Mathf.RoundToInt(threshold.Position.x * 97f) * 73856093 ^
+                            Mathf.RoundToInt(threshold.Position.y * 97f) * 19349663 ^ threshold.RoomIndex * 83492791;
+                value ^= value << 13;
+                value ^= value >> 17;
+                value ^= value << 5;
+                return value & int.MaxValue;
+            }
+        }
+
+        private static void FindHorizontalThresholds(DungeonData data, int roomIndex, int minimum, int maximum,
+            int insideY, int outsideY, float edgeY, bool flipX, List<ArchitectureThreshold> result)
+        {
+            var start = -1;
+            for (var x = minimum; x <= maximum; x++)
+            {
+                var crossing = x < maximum && data.IsFloor(x, insideY) && data.IsFloor(x, outsideY);
+                if (crossing && start < 0) start = x;
+                if (crossing || start < 0) continue;
+                result.Add(new ArchitectureThreshold(roomIndex, new Vector2((start + x) * .5f, edgeY),
+                    false, flipX, x - start));
+                start = -1;
+            }
+        }
+
+        private static void FindVerticalThresholds(DungeonData data, int roomIndex, int minimum, int maximum,
+            int insideX, int outsideX, float edgeX, bool flipX, List<ArchitectureThreshold> result)
+        {
+            var start = -1;
+            for (var y = minimum; y <= maximum; y++)
+            {
+                var crossing = y < maximum && data.IsFloor(insideX, y) && data.IsFloor(outsideX, y);
+                if (crossing && start < 0) start = y;
+                if (crossing || start < 0) continue;
+                result.Add(new ArchitectureThreshold(roomIndex, new Vector2(edgeX, (start + y) * .5f),
+                    true, flipX, y - start));
+                start = -1;
+            }
+        }
+
+        private readonly struct ArchitectureThreshold
+        {
+            public readonly int RoomIndex;
+            public readonly Vector2 Position;
+            public readonly bool Vertical;
+            public readonly bool FlipX;
+            public readonly int Width;
+
+            public ArchitectureThreshold(int roomIndex, Vector2 position, bool vertical, bool flipX, int width)
+            {
+                RoomIndex = roomIndex;
+                Position = position;
+                Vertical = vertical;
+                FlipX = flipX;
+                Width = width;
+            }
         }
 
         private static void CarveDisc(bool[,] floor, int centerX, int centerY, int width)

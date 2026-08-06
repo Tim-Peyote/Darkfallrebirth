@@ -12,6 +12,7 @@ namespace Darkfall.UI
         private Texture2D texture;
         private int width;
         private int height;
+        private int textureSize;
         private float nextRefresh;
 
         public void Initialize(GameManager manager, RawImage image)
@@ -33,7 +34,8 @@ namespace Darkfall.UI
             if (texture != null) Destroy(texture);
             width = game.Dungeon.Width;
             height = game.Dungeon.Height;
-            texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            textureSize = width + height - 1;
+            texture = new Texture2D(textureSize, textureSize, TextureFormat.RGBA32, false)
             {
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp
@@ -43,19 +45,16 @@ namespace Darkfall.UI
 
         private void Draw()
         {
-            var colors = new Color32[width * height];
+            var colors = new Color32[textureSize * textureSize];
             var unknown = new Color32(2, 2, 3, 255);
             var exploredFloor = new Color32(42, 39, 36, 255);
             var visibleFloor = new Color32(86, 74, 58, 255);
+            for (var pixel = 0; pixel < colors.Length; pixel++) colors[pixel] = unknown;
             for (var y = 0; y < height; y++)
             for (var x = 0; x < width; x++)
             {
-                if (!game.Dungeon.IsExplored(x, y))
-                {
-                    colors[y * width + x] = unknown;
-                    continue;
-                }
-                colors[y * width + x] = game.Dungeon.IsVisible(x, y) ? visibleFloor : exploredFloor;
+                if (!game.Dungeon.IsExplored(x, y)) continue;
+                SetCell(colors, x, y, game.Dungeon.IsVisible(x, y) ? visibleFloor : exploredFloor);
             }
             foreach (var enemy in EnemyController.Snapshot())
                 if (enemy != null && IsVisible(enemy.transform.position))
@@ -78,19 +77,37 @@ namespace Darkfall.UI
         {
             var x = Mathf.Clamp(Mathf.FloorToInt(position.x), 0, width - 1);
             var y = Mathf.Clamp(Mathf.FloorToInt(position.y), 0, height - 1);
-            pixels[y * width + x] = color;
+            var pixel = ProjectCell(x, y);
+            Paint(pixels, pixel.x, pixel.y, color, 1);
         }
 
         private void SetMarker(Color32[] pixels, Vector2 position, Color32 color)
         {
             var x = Mathf.Clamp(Mathf.FloorToInt(position.x), 0, width - 1);
             var y = Mathf.Clamp(Mathf.FloorToInt(position.y), 0, height - 1);
-            for (var offset = -1; offset <= 1; offset++)
+            var pixel = ProjectCell(x, y);
+            Paint(pixels, pixel.x, pixel.y, color, 2);
+        }
+
+        private void SetCell(Color32[] pixels, int x, int y, Color32 color)
+        {
+            var pixel = ProjectCell(x, y);
+            Paint(pixels, pixel.x, pixel.y, color, 0);
+            Paint(pixels, pixel.x + 1, pixel.y, color, 0);
+        }
+
+        private Vector2Int ProjectCell(int x, int y) => new Vector2Int(
+            x - y + height - 1,
+            width + height - 2 - x - y);
+
+        private void Paint(Color32[] pixels, int centerX, int centerY, Color32 color, int radius)
+        {
+            for (var y = centerY - radius; y <= centerY + radius; y++)
+            for (var x = centerX - radius; x <= centerX + radius; x++)
             {
-                var horizontal = Mathf.Clamp(x + offset, 0, width - 1);
-                var vertical = Mathf.Clamp(y + offset, 0, height - 1);
-                pixels[y * width + horizontal] = color;
-                pixels[vertical * width + x] = color;
+                if (x < 0 || y < 0 || x >= textureSize || y >= textureSize) continue;
+                if (radius > 0 && Mathf.Abs(x - centerX) + Mathf.Abs(y - centerY) > radius) continue;
+                pixels[y * textureSize + x] = color;
             }
         }
 

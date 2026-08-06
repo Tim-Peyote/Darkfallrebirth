@@ -23,7 +23,7 @@ namespace Darkfall.World
             var contour = DungeonContour.Build(data);
             architectureDecor = CreateGroup(transform, "Architecture · " + profile.Id);
             BuildContourFloor(contour);
-            BuildContourWalls(contour, data.Width + data.Height);
+            BuildContourWalls(contour, data);
             BuildContourShadows(contour);
             var decorRoot = new GameObject("Decor · " + profile.Id).transform;
             decorRoot.SetParent(transform, false);
@@ -66,8 +66,9 @@ namespace Darkfall.World
             CreateLayer(mesh.name, mesh, material, -20);
         }
 
-        private void BuildContourWalls(DungeonContour contour, int maximumDepth)
+        private void BuildContourWalls(DungeonContour contour, DungeonData data)
         {
+            var maximumDepth = data.Width + data.Height;
             var hasArchitecture = ArchitectureSpriteLibrary.HasBiome(profile.Id);
             var wallTexture = Resources.Load<Texture2D>(profile.WallTexture);
             if (wallTexture != null)
@@ -96,6 +97,7 @@ namespace Darkfall.World
             if (hasArchitecture)
             {
                 BuildArchitectureModules(contour);
+                BuildThresholdArchitecture(data);
                 return;
             }
 
@@ -136,50 +138,163 @@ namespace Darkfall.World
 
         private void BuildArchitectureModules(DungeonContour contour)
         {
-            var cornerAnchors = new List<Vector2>();
-            // Lay the repeatable runs first. Corner pieces are overlays and belong only at turns.
-            for (var i = 0; i < contour.Segments.Count; i++)
+            var moduleIndex = 0;
+            foreach (var rawPath in BuildContourPaths(contour.Segments))
             {
-                var segment = contour.Segments[i];
-                var straight = IsStraightWall(segment.Mask);
-                if (!straight) continue;
-                var anchor = (segment.From + segment.To) * .5f;
-                var flip = Mathf.Abs(segment.To.y - segment.From.y) > Mathf.Abs(segment.To.x - segment.From.x);
-                CreateArchitectureModule(StraightWallRole(segment, i), anchor, flip, .92f, i);
-            }
+                var path = SimplifyOrthogonalPath(rawPath);
+                if (path.Count < 3) continue;
+                for (var edge = 0; edge < path.Count; edge++)
+                {
+                    var from = path[edge];
+                    var to = path[(edge + 1) % path.Count];
+                    var delta = to - from;
+                    var horizontal = Mathf.Abs(delta.y) < .12f;
+                    var vertical = Mathf.Abs(delta.x) < .12f;
+                    if (!horizontal && !vertical) continue;
 
-            for (var i = 0; i < contour.Segments.Count; i++)
-            {
-                var segment = contour.Segments[i];
-                if (IsStraightWall(segment.Mask)) continue;
-                var anchor = CornerAnchor(segment);
-                var projected = IsoWorld.Project(anchor);
-                var tooClose = false;
-                for (var previous = 0; previous < cornerAnchors.Count; previous++)
-                    if (Vector2.Distance(projected, IsoWorld.Project(cornerAnchors[previous])) < .9f)
+                    var length = horizontal ? Mathf.Abs(delta.x) : Mathf.Abs(delta.y);
+                    var sections = Mathf.Max(1, Mathf.RoundToInt(length));
+                    var edgeHash = EdgeHash(from, to, sections);
+                    for (var section = 0; section < sections; section++)
                     {
-                        tooClose = true;
-                        break;
+                        var anchor = Vector2.Lerp(from, to, (section + .5f) / sections);
+                        var role = vertical ? "wall-right" : "wall-left";
+                        if (sections >= 5 && section >= 2 && section <= sections - 3 &&
+                            (section + edgeHash) % 7 == 3)
+                        {
+                            var accent = (edgeHash + section) % 4;
+                            role = accent == 1 ? "arcade" : accent == 2 ? "wall-broken" : "wall-niche";
+                        }
+                        CreateArchitectureModule(role, anchor, vertical, .92f, moduleIndex++);
                     }
-                if (tooClose) continue;
-                cornerAnchors.Add(anchor);
-                CreateArchitectureModule(CornerRole(segment.Mask), anchor, FlipCorner(segment.Mask), 1f, i);
+                }
+
+                // A sharp orthogonal turn has no bevel edge of its own, so it receives exactly
+                // one corner module at the shared contour vertex.
+                for (var vertex = 0; vertex < path.Count; vertex++)
+                {
+                    var previous = path[(vertex - 1 + path.Count) % path.Count];
+                    var current = path[vertex];
+                    var next = path[(vertex + 1) % path.Count];
+                    var incoming = current - previous;
+                    var outgoing = next - current;
+                    var incomingAxis = Mathf.Abs(incoming.x) < .12f || Mathf.Abs(incoming.y) < .12f;
+                    var outgoingAxis = Mathf.Abs(outgoing.x) < .12f || Mathf.Abs(outgoing.y) < .12f;
+                    if (!incomingAxis || !outgoingAxis || Mathf.Abs(Vector2.Dot(incoming.normalized, outgoing.normalized)) > .15f)
+                        continue;
+                    var incomingLength = Mathf.Max(Mathf.Abs(incoming.x), Mathf.Abs(incoming.y));
+                    var outgoingLength = Mathf.Max(Mathf.Abs(outgoing.x), Mathf.Abs(outgoing.y));
+                    if (incomingLength < 1.5f || outgoingLength < 1.5f) continue;
+                    var mask = ClosestContourMask(contour.Segments, current);
+                    CreateArchitectureModule(CountMaskBits(mask) >= 3 ? "corner-inner" : "corner-outer",
+                        current, FlipCorner(mask), 1f, moduleIndex++);
+                }
             }
         }
 
-        private string StraightWallRole(DungeonContourSegment segment, int index)
+        private static List<Vector2> SimplifyOrthogonalPath(List<Vector2> path)
         {
-            var midpoint = (segment.From + segment.To) * .5f;
-            var hash = (Mathf.RoundToInt(midpoint.x * 97f) * 73856093 ^
-                        Mathf.RoundToInt(midpoint.y * 97f) * 19349663 ^
-                        profile.Chapter * 83492791 ^ index * 31) & int.MaxValue;
-            var variety = Mathf.Clamp(Mathf.RoundToInt(profile.ArchitectureDensity * 10f), 8, 15);
-            if (hash % Mathf.Max(17, 34 - variety) == 0) return "arcade";
-            if (hash % Mathf.Max(13, 29 - variety) == 0) return "wall-broken";
-            if (hash % Mathf.Max(11, 25 - variety) == 0) return "wall-niche";
-            return Mathf.Abs(segment.To.y - segment.From.y) > Mathf.Abs(segment.To.x - segment.From.x)
-                ? "wall-right"
-                : "wall-left";
+            var result = new List<Vector2>(path);
+            var changed = true;
+            while (changed && result.Count > 3)
+            {
+                changed = false;
+                for (var i = 0; i < result.Count; i++)
+                {
+                    var previous = result[(i - 1 + result.Count) % result.Count];
+                    var current = result[i];
+                    var next = result[(i + 1) % result.Count];
+                    var incoming = current - previous;
+                    var outgoing = next - current;
+                    var cross = incoming.x * outgoing.y - incoming.y * outgoing.x;
+                    if (Mathf.Abs(cross) > .001f || Vector2.Dot(incoming, outgoing) <= 0f) continue;
+                    result.RemoveAt(i);
+                    changed = true;
+                    break;
+                }
+            }
+            return result;
+        }
+
+        private static List<List<Vector2>> BuildContourPaths(IReadOnlyList<DungeonContourSegment> segments)
+        {
+            var atPoint = new Dictionary<Vector2Int, List<int>>();
+            for (var i = 0; i < segments.Count; i++)
+            {
+                AddSegmentAtPoint(atPoint, Quantize(segments[i].From), i);
+                AddSegmentAtPoint(atPoint, Quantize(segments[i].To), i);
+            }
+            var visited = new bool[segments.Count];
+            var result = new List<List<Vector2>>();
+            for (var start = 0; start < segments.Count; start++)
+            {
+                if (visited[start]) continue;
+                var path = new List<Vector2> { segments[start].From };
+                var startPoint = Quantize(segments[start].From);
+                var currentPoint = startPoint;
+                var currentSegment = start;
+                while (currentSegment >= 0 && !visited[currentSegment])
+                {
+                    visited[currentSegment] = true;
+                    var segment = segments[currentSegment];
+                    var fromKey = Quantize(segment.From);
+                    var nextPoint = fromKey == currentPoint ? segment.To : segment.From;
+                    var nextKey = Quantize(nextPoint);
+                    path.Add(nextPoint);
+                    if (nextKey == startPoint) break;
+                    currentPoint = nextKey;
+                    currentSegment = -1;
+                    if (!atPoint.TryGetValue(nextKey, out var neighbours)) break;
+                    foreach (var neighbour in neighbours)
+                    {
+                        if (visited[neighbour]) continue;
+                        currentSegment = neighbour;
+                        break;
+                    }
+                }
+                if (path.Count > 1 && Quantize(path[path.Count - 1]) == Quantize(path[0])) path.RemoveAt(path.Count - 1);
+                if (path.Count >= 3) result.Add(path);
+            }
+            return result;
+        }
+
+        private static void AddSegmentAtPoint(Dictionary<Vector2Int, List<int>> lookup, Vector2Int point, int index)
+        {
+            if (!lookup.TryGetValue(point, out var indices)) lookup[point] = indices = new List<int>(2);
+            indices.Add(index);
+        }
+
+        private static int ClosestContourMask(IReadOnlyList<DungeonContourSegment> segments, Vector2 point)
+        {
+            var best = float.MaxValue;
+            var mask = 1;
+            foreach (var segment in segments)
+            {
+                var distance = ((segment.From + segment.To) * .5f - point).sqrMagnitude;
+                if (distance >= best) continue;
+                best = distance;
+                mask = segment.Mask;
+            }
+            return mask;
+        }
+
+        private int EdgeHash(Vector2 from, Vector2 to, int sections) =>
+            (Mathf.RoundToInt((from.x + to.x) * 47f) * 73856093 ^
+             Mathf.RoundToInt((from.y + to.y) * 47f) * 19349663 ^
+             profile.Chapter * 83492791 ^ sections * 31) & int.MaxValue;
+
+        private static Vector2Int Quantize(Vector2 point) =>
+            new Vector2Int(Mathf.RoundToInt(point.x * 2f), Mathf.RoundToInt(point.y * 2f));
+
+        private void BuildThresholdArchitecture(DungeonData data)
+        {
+            var featureIndex = 100000;
+            foreach (var feature in data.Architecture)
+            {
+                var role = feature.Kind == DungeonArchitectureKind.OpenArch ? "arch-open" : "stairs";
+                var scale = feature.Kind == DungeonArchitectureKind.OpenArch ? .92f : .86f;
+                CreateArchitectureModule(role, feature.Position, feature.FlipX, scale, featureIndex++);
+            }
         }
 
         private void CreateArchitectureModule(string role, Vector2 anchor, bool flipX, float scale, int index)
@@ -217,27 +332,15 @@ namespace Darkfall.World
             visual.AddComponent<IsoVisual>().Initialize(owner.transform, 0f, 1040);
         }
 
-        private static bool IsStraightWall(int mask) => mask == 3 || mask == 6 || mask == 9 || mask == 12;
-
-        private static string CornerRole(int mask)
+        private static int CountMaskBits(int mask)
         {
             var bits = 0;
             for (var value = mask; value != 0; value >>= 1) bits += value & 1;
-            return bits >= 3 ? "corner-inner" : "corner-outer";
+            return bits;
         }
 
         private static bool FlipCorner(int mask) =>
             mask == 2 || mask == 4 || mask == 10 || mask == 11 || mask == 13;
-
-        private static Vector2 CornerAnchor(DungeonContourSegment segment)
-        {
-            var first = new Vector2(segment.From.x, segment.To.y);
-            var second = new Vector2(segment.To.x, segment.From.y);
-            return IntegerDistance(first) <= IntegerDistance(second) ? first : second;
-        }
-
-        private static float IntegerDistance(Vector2 point) =>
-            Mathf.Abs(point.x - Mathf.Round(point.x)) + Mathf.Abs(point.y - Mathf.Round(point.y));
 
         private Material CreateTexturedMaterial(string path)
         {
@@ -333,6 +436,8 @@ namespace Darkfall.World
             for (var roomIndex = 0; roomIndex < data.Rooms.Count; roomIndex++)
             {
                 var bounds = data.Rooms[roomIndex].bounds;
+                var hash = ((bounds.x * 73856093) ^ (bounds.y * 19349663) ^
+                            (roomIndex * 83492791) ^ (profile.Chapter * 297121507)) & int.MaxValue;
                 if (roomIndex % profile.LightEveryRooms == 1)
                 {
                     var lightProp = profile.Id == "ashen-catacombs" ? 2 : (roomIndex % 2 == 0 ? 0 : 8);
@@ -340,45 +445,42 @@ namespace Darkfall.World
                         profile.Id == "ashen-catacombs" ? 1f : .72f, "Biome Light", false, lightDecor);
                 }
 
-                var hash = ((bounds.x * 73856093) ^ (bounds.y * 19349663) ^ (roomIndex * 83492791)) & int.MaxValue;
-                var first = profile.ClutterProps[hash % profile.ClutterProps.Length];
-                CreateProp(data, first, new Vector2(bounds.xMax - 1.15f, bounds.yMin + 1.1f), .9f,
-                    "Room Decor", first == 4, clutterDecor);
-                if (bounds.width >= 9 && bounds.height >= 8 && hash % 4 != 0)
-                {
-                    var secondary = profile.ClutterProps[(hash / 13 + 1) % profile.ClutterProps.Length];
-                    CreateProp(data, secondary, new Vector2(bounds.xMin + 1.1f, bounds.yMin + 1.05f), .68f,
-                        "Secondary Clutter", false, clutterDecor);
-                }
-                if (bounds.width >= 11 && bounds.height >= 10 && roomIndex > 0)
-                {
-                    var second = profile.StructuralProps[(hash / 7) % profile.StructuralProps.Length];
-                    CreateProp(data, second, new Vector2(bounds.xMax - 1.2f, bounds.yMax - 1.15f), .92f,
-                        "Large Room Decor", true, structuralDecor);
-                }
-                if (bounds.width >= 14 && bounds.height >= 12 && roomIndex > 0 && hash % 3 == 0)
-                {
-                    var accent = profile.StructuralProps[(hash / 19 + 1) % profile.StructuralProps.Length];
-                    CreateProp(data, accent, new Vector2(bounds.xMin + 1.2f, bounds.yMax - 1.15f), .72f,
-                        "Wall Accent", false, structuralDecor);
-                }
+                // A Diablo theme room is reserved and decorated as one subject. Pick one wall zone
+                // for this room and build a deterministic cluster around it instead of scattering
+                // unrelated props over every walkable tile.
+                var theme = (hash / 17) % 4;
+                var anchor = ThemeAnchor(bounds, theme);
+                var primary = profile.StructuralProps[(hash / 7) % profile.StructuralProps.Length];
+                if (roomIndex > 0 && roomIndex < data.Rooms.Count - 1 && bounds.width >= 10 && bounds.height >= 9)
+                    CreateProp(data, primary, anchor, .82f + (hash % 3) * .07f,
+                        $"Theme {theme} · Primary", true, structuralDecor);
 
-                // Layer several small, non-blocking props through the room instead of decorating
-                // only its corners. Density scales with area and stays deterministic for the seed.
-                var scatterCount = Mathf.Clamp(
-                    Mathf.RoundToInt(bounds.width * bounds.height / 29f * profile.DecorDensity), 2, 10);
-                for (var scatter = 0; scatter < scatterCount; scatter++)
+                var clusterCount = Mathf.Clamp(Mathf.RoundToInt(bounds.width * bounds.height / 48f *
+                    profile.DecorDensity), 2, 6);
+                for (var member = 0; member < clusterCount; member++)
                 {
-                    var anchor = new Vector2(
-                        .16f + Hash01(hash + scatter * 92821) * .68f,
-                        .16f + Hash01(hash + scatter * 68917 + 31) * .68f);
-                    var position = new Vector2(
-                        Mathf.Lerp(bounds.xMin + 1.15f, bounds.xMax - 1.15f, anchor.x),
-                        Mathf.Lerp(bounds.yMin + 1.1f, bounds.yMax - 1.1f, anchor.y));
-                    var propIndex = profile.ClutterProps[(hash / (scatter + 3) + scatter * 5) % profile.ClutterProps.Length];
-                    CreateProp(data, propIndex, position, .46f + scatter % 2 * .12f,
-                        "Ambient Clutter", false, clutterDecor);
+                    var angle = (member / (float)clusterCount) * Mathf.PI * 2f + theme * .43f;
+                    var radius = 1.05f + .55f * Hash01(hash + member * 92821);
+                    var position = anchor + new Vector2(Mathf.Cos(angle) * radius,
+                        Mathf.Sin(angle) * radius * .72f);
+                    position.x = Mathf.Clamp(position.x, bounds.xMin + 1.1f, bounds.xMax - 1.1f);
+                    position.y = Mathf.Clamp(position.y, bounds.yMin + 1.1f, bounds.yMax - 1.1f);
+                    var propIndex = profile.ClutterProps[(hash / (member + 3) + member * 5) %
+                                                         profile.ClutterProps.Length];
+                    CreateProp(data, propIndex, position, .48f + member % 3 * .08f,
+                        $"Theme {theme} · Detail", false, clutterDecor);
                 }
+            }
+        }
+
+        private static Vector2 ThemeAnchor(RectInt bounds, int theme)
+        {
+            switch (theme)
+            {
+                case 0: return new Vector2(bounds.center.x, bounds.yMax - 1.35f);
+                case 1: return new Vector2(bounds.xMax - 1.35f, bounds.center.y);
+                case 2: return new Vector2(bounds.center.x, bounds.yMin + 1.35f);
+                default: return new Vector2(bounds.xMin + 1.35f, bounds.center.y);
             }
         }
 
@@ -386,11 +488,14 @@ namespace Darkfall.World
             Transform group)
         {
             if (!data.IsFloor(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y))) return;
+            foreach (var feature in data.Architecture)
+                if (Vector2.Distance(position, feature.Position) < 1.6f) return;
             if (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 1.25f ||
                 Vector2.Distance(position, data.CellCenter(data.ExitCell)) < 1.25f) return;
             if (blocks && (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 2f ||
                            Vector2.Distance(position, data.CellCenter(data.ExitCell)) < 2f))
                 blocks = false;
+            if (blocks && !data.TryAddObstaclePreservingRoutes(position)) return;
             var prop = new GameObject(objectName + " " + index);
             prop.transform.SetParent(group, false);
             prop.transform.position = position;
@@ -405,7 +510,6 @@ namespace Darkfall.World
             visual.AddComponent<IsoVisual>().Initialize(prop.transform, 0f, 1000);
             if (blocks)
             {
-                data.AddObstacle(position);
                 var caster = visual.AddComponent<ShadowCaster2D>();
                 caster.castsShadows = true;
                 caster.selfShadows = false;

@@ -66,11 +66,11 @@ namespace Darkfall.Gameplay
         public bool IsTakingHit => Time.time < hitAnimationUntil;
         public Sprite CurrentSprite => spriteRenderer != null ? spriteRenderer.sprite : null;
 
-        public void Initialize(HeroDefinition definition, DungeonData data)
+        public void Initialize(HeroDefinition definition, DungeonData data, float? carriedHealth = null)
         {
             hero = definition;
             dungeon = data;
-            Health = hero.maxHealth;
+            Health = carriedHealth.HasValue ? Mathf.Clamp(carriedHealth.Value, 0f, MaxHealth) : MaxHealth;
             gameplayCamera = Camera.main;
             visual = new GameObject("Animated Visual").transform;
             visual.SetParent(transform, false);

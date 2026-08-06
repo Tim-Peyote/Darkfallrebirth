@@ -39,6 +39,7 @@ namespace Darkfall.Core
         private int lastTavernTrack = -1;
         private bool developerConsoleOpen;
         private bool developerPreviousPause;
+        private HeroDefinition runHero;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         public bool DeveloperGodMode { get; private set; }
 #endif
@@ -132,7 +133,7 @@ namespace Darkfall.Core
             shopOfferSold = Array.Empty<bool>();
             runSeed = Environment.TickCount;
             runStartedAt = Time.realtimeSinceStartup;
-            BuildLevel();
+            BuildLevel(false);
             IsPaused = false;
             blockingModal = false;
             Time.timeScale = 1;
@@ -141,8 +142,10 @@ namespace Darkfall.Core
             runtimeUI.ShowGame();
         }
 
-        private void BuildLevel()
+        private void BuildLevel(bool preservePlayerState)
         {
+            float? carriedHealth = preservePlayerState && Player != null ? Player.Health : null;
+            if (!preservePlayerState || runHero == null) runHero = HeroDefinition.Create(SelectedHero);
             ExitPortal.ResetRegistry();
             if (levelRoot != null) Destroy(levelRoot.gameObject);
             EnemyController.ClearRegistry();
@@ -157,7 +160,7 @@ namespace Darkfall.Core
             playerObject.transform.SetParent(levelRoot);
             playerObject.transform.position = Dungeon.CellCenter(Dungeon.StartCell);
             Player = playerObject.AddComponent<PlayerController>();
-            Player.Initialize(HeroDefinition.Create(SelectedHero), Dungeon);
+            Player.Initialize(runHero, Dungeon, carriedHealth);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (DeveloperGodMode) Player.SetDeveloperInvincible(true);
 #endif
@@ -387,7 +390,7 @@ namespace Darkfall.Core
 
         public void ContinueAfterShop()
         {
-            BuildLevel();
+            BuildLevel(true);
             IsPaused = false;
             blockingModal = false;
             Time.timeScale = 1;
@@ -442,7 +445,7 @@ namespace Darkfall.Core
         {
             if (Player == null) return;
             Depth++;
-            BuildLevel();
+            BuildLevel(true);
             PlayDepthMusic();
             NotifyStatsChanged();
         }
