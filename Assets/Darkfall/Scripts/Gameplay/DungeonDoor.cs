@@ -18,6 +18,7 @@ namespace Darkfall.Gameplay
         private SpriteRenderer closedRenderer;
         private SpriteRenderer openRenderer;
         private Transform closedVisual;
+        private Vector3 closedScale;
         private int obstacleId;
         private int killsAtSpawn;
         private int killsRequired;
@@ -41,11 +42,20 @@ namespace Darkfall.Gameplay
             door.killsRequired = 2 + Mathf.Clamp((GameManager.Instance?.Depth ?? 1) / 12, 0, 2);
             door.keyId = $"dungeon_key_{GameManager.Instance?.Depth ?? 1}";
 
-            door.openRenderer = door.CreateVisual("Open Gateway", biome, "arcade", feature.Vertical, .98f);
+            door.openRenderer = door.CreateVisual("Open Doorway", biome, "arcade", feature.Vertical, 1.12f);
             door.openRenderer.color = new Color(1f, 1f, 1f, 0f);
-            door.closedRenderer = door.CreateVisual("Closed Door", biome, "door-closed", feature.Vertical, 1.06f);
+            door.closedRenderer = door.CreateVisual("Closed Door", biome, "door-closed", feature.Vertical, 1.16f);
             door.closedVisual = door.closedRenderer.transform;
+            door.closedScale = door.closedVisual.localScale;
             door.ApplyLockedTint();
+
+            // A door is a threshold miniset, not a loose prop. Short wall wings overlap both the
+            // authored frame and the nearest contour modules, closing the half-module seams that
+            // otherwise appear on each side of a doorway.
+            var tangent = feature.Vertical ? Vector2.up : Vector2.right;
+            var wingDistance = Mathf.Max(.82f, feature.Width * .5f);
+            door.CreateWing(biome, feature, feature.Position - tangent * wingDistance, parent, 0);
+            door.CreateWing(biome, feature, feature.Position + tangent * wingDistance, parent, 1);
 
             var width = Mathf.Max(1.5f, feature.Width);
             var blocker = feature.Vertical
@@ -53,6 +63,23 @@ namespace Darkfall.Gameplay
                 : new Rect(feature.Position.x - width * .5f, feature.Position.y - .14f, width, .28f);
             door.obstacleId = data.AddDynamicObstacle(blocker);
             Active.Add(door);
+        }
+
+        private void CreateWing(string biome, DungeonArchitectureFeature feature, Vector2 position,
+            Transform parent, int side)
+        {
+            var owner = new GameObject($"Door Jamb Wing · {side}");
+            owner.transform.SetParent(parent, false);
+            owner.transform.position = position;
+            var visual = new GameObject("Projected Jamb");
+            visual.transform.SetParent(owner.transform, false);
+            visual.transform.localScale = Vector3.one * .82f;
+            var renderer = visual.AddComponent<SpriteRenderer>();
+            renderer.sprite = ArchitectureSpriteLibrary.Module(biome, feature.Vertical ? "wall-right" : "wall-left");
+            renderer.flipX = feature.Vertical;
+            renderer.color = Color.white;
+            DarkfallRenderMaterials.MakeLit(renderer);
+            visual.AddComponent<IsoVisual>().Initialize(owner.transform, 0f, 1048, false);
         }
 
         private SpriteRenderer CreateVisual(string objectName, string biome, string role, bool flipX, float scale)
@@ -86,7 +113,7 @@ namespace Darkfall.Gameplay
             {
                 if (!open && lockKind == DungeonDoorLockKind.EnemySeal && RemainingKills <= 0)
                     closedRenderer.color = Color.Lerp(Color.white, new Color(1f, .58f, .42f),
-                        .22f + Mathf.Sin(Time.time * 3.1f) * .1f);
+                        .08f + Mathf.Sin(Time.time * 3.1f) * .035f);
                 return;
             }
 
@@ -95,9 +122,8 @@ namespace Darkfall.Gameplay
             if (closedVisual != null)
             {
                 var scale = closedVisual.localScale;
-                scale.x = Mathf.Lerp(1.06f, .08f, eased);
+                scale.x = Mathf.Lerp(closedScale.x, .08f, eased);
                 closedVisual.localScale = scale;
-                closedVisual.localPosition = Vector3.right * Mathf.Lerp(0f, .32f, eased);
             }
             if (closedRenderer != null)
             {

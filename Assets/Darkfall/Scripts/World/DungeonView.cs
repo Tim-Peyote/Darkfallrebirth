@@ -181,6 +181,16 @@ namespace Darkfall.World
         private void BuildArchitectureModules(DungeonContour contour, DungeonData data)
         {
             var moduleIndex = 0;
+            var cornerPoints = new HashSet<Vector2Int>();
+            foreach (var segment in contour.Segments)
+            {
+                var from = Quantize(segment.From);
+                var to = Quantize(segment.To);
+                var fromBits = CountMaskBits(FloorQuadrantMask(data, segment.From));
+                var toBits = CountMaskBits(FloorQuadrantMask(data, segment.To));
+                if (fromBits == 1 || fromBits == 3) cornerPoints.Add(from);
+                if (toBits == 1 || toBits == 3) cornerPoints.Add(to);
+            }
             foreach (var span in BuildBoundarySpans(contour.Segments))
             {
                 var length = Mathf.RoundToInt(span.End - span.Start);
@@ -210,12 +220,6 @@ namespace Darkfall.World
                 }
             }
 
-            var cornerPoints = new HashSet<Vector2Int>();
-            foreach (var segment in contour.Segments)
-            {
-                cornerPoints.Add(Quantize(segment.From));
-                cornerPoints.Add(Quantize(segment.To));
-            }
             foreach (var pointKey in cornerPoints)
             {
                 var point = new Vector2(pointKey.x * .5f, pointKey.y * .5f);
@@ -227,7 +231,7 @@ namespace Darkfall.World
                 // concave to the player, while a void notch (three occupied quadrants) is a convex
                 // masonry pier. The previous mapping was geometrically reversed.
                 CreateArchitectureModule(bits == 1 ? "corner-inner" : "corner-outer",
-                    point, FlipCorner(mask), .94f, moduleIndex++, data.BoundaryHeight(point));
+                    point, FlipCorner(mask), .82f, moduleIndex++, data.BoundaryHeight(point));
             }
         }
 

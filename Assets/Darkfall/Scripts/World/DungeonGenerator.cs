@@ -282,6 +282,7 @@ namespace Darkfall.World
 
             thresholds.Sort((a, b) => ArchitectureScore(a, seed).CompareTo(ArchitectureScore(b, seed)));
             var doorPlaced = false;
+            var allowDoor = depth > 1 && ArchitectureFloorScore(seed, depth) % 100 < 16;
             foreach (var threshold in thresholds)
             {
                 var kind = platformRooms.Contains(threshold.RoomIndex)
@@ -290,8 +291,7 @@ namespace Darkfall.World
                 var doorLock = DungeonDoorLockKind.None;
                 // Doors are punctuation, not wallpaper. At most one ordinary floor threshold is
                 // promoted to a stateful door, and shallow first floors stay immediately readable.
-                if (!doorPlaced && depth > 1 && kind == DungeonArchitectureKind.OpenGate &&
-                    ArchitectureScore(threshold, seed ^ 0x51F15E) % 100 < 22 &&
+                if (allowDoor && !doorPlaced && kind == DungeonArchitectureKind.OpenGate && threshold.Width == 2 &&
                     Vector2.Distance(threshold.Position, data.CellCenter(data.StartCell)) > 5f &&
                     Vector2.Distance(threshold.Position, data.CellCenter(data.ExitCell)) > 5f)
                 {
@@ -315,6 +315,18 @@ namespace Darkfall.World
             unchecked
             {
                 var value = seed ^ roomIndex * 83492791;
+                value ^= value << 13;
+                value ^= value >> 17;
+                value ^= value << 5;
+                return value & int.MaxValue;
+            }
+        }
+
+        private static int ArchitectureFloorScore(int seed, int depth)
+        {
+            unchecked
+            {
+                var value = seed ^ depth * 19349663 ^ 0x51F15E;
                 value ^= value << 13;
                 value ^= value >> 17;
                 value ^= value << 5;
