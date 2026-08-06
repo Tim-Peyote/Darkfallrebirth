@@ -215,6 +215,7 @@ namespace Darkfall.World
                         var accent = (edgeHash + section) % 4;
                         role = accent == 1 ? "arch-open" : accent == 2 ? "wall-broken" : "wall-niche";
                     }
+                    if (role == "arch-open") AddWallWindowObstacle(data, anchor, span.Vertical);
                     CreateArchitectureModule(role, anchor, span.Vertical, .92f, moduleIndex++,
                         data.BoundaryHeight(anchor));
                 }
@@ -233,6 +234,18 @@ namespace Darkfall.World
                 CreateArchitectureModule(bits == 1 ? "corner-inner" : "corner-outer",
                     point, FlipCorner(mask), .82f, moduleIndex++, data.BoundaryHeight(point));
             }
+        }
+
+        private static void AddWallWindowObstacle(DungeonData data, Vector2 anchor, bool vertical)
+        {
+            // arch-open is the authored lancet/window module. Its dark aperture is visual depth,
+            // not a doorway: preserve a solid wall plane even if two carved floor regions happen
+            // to approach the same contour closely.
+            const float span = 1.02f;
+            const float depth = .34f;
+            data.AddArchitectureObstacle(vertical
+                ? new Rect(anchor.x - depth * .5f, anchor.y - span * .5f, depth, span)
+                : new Rect(anchor.x - span * .5f, anchor.y - depth * .5f, span, depth));
         }
 
         private static List<BoundarySpan> BuildBoundarySpans(IReadOnlyList<DungeonContourSegment> segments)
