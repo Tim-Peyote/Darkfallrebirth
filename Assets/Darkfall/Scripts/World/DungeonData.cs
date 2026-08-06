@@ -29,9 +29,8 @@ namespace Darkfall.World
 
     public enum DungeonArchitectureKind
     {
-        OpenArch,
-        ElevationStairs,
-        LevelExitStairs
+        OpenGate,
+        ElevationStairs
     }
 
     /// <summary>
@@ -61,6 +60,7 @@ namespace Darkfall.World
         private readonly bool[,] explored;
         private readonly bool[,] visible;
         private readonly bool[,] obstacles;
+        private readonly byte[,] elevation;
         private readonly List<DungeonLightSource> lightSources = new List<DungeonLightSource>();
         private readonly List<DungeonArchitectureFeature> architecture = new List<DungeonArchitectureFeature>();
         public int Width { get; }
@@ -79,6 +79,7 @@ namespace Darkfall.World
             explored = new bool[Width, Height];
             visible = new bool[Width, Height];
             obstacles = new bool[Width, Height];
+            elevation = new byte[Width, Height];
             Rooms = rooms;
         }
 
@@ -147,6 +148,43 @@ namespace Darkfall.World
         }
 
         internal void AddArchitecture(DungeonArchitectureFeature feature) => architecture.Add(feature);
+
+        internal void SetElevation(RectInt area, byte level)
+        {
+            for (var x = area.xMin; x < area.xMax; x++)
+            for (var y = area.yMin; y < area.yMax; y++)
+                if (IsFloor(x, y)) elevation[x, y] = level;
+        }
+
+        public int ElevationLevel(int x, int y) => IsFloor(x, y) ? elevation[x, y] : 0;
+
+        public float SurfaceHeight(Vector2 point)
+        {
+            const float stepHeight = .34f;
+            var cellX = Mathf.FloorToInt(point.x);
+            var cellY = Mathf.FloorToInt(point.y);
+            var fallback = ElevationLevel(cellX, cellY);
+            var gridX = point.x - .5f;
+            var gridY = point.y - .5f;
+            var x0 = Mathf.FloorToInt(gridX);
+            var y0 = Mathf.FloorToInt(gridY);
+            var tx = gridX - x0;
+            var ty = gridY - y0;
+            float Sample(int x, int y) => IsFloor(x, y) ? elevation[x, y] : fallback;
+            var bottom = Mathf.Lerp(Sample(x0, y0), Sample(x0 + 1, y0), tx);
+            var top = Mathf.Lerp(Sample(x0, y0 + 1), Sample(x0 + 1, y0 + 1), tx);
+            return Mathf.Lerp(bottom, top, ty) * stepHeight;
+        }
+
+        public float BoundaryHeight(Vector2 point)
+        {
+            const float sample = .08f;
+            return Mathf.Max(
+                SurfaceHeight(point + new Vector2(sample, sample)),
+                SurfaceHeight(point + new Vector2(-sample, sample)),
+                SurfaceHeight(point + new Vector2(sample, -sample)),
+                SurfaceHeight(point + new Vector2(-sample, -sample)));
+        }
 
         public void BeginVisibilityUpdate()
         {

@@ -22,7 +22,7 @@ namespace Darkfall.World
             gameObject.name = "Dungeon · " + profile.Id;
             var contour = DungeonContour.Build(data);
             architectureDecor = CreateGroup(transform, "Architecture · " + profile.Id);
-            BuildContourFloor(contour);
+            BuildContourFloor(contour, data);
             BuildContourWalls(contour, data);
             BuildContourShadows(contour);
             var decorRoot = new GameObject("Decor · " + profile.Id).transform;
@@ -33,7 +33,7 @@ namespace Darkfall.World
             BuildDecor(data);
         }
 
-        private void BuildContourFloor(DungeonContour contour)
+        private void BuildContourFloor(DungeonContour contour, DungeonData data)
         {
             var vertices = new List<Vector3>();
             var triangles = new List<int>();
@@ -46,10 +46,12 @@ namespace Darkfall.World
                 var center = Vector2.zero;
                 for (var i = 0; i < polygon.Length; i++) center += polygon[i];
                 center /= polygon.Length;
+                var elevation = data.SurfaceHeight(center);
                 var tint = profile.FloorTint * RandomTint(Mathf.FloorToInt(center.x), Mathf.FloorToInt(center.y));
                 for (var i = 0; i < polygon.Length; i++)
                 {
                     var point = IsoWorld.Project(polygon[i]);
+                    point.y += elevation;
                     vertices.Add(point);
                     colors.Add(tint);
                     uvs.Add(polygon[i] * uvScale);
@@ -64,6 +66,45 @@ namespace Darkfall.World
             var mesh = MakeMesh("Continuous Isometric Floor", vertices, triangles, colors, uvs);
             var material = CreateTexturedMaterial(profile.FloorTexture);
             CreateLayer(mesh.name, mesh, material, -20);
+            BuildElevationRisers(data);
+        }
+
+        private void BuildElevationRisers(DungeonData data)
+        {
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            var colors = new List<Color>();
+            var uvs = new List<Vector2>();
+            var color = Color.Lerp(profile.WallTint, Color.white, profile.WallReadability) * .72f;
+            for (var x = 0; x < data.Width; x++)
+            for (var y = 0; y < data.Height; y++)
+            {
+                var level = data.ElevationLevel(x, y);
+                if (level <= 0) continue;
+                var height = data.SurfaceHeight(new Vector2(x + .5f, y + .5f));
+                if (data.ElevationLevel(x, y - 1) < level)
+                    AddRiser(vertices, triangles, colors, uvs, new Vector2(x, y), new Vector2(x + 1, y), height, color);
+                if (data.ElevationLevel(x + 1, y) < level)
+                    AddRiser(vertices, triangles, colors, uvs, new Vector2(x + 1, y), new Vector2(x + 1, y + 1), height, color * .84f);
+                if (data.ElevationLevel(x, y + 1) < level)
+                    AddRiser(vertices, triangles, colors, uvs, new Vector2(x + 1, y + 1), new Vector2(x, y + 1), height, color);
+                if (data.ElevationLevel(x - 1, y) < level)
+                    AddRiser(vertices, triangles, colors, uvs, new Vector2(x, y + 1), new Vector2(x, y), height, color * .84f);
+            }
+            if (vertices.Count == 0) return;
+            var mesh = MakeMesh("Raised Platform Fascias", vertices, triangles, colors, uvs);
+            CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.WallTexture), 970);
+        }
+
+        private static void AddRiser(List<Vector3> vertices, List<int> triangles, List<Color> colors,
+            List<Vector2> uvs, Vector2 from, Vector2 to, float height, Color color)
+        {
+            var lowerFrom = IsoWorld.Project(from);
+            var lowerTo = IsoWorld.Project(to);
+            var upperFrom = lowerFrom + Vector2.up * height;
+            var upperTo = lowerTo + Vector2.up * height;
+            AddScreenQuad(vertices, triangles, colors, uvs, lowerFrom, lowerTo, upperTo, upperFrom,
+                color, from, to);
         }
 
         private void BuildContourWalls(DungeonContour contour, DungeonData data)
@@ -96,7 +137,7 @@ namespace Darkfall.World
             // kit reintroduces the bright polygonal rails the modular architecture replaces.
             if (hasArchitecture)
             {
-                BuildArchitectureModules(contour);
+                BuildArchitectureModules(contour, data);
                 BuildThresholdArchitecture(data);
                 return;
             }
@@ -136,146 +177,127 @@ namespace Darkfall.World
 
         }
 
-        private void BuildArchitectureModules(DungeonContour contour)
+        private void BuildArchitectureModules(DungeonContour contour, DungeonData data)
         {
             var moduleIndex = 0;
-            foreach (var rawPath in BuildContourPaths(contour.Segments))
+            foreach (var span in BuildBoundarySpans(contour.Segments))
             {
-                var path = SimplifyOrthogonalPath(rawPath);
-                if (path.Count < 3) continue;
-                for (var edge = 0; edge < path.Count; edge++)
+                var length = Mathf.RoundToInt(span.End - span.Start);
+                var from = span.Vertical
+                    ? new Vector2(span.Fixed, span.Start)
+                    : new Vector2(span.Start, span.Fixed);
+                var to = span.Vertical
+                    ? new Vector2(span.Fixed, span.End)
+                    : new Vector2(span.End, span.Fixed);
+                var edgeHash = EdgeHash(from, to, length);
+                for (var section = 0; section < length; section++)
                 {
-                    var from = path[edge];
-                    var to = path[(edge + 1) % path.Count];
-                    var delta = to - from;
-                    var horizontal = Mathf.Abs(delta.y) < .12f;
-                    var vertical = Mathf.Abs(delta.x) < .12f;
-                    if (!horizontal && !vertical) continue;
-
-                    var length = horizontal ? Mathf.Abs(delta.x) : Mathf.Abs(delta.y);
-                    var sections = Mathf.Max(1, Mathf.RoundToInt(length));
-                    var edgeHash = EdgeHash(from, to, sections);
-                    for (var section = 0; section < sections; section++)
+                    var coordinate = span.Start + section + .5f;
+                    var anchor = span.Vertical
+                        ? new Vector2(span.Fixed, coordinate)
+                        : new Vector2(coordinate, span.Fixed);
+                    if (FeatureReplacesWallModule(data, anchor)) continue;
+                    var role = span.Vertical ? "wall-right" : "wall-left";
+                    if (length >= 7 && section >= 2 && section <= length - 3 &&
+                        (section + edgeHash) % 7 == 3)
                     {
-                        var anchor = Vector2.Lerp(from, to, (section + .5f) / sections);
-                        var role = vertical ? "wall-right" : "wall-left";
-                        if (sections >= 5 && section >= 2 && section <= sections - 3 &&
-                            (section + edgeHash) % 7 == 3)
-                        {
-                            var accent = (edgeHash + section) % 4;
-                            role = accent == 1 ? "arcade" : accent == 2 ? "wall-broken" : "wall-niche";
-                        }
-                        CreateArchitectureModule(role, anchor, vertical, .92f, moduleIndex++);
+                        var accent = (edgeHash + section) % 4;
+                        role = accent == 1 ? "arch-open" : accent == 2 ? "wall-broken" : "wall-niche";
                     }
-                }
-
-                // A sharp orthogonal turn has no bevel edge of its own, so it receives exactly
-                // one corner module at the shared contour vertex.
-                for (var vertex = 0; vertex < path.Count; vertex++)
-                {
-                    var previous = path[(vertex - 1 + path.Count) % path.Count];
-                    var current = path[vertex];
-                    var next = path[(vertex + 1) % path.Count];
-                    var incoming = current - previous;
-                    var outgoing = next - current;
-                    var incomingAxis = Mathf.Abs(incoming.x) < .12f || Mathf.Abs(incoming.y) < .12f;
-                    var outgoingAxis = Mathf.Abs(outgoing.x) < .12f || Mathf.Abs(outgoing.y) < .12f;
-                    if (!incomingAxis || !outgoingAxis || Mathf.Abs(Vector2.Dot(incoming.normalized, outgoing.normalized)) > .15f)
-                        continue;
-                    var incomingLength = Mathf.Max(Mathf.Abs(incoming.x), Mathf.Abs(incoming.y));
-                    var outgoingLength = Mathf.Max(Mathf.Abs(outgoing.x), Mathf.Abs(outgoing.y));
-                    if (incomingLength < 1.5f || outgoingLength < 1.5f) continue;
-                    var mask = ClosestContourMask(contour.Segments, current);
-                    CreateArchitectureModule(CountMaskBits(mask) >= 3 ? "corner-inner" : "corner-outer",
-                        current, FlipCorner(mask), 1f, moduleIndex++);
+                    CreateArchitectureModule(role, anchor, span.Vertical, .92f, moduleIndex++,
+                        data.BoundaryHeight(anchor));
                 }
             }
-        }
 
-        private static List<Vector2> SimplifyOrthogonalPath(List<Vector2> path)
-        {
-            var result = new List<Vector2>(path);
-            var changed = true;
-            while (changed && result.Count > 3)
+            var cornerPoints = new HashSet<Vector2Int>();
+            foreach (var segment in contour.Segments)
             {
-                changed = false;
-                for (var i = 0; i < result.Count; i++)
-                {
-                    var previous = result[(i - 1 + result.Count) % result.Count];
-                    var current = result[i];
-                    var next = result[(i + 1) % result.Count];
-                    var incoming = current - previous;
-                    var outgoing = next - current;
-                    var cross = incoming.x * outgoing.y - incoming.y * outgoing.x;
-                    if (Mathf.Abs(cross) > .001f || Vector2.Dot(incoming, outgoing) <= 0f) continue;
-                    result.RemoveAt(i);
-                    changed = true;
-                    break;
-                }
+                cornerPoints.Add(Quantize(segment.From));
+                cornerPoints.Add(Quantize(segment.To));
             }
-            return result;
-        }
-
-        private static List<List<Vector2>> BuildContourPaths(IReadOnlyList<DungeonContourSegment> segments)
-        {
-            var atPoint = new Dictionary<Vector2Int, List<int>>();
-            for (var i = 0; i < segments.Count; i++)
+            foreach (var pointKey in cornerPoints)
             {
-                AddSegmentAtPoint(atPoint, Quantize(segments[i].From), i);
-                AddSegmentAtPoint(atPoint, Quantize(segments[i].To), i);
+                var point = new Vector2(pointKey.x * .5f, pointKey.y * .5f);
+                var mask = FloorQuadrantMask(data, point);
+                var bits = CountMaskBits(mask);
+                if (bits != 1 && bits != 3) continue;
+                if (FeatureReplacesWallModule(data, point)) continue;
+                CreateArchitectureModule(bits == 3 ? "corner-inner" : "corner-outer",
+                    point, FlipCorner(mask), .94f, moduleIndex++, data.BoundaryHeight(point));
             }
-            var visited = new bool[segments.Count];
-            var result = new List<List<Vector2>>();
-            for (var start = 0; start < segments.Count; start++)
-            {
-                if (visited[start]) continue;
-                var path = new List<Vector2> { segments[start].From };
-                var startPoint = Quantize(segments[start].From);
-                var currentPoint = startPoint;
-                var currentSegment = start;
-                while (currentSegment >= 0 && !visited[currentSegment])
-                {
-                    visited[currentSegment] = true;
-                    var segment = segments[currentSegment];
-                    var fromKey = Quantize(segment.From);
-                    var nextPoint = fromKey == currentPoint ? segment.To : segment.From;
-                    var nextKey = Quantize(nextPoint);
-                    path.Add(nextPoint);
-                    if (nextKey == startPoint) break;
-                    currentPoint = nextKey;
-                    currentSegment = -1;
-                    if (!atPoint.TryGetValue(nextKey, out var neighbours)) break;
-                    foreach (var neighbour in neighbours)
-                    {
-                        if (visited[neighbour]) continue;
-                        currentSegment = neighbour;
-                        break;
-                    }
-                }
-                if (path.Count > 1 && Quantize(path[path.Count - 1]) == Quantize(path[0])) path.RemoveAt(path.Count - 1);
-                if (path.Count >= 3) result.Add(path);
-            }
-            return result;
         }
 
-        private static void AddSegmentAtPoint(Dictionary<Vector2Int, List<int>> lookup, Vector2Int point, int index)
+        private static List<BoundarySpan> BuildBoundarySpans(IReadOnlyList<DungeonContourSegment> segments)
         {
-            if (!lookup.TryGetValue(point, out var indices)) lookup[point] = indices = new List<int>(2);
-            indices.Add(index);
-        }
-
-        private static int ClosestContourMask(IReadOnlyList<DungeonContourSegment> segments, Vector2 point)
-        {
-            var best = float.MaxValue;
-            var mask = 1;
+            var units = new List<BoundarySpan>(segments.Count);
             foreach (var segment in segments)
             {
-                var distance = ((segment.From + segment.To) * .5f - point).sqrMagnitude;
-                if (distance >= best) continue;
-                best = distance;
-                mask = segment.Mask;
+                var vertical = Mathf.Abs(segment.From.x - segment.To.x) < .01f;
+                var fixedCoordinate = vertical ? segment.From.x : segment.From.y;
+                var first = vertical ? segment.From.y : segment.From.x;
+                var second = vertical ? segment.To.y : segment.To.x;
+                units.Add(new BoundarySpan(vertical, fixedCoordinate, Mathf.Min(first, second), Mathf.Max(first, second)));
             }
-            return mask;
+            units.Sort((a, b) =>
+            {
+                var axis = a.Vertical.CompareTo(b.Vertical);
+                if (axis != 0) return axis;
+                var fixedResult = a.Fixed.CompareTo(b.Fixed);
+                return fixedResult != 0 ? fixedResult : a.Start.CompareTo(b.Start);
+            });
+            var spans = new List<BoundarySpan>();
+            foreach (var unit in units)
+            {
+                if (spans.Count > 0)
+                {
+                    var previous = spans[spans.Count - 1];
+                    if (previous.Vertical == unit.Vertical && Mathf.Abs(previous.Fixed - unit.Fixed) < .01f &&
+                        Mathf.Abs(previous.End - unit.Start) < .01f)
+                    {
+                        spans[spans.Count - 1] = new BoundarySpan(previous.Vertical, previous.Fixed,
+                            previous.Start, unit.End);
+                        continue;
+                    }
+                }
+                spans.Add(unit);
+            }
+            return spans;
+        }
+
+        private static int FloorQuadrantMask(DungeonData data, Vector2 point)
+        {
+            var x = Mathf.RoundToInt(point.x);
+            var y = Mathf.RoundToInt(point.y);
+            return (data.IsFloor(x - 1, y - 1) ? 1 : 0) |
+                   (data.IsFloor(x, y - 1) ? 2 : 0) |
+                   (data.IsFloor(x, y) ? 4 : 0) |
+                   (data.IsFloor(x - 1, y) ? 8 : 0);
+        }
+
+        private static bool FeatureReplacesWallModule(DungeonData data, Vector2 point)
+        {
+            foreach (var feature in data.Architecture)
+            {
+                var radius = feature.Kind == DungeonArchitectureKind.OpenGate ? 1.35f : 1.05f;
+                if (Vector2.Distance(point, feature.Position) < radius) return true;
+            }
+            return false;
+        }
+
+        private readonly struct BoundarySpan
+        {
+            public readonly bool Vertical;
+            public readonly float Fixed;
+            public readonly float Start;
+            public readonly float End;
+
+            public BoundarySpan(bool vertical, float fixedCoordinate, float start, float end)
+            {
+                Vertical = vertical;
+                Fixed = fixedCoordinate;
+                Start = start;
+                End = end;
+            }
         }
 
         private int EdgeHash(Vector2 from, Vector2 to, int sections) =>
@@ -291,13 +313,14 @@ namespace Darkfall.World
             var featureIndex = 100000;
             foreach (var feature in data.Architecture)
             {
-                var role = feature.Kind == DungeonArchitectureKind.OpenArch ? "arch-open" : "stairs";
-                var scale = feature.Kind == DungeonArchitectureKind.OpenArch ? .92f : .86f;
-                CreateArchitectureModule(role, feature.Position, feature.FlipX, scale, featureIndex++);
+                var role = feature.Kind == DungeonArchitectureKind.OpenGate ? "arcade" : "stairs";
+                var scale = feature.Kind == DungeonArchitectureKind.OpenGate ? .98f : .86f;
+                CreateArchitectureModule(role, feature.Position, feature.Vertical, scale, featureIndex++, 0f);
             }
         }
 
-        private void CreateArchitectureModule(string role, Vector2 anchor, bool flipX, float scale, int index)
+        private void CreateArchitectureModule(string role, Vector2 anchor, bool flipX, float scale, int index,
+            float elevation = 0f)
         {
             var sprite = ArchitectureSpriteLibrary.Module(profile.Id, role);
             if (sprite == null) return;
@@ -329,7 +352,7 @@ namespace Darkfall.World
             lit.sortingOrder = 1;
             DarkfallRenderMaterials.MakeLit(lit);
 
-            visual.AddComponent<IsoVisual>().Initialize(owner.transform, 0f, 1040);
+            visual.AddComponent<IsoVisual>().Initialize(owner.transform, elevation, 1040, false);
         }
 
         private static int CountMaskBits(int mask)

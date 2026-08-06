@@ -119,7 +119,8 @@ namespace Darkfall.Gameplay
         private void LateUpdate()
         {
             if (gameplayCamera == null) return;
-            var target = IsoWorld.Project(transform.position);
+            var target = IsoWorld.Project((Vector2)transform.position) +
+                         Vector2.up * (dungeon != null ? dungeon.SurfaceHeight(transform.position) : 0f);
             var current = gameplayCamera.transform.position;
             gameplayCamera.transform.position = Vector3.Lerp(current, new Vector3(target.x, target.y, -10), 1f - Mathf.Exp(-10f * Time.unscaledDeltaTime));
         }

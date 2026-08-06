@@ -144,14 +144,8 @@ namespace Darkfall.Editor
                 failures += Require(dungeon.IsFloor(dungeon.StartCell.x, dungeon.StartCell.y), $"Seed {seed}: invalid start");
                 failures += Require(dungeon.IsFloor(dungeon.ExitCell.x, dungeon.ExitCell.y), $"Seed {seed}: invalid exit");
                 var internalStairs = 0;
-                var levelExits = 0;
                 foreach (var feature in dungeon.Architecture)
                 {
-                    if (feature.Kind == DungeonArchitectureKind.LevelExitStairs)
-                    {
-                        levelExits++;
-                        continue;
-                    }
                     if (feature.Kind == DungeonArchitectureKind.ElevationStairs) internalStairs++;
                     var passageX = Mathf.FloorToInt(feature.Position.x);
                     var passageY = Mathf.FloorToInt(feature.Position.y);
@@ -160,11 +154,22 @@ namespace Darkfall.Editor
                         : dungeon.IsFloor(passageX, passageY - 1) && dungeon.IsFloor(passageX, passageY);
                     failures += Require(validThreshold,
                         $"Seed {seed}: {feature.Kind} is not attached to a valid room passage");
+                    var firstElevation = feature.Vertical
+                        ? dungeon.ElevationLevel(passageX - 1, passageY)
+                        : dungeon.ElevationLevel(passageX, passageY - 1);
+                    var secondElevation = dungeon.ElevationLevel(passageX, passageY);
+                    if (feature.Kind == DungeonArchitectureKind.ElevationStairs)
+                        failures += Require(firstElevation != secondElevation,
+                            $"Seed {seed}: internal stairs do not connect two elevations");
+                    else
+                        failures += Require(firstElevation == secondElevation,
+                            $"Seed {seed}: open gate incorrectly bridges an elevation change");
                 }
-                failures += Require(levelExits == 1, $"Seed {seed}: expected exactly one level-exit stair");
                 if (generatedDepth % 10 != 0)
                     failures += Require(internalStairs > 0,
                         $"Seed {seed}: expected at least one internal elevation stair");
+                failures += Require(dungeon.ElevationLevel(dungeon.ExitCell.x, dungeon.ExitCell.y) == 0,
+                    $"Seed {seed}: level exit must not overlap a raised platform");
                 var start = dungeon.CellCenter(dungeon.StartCell);
                 failures += Require(dungeon.CanOccupy(start + Vector2.left * .3f, .22f), $"Seed {seed}: start blocks left movement");
                 failures += Require(dungeon.CanOccupy(start + Vector2.right * .3f, .22f), $"Seed {seed}: start blocks right movement");

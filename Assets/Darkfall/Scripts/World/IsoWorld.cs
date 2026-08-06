@@ -1,3 +1,4 @@
+using Darkfall.Core;
 using UnityEngine;
 
 namespace Darkfall.World
@@ -53,15 +54,18 @@ namespace Darkfall.World
         [SerializeField] private Transform logicalOwner;
         [SerializeField] private float elevation;
         [SerializeField] private int sortingOffset = 1000;
+        [SerializeField] private bool followDungeonSurface = true;
         private Renderer[] renderers;
         private int[] rendererOffsets;
         public Vector2 LogicalPosition => logicalOwner != null ? (Vector2)logicalOwner.position : Vector2.zero;
 
-        public void Initialize(Transform owner, float visualElevation = 0f, int orderOffset = 1000)
+        public void Initialize(Transform owner, float visualElevation = 0f, int orderOffset = 1000,
+            bool followSurface = true)
         {
             logicalOwner = owner;
             elevation = visualElevation;
             sortingOffset = orderOffset;
+            followDungeonSurface = followSurface;
             CacheRenderers();
             Refresh();
         }
@@ -71,7 +75,10 @@ namespace Darkfall.World
         private void Refresh()
         {
             if (logicalOwner == null) return;
-            transform.position = IsoWorld.Project(logicalOwner.position, elevation);
+            var surface = followDungeonSurface && GameManager.Instance?.Dungeon != null
+                ? GameManager.Instance.Dungeon.SurfaceHeight(logicalOwner.position)
+                : 0f;
+            transform.position = IsoWorld.Project(logicalOwner.position, elevation + surface);
             if (renderers == null || renderers.Length == 0) CacheRenderers();
             var order = IsoWorld.SortingOrder(logicalOwner.position, sortingOffset);
             for (var i = 0; i < renderers.Length; i++)

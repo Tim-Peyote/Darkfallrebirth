@@ -149,8 +149,6 @@ namespace Darkfall.World
                 new DungeonRoom { bounds = new RectInt(5, 14, 2, 2) },
                 new DungeonRoom { bounds = new RectInt(23, 14, 2, 2) }
             });
-            dungeon.AddArchitecture(new DungeonArchitectureFeature(DungeonArchitectureKind.LevelExitStairs,
-                dungeon.CellCenter(dungeon.ExitCell), false, false));
             return dungeon;
         }
 
@@ -253,40 +251,56 @@ namespace Darkfall.World
                 if (!duplicate) thresholds.Add(candidate);
             }
 
-            // Internal elevation changes are passages, not alternate exit art. Promote a small,
-            // deterministic subset of valid room thresholds to stairs; every remaining threshold
-            // becomes an open arch. Start/exit approaches stay clear and the count grows with the
-            // scale of the floor.
-            var stairBudget = Mathf.Clamp(1 + depth / 12 + data.Rooms.Count / 18, 1, 4);
+            // Elevation belongs to a room/platform, not to a freestanding stair sprite. Select a
+            // few complete rooms, raise their floor, then turn every valid entrance of those rooms
+            // into a stair transition. The level exit remains the independent ExitPortal entity.
+            var platformBudget = Mathf.Clamp(1 + depth / 15 + data.Rooms.Count / 22, 1, 3);
+            var platformRooms = new List<int>();
+            var roomCandidates = new List<int>();
+            for (var roomIndex = 1; roomIndex < data.Rooms.Count - 1; roomIndex++)
+            {
+                var validEntrances = 0;
+                foreach (var threshold in thresholds)
+                    if (threshold.RoomIndex == roomIndex) validEntrances++;
+                if (validEntrances > 0) roomCandidates.Add(roomIndex);
+            }
+            roomCandidates.Sort((a, b) => ArchitectureRoomScore(a, seed).CompareTo(ArchitectureRoomScore(b, seed)));
+            foreach (var roomIndex in roomCandidates)
+            {
+                if (platformRooms.Count >= platformBudget) break;
+                var separated = true;
+                foreach (var previous in platformRooms)
+                    if (Vector2.Distance(data.Rooms[previous].Center, data.Rooms[roomIndex].Center) < 12f)
+                    {
+                        separated = false;
+                        break;
+                    }
+                if (!separated) continue;
+                platformRooms.Add(roomIndex);
+                data.SetElevation(data.Rooms[roomIndex].bounds, 1);
+            }
+
             thresholds.Sort((a, b) => ArchitectureScore(a, seed).CompareTo(ArchitectureScore(b, seed)));
-            var internalStairs = new List<Vector2>();
             foreach (var threshold in thresholds)
             {
-                var kind = DungeonArchitectureKind.OpenArch;
-                if (internalStairs.Count < stairBudget && threshold.RoomIndex > 0 &&
-                    threshold.RoomIndex < data.Rooms.Count - 1 &&
-                    Vector2.Distance(threshold.Position, data.CellCenter(data.StartCell)) > 6f &&
-                    Vector2.Distance(threshold.Position, data.CellCenter(data.ExitCell)) > 6f)
-                {
-                    var separated = true;
-                    foreach (var previous in internalStairs)
-                        if (Vector2.Distance(previous, threshold.Position) < 9f)
-                        {
-                            separated = false;
-                            break;
-                        }
-                    if (separated)
-                    {
-                        kind = DungeonArchitectureKind.ElevationStairs;
-                        internalStairs.Add(threshold.Position);
-                    }
-                }
+                var kind = platformRooms.Contains(threshold.RoomIndex)
+                    ? DungeonArchitectureKind.ElevationStairs
+                    : DungeonArchitectureKind.OpenGate;
                 data.AddArchitecture(new DungeonArchitectureFeature(kind, threshold.Position,
                     threshold.Vertical, threshold.FlipX));
             }
+        }
 
-            data.AddArchitecture(new DungeonArchitectureFeature(DungeonArchitectureKind.LevelExitStairs,
-                data.CellCenter(data.ExitCell), false, false));
+        private static int ArchitectureRoomScore(int roomIndex, int seed)
+        {
+            unchecked
+            {
+                var value = seed ^ roomIndex * 83492791;
+                value ^= value << 13;
+                value ^= value >> 17;
+                value ^= value << 5;
+                return value & int.MaxValue;
+            }
         }
 
         private static int ArchitectureScore(ArchitectureThreshold threshold, int seed)
