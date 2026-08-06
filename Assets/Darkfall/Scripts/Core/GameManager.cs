@@ -91,7 +91,8 @@ namespace Darkfall.Core
             if (Player == null || IsPaused) return;
             if (EnemyController.Count == 0 && ExitPortal.Active != null && !ExitPortal.Active.IsEmpowered)
                 OpenExitPortal();
-            if (GameInput.InteractPressed && !ExitPortal.InteractNearest(Player)) TreasureChest.InteractNearest(Player);
+            if (GameInput.InteractPressed && !DungeonDoor.InteractNearest(Player) &&
+                !ExitPortal.InteractNearest(Player)) TreasureChest.InteractNearest(Player);
             var quickSlot = GameInput.QuickSlotPressed;
             if (quickSlot >= 0) Inventory.UseQuickSlot(quickSlot, Player);
         }
@@ -147,6 +148,7 @@ namespace Darkfall.Core
             float? carriedHealth = preservePlayerState && Player != null ? Player.Health : null;
             if (!preservePlayerState || runHero == null) runHero = HeroDefinition.Create(SelectedHero);
             ExitPortal.ResetRegistry();
+            DungeonDoor.ResetRegistry();
             if (levelRoot != null) Destroy(levelRoot.gameObject);
             EnemyController.ClearRegistry();
             GameInput.Reset();
@@ -161,6 +163,7 @@ namespace Darkfall.Core
             playerObject.transform.position = Dungeon.CellCenter(Dungeon.StartCell);
             Player = playerObject.AddComponent<PlayerController>();
             Player.Initialize(runHero, Dungeon, carriedHealth);
+            DungeonDoor.SpawnRequiredKeys(Player, Dungeon);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (DeveloperGodMode) Player.SetDeveloperInvincible(true);
 #endif

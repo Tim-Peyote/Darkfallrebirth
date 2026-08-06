@@ -30,7 +30,15 @@ namespace Darkfall.World
     public enum DungeonArchitectureKind
     {
         OpenGate,
+        ClosedDoor,
         ElevationStairs
+    }
+
+    public enum DungeonDoorLockKind
+    {
+        None,
+        Key,
+        EnemySeal
     }
 
     /// <summary>
@@ -44,13 +52,18 @@ namespace Darkfall.World
         public readonly Vector2 Position;
         public readonly bool Vertical;
         public readonly bool FlipX;
+        public readonly int Width;
+        public readonly DungeonDoorLockKind DoorLock;
 
-        public DungeonArchitectureFeature(DungeonArchitectureKind kind, Vector2 position, bool vertical, bool flipX)
+        public DungeonArchitectureFeature(DungeonArchitectureKind kind, Vector2 position, bool vertical, bool flipX,
+            int width = 2, DungeonDoorLockKind doorLock = DungeonDoorLockKind.None)
         {
             Kind = kind;
             Position = position;
             Vertical = vertical;
             FlipX = flipX;
+            Width = width;
+            DoorLock = doorLock;
         }
     }
 
@@ -61,6 +74,9 @@ namespace Darkfall.World
         private readonly bool[,] visible;
         private readonly bool[,] obstacles;
         private readonly byte[,] elevation;
+        private readonly Dictionary<int, Rect> dynamicObstacles = new Dictionary<int, Rect>();
+        private readonly List<Rect> architectureObstacles = new List<Rect>();
+        private int nextDynamicObstacleId = 1;
         private readonly List<DungeonLightSource> lightSources = new List<DungeonLightSource>();
         private readonly List<DungeonArchitectureFeature> architecture = new List<DungeonArchitectureFeature>();
         public int Width { get; }
@@ -149,6 +165,40 @@ namespace Darkfall.World
 
         internal void AddArchitecture(DungeonArchitectureFeature feature) => architecture.Add(feature);
 
+        internal void AddArchitectureObstacle(Rect area) => architectureObstacles.Add(area);
+
+        internal void AddStairTraversal(DungeonArchitectureFeature feature)
+        {
+            // Only the central ramp is walkable; the authored stone cheeks remain solid.
+            const float laneWidth = .82f;
+            const float crossingDepth = .52f;
+            var totalWidth = Mathf.Max(1.5f, feature.Width);
+            var sideWidth = Mathf.Max(.18f, (totalWidth - laneWidth) * .5f);
+            if (feature.Vertical)
+            {
+                AddArchitectureObstacle(new Rect(feature.Position.x - crossingDepth * .5f,
+                    feature.Position.y - totalWidth * .5f, crossingDepth, sideWidth));
+                AddArchitectureObstacle(new Rect(feature.Position.x - crossingDepth * .5f,
+                    feature.Position.y + totalWidth * .5f - sideWidth, crossingDepth, sideWidth));
+            }
+            else
+            {
+                AddArchitectureObstacle(new Rect(feature.Position.x - totalWidth * .5f,
+                    feature.Position.y - crossingDepth * .5f, sideWidth, crossingDepth));
+                AddArchitectureObstacle(new Rect(feature.Position.x + totalWidth * .5f - sideWidth,
+                    feature.Position.y - crossingDepth * .5f, sideWidth, crossingDepth));
+            }
+        }
+
+        public int AddDynamicObstacle(Rect area)
+        {
+            var id = nextDynamicObstacleId++;
+            dynamicObstacles[id] = area;
+            return id;
+        }
+
+        public void RemoveDynamicObstacle(int id) => dynamicObstacles.Remove(id);
+
         internal void SetElevation(RectInt area, byte level)
         {
             for (var x = area.xMin; x < area.xMax; x++)
@@ -200,11 +250,25 @@ namespace Darkfall.World
 
         public bool CanOccupy(Vector2 point, float radius = 0.3f)
         {
+            if (TouchesObstacle(point, radius, architectureObstacles)) return false;
+            foreach (var obstacle in dynamicObstacles.Values)
+                if (TouchesObstacle(point, radius, obstacle)) return false;
             return IsWalkable(Mathf.FloorToInt(point.x - radius), Mathf.FloorToInt(point.y - radius))
                 && IsWalkable(Mathf.FloorToInt(point.x + radius), Mathf.FloorToInt(point.y - radius))
                 && IsWalkable(Mathf.FloorToInt(point.x - radius), Mathf.FloorToInt(point.y + radius))
                 && IsWalkable(Mathf.FloorToInt(point.x + radius), Mathf.FloorToInt(point.y + radius));
         }
+
+        private static bool TouchesObstacle(Vector2 point, float radius, IReadOnlyList<Rect> obstacles)
+        {
+            for (var i = 0; i < obstacles.Count; i++)
+                if (TouchesObstacle(point, radius, obstacles[i])) return true;
+            return false;
+        }
+
+        private static bool TouchesObstacle(Vector2 point, float radius, Rect obstacle) =>
+            point.x + radius > obstacle.xMin && point.x - radius < obstacle.xMax &&
+            point.y + radius > obstacle.yMin && point.y - radius < obstacle.yMax;
 
         private bool IsWalkable(int x, int y) => IsFloor(x, y) && !obstacles[x, y];
 

@@ -281,13 +281,32 @@ namespace Darkfall.World
             }
 
             thresholds.Sort((a, b) => ArchitectureScore(a, seed).CompareTo(ArchitectureScore(b, seed)));
+            var doorPlaced = false;
             foreach (var threshold in thresholds)
             {
                 var kind = platformRooms.Contains(threshold.RoomIndex)
                     ? DungeonArchitectureKind.ElevationStairs
                     : DungeonArchitectureKind.OpenGate;
-                data.AddArchitecture(new DungeonArchitectureFeature(kind, threshold.Position,
-                    threshold.Vertical, threshold.FlipX));
+                var doorLock = DungeonDoorLockKind.None;
+                // Doors are punctuation, not wallpaper. At most one ordinary floor threshold is
+                // promoted to a stateful door, and shallow first floors stay immediately readable.
+                if (!doorPlaced && depth > 1 && kind == DungeonArchitectureKind.OpenGate &&
+                    ArchitectureScore(threshold, seed ^ 0x51F15E) % 100 < 22 &&
+                    Vector2.Distance(threshold.Position, data.CellCenter(data.StartCell)) > 5f &&
+                    Vector2.Distance(threshold.Position, data.CellCenter(data.ExitCell)) > 5f)
+                {
+                    kind = DungeonArchitectureKind.ClosedDoor;
+                    doorLock = depth >= 4 && ArchitectureScore(threshold, seed ^ 0xA11CE) % 100 < 45
+                        ? DungeonDoorLockKind.EnemySeal
+                        : depth >= 3 && ArchitectureScore(threshold, seed ^ 0xBADC0DE) % 100 < 35
+                            ? DungeonDoorLockKind.Key
+                            : DungeonDoorLockKind.None;
+                    doorPlaced = true;
+                }
+                var feature = new DungeonArchitectureFeature(kind, threshold.Position,
+                    threshold.Vertical, threshold.FlipX, threshold.Width, doorLock);
+                data.AddArchitecture(feature);
+                if (kind == DungeonArchitectureKind.ElevationStairs) data.AddStairTraversal(feature);
             }
         }
 

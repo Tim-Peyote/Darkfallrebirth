@@ -836,7 +836,10 @@ namespace Darkfall.UI
             }
             var portalDistance = ExitPortal.DistanceToNearest(game.Player);
             var chestDistance = TreasureChest.DistanceToNearest(game.Player);
-            if (portalDistance <= 1.45f)
+            var doorHint = DungeonDoor.HintNearest(game.Player);
+            if (!string.IsNullOrEmpty(doorHint))
+                interactionHint.text = doorHint;
+            else if (portalDistance <= 1.45f)
                 interactionHint.text = EnemyController.Count > 0
                     ? $"[E] СПУСТИТЬСЯ  ·  ВРАГОВ ОСТАНЕТСЯ {EnemyController.Count}"
                     : "[E] СПУСТИТЬСЯ ГЛУБЖЕ";

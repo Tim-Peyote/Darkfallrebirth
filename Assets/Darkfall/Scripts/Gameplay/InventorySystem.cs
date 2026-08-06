@@ -131,6 +131,22 @@ namespace Darkfall.Gameplay
             return total;
         }
 
+        public bool TryConsume(string baseId, int amount = 1)
+        {
+            if (string.IsNullOrEmpty(baseId) || amount <= 0 || Count(baseId) < amount) return false;
+            for (var i = 0; i < Slots.Length && amount > 0; i++)
+            {
+                var item = Slots[i];
+                if (item == null || item.baseId != baseId) continue;
+                var taken = Mathf.Min(item.quantity, amount);
+                item.quantity -= taken;
+                amount -= taken;
+                if (item.quantity <= 0) Slots[i] = null;
+            }
+            Changed?.Invoke();
+            return true;
+        }
+
         public void Unequip(int equipmentIndex)
         {
             if (equipmentIndex < 0 || equipmentIndex >= Equipment.Length || Equipment[equipmentIndex] == null) return;

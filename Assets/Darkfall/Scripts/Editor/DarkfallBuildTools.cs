@@ -136,6 +136,7 @@ namespace Darkfall.Editor
             failures += Require(GameManager.EnemyBudgetForDepth(balance, 1) < GameManager.EnemyBudgetForDepth(balance, 5) &&
                                 GameManager.EnemyBudgetForDepth(balance, 5) < GameManager.EnemyBudgetForDepth(balance, 9),
                 "Progression: regular enemy budget must grow with depth");
+            var generatedDoorCount = 0;
             for (var seed = 0; seed < 100; seed++)
             {
                 var generatedDepth = 1 + seed % 25;
@@ -144,9 +145,11 @@ namespace Darkfall.Editor
                 failures += Require(dungeon.IsFloor(dungeon.StartCell.x, dungeon.StartCell.y), $"Seed {seed}: invalid start");
                 failures += Require(dungeon.IsFloor(dungeon.ExitCell.x, dungeon.ExitCell.y), $"Seed {seed}: invalid exit");
                 var internalStairs = 0;
+                var doors = 0;
                 foreach (var feature in dungeon.Architecture)
                 {
                     if (feature.Kind == DungeonArchitectureKind.ElevationStairs) internalStairs++;
+                    if (feature.Kind == DungeonArchitectureKind.ClosedDoor) doors++;
                     var passageX = Mathf.FloorToInt(feature.Position.x);
                     var passageY = Mathf.FloorToInt(feature.Position.y);
                     var validThreshold = feature.Vertical
@@ -159,8 +162,16 @@ namespace Darkfall.Editor
                         : dungeon.ElevationLevel(passageX, passageY - 1);
                     var secondElevation = dungeon.ElevationLevel(passageX, passageY);
                     if (feature.Kind == DungeonArchitectureKind.ElevationStairs)
+                    {
                         failures += Require(firstElevation != secondElevation,
                             $"Seed {seed}: internal stairs do not connect two elevations");
+                        failures += Require(dungeon.CanOccupy(feature.Position, .18f),
+                            $"Seed {seed}: internal stair center lane is not traversable");
+                        var tangent = feature.Vertical ? Vector2.up : Vector2.right;
+                        var cheek = feature.Position + tangent * (feature.Width * .5f - .12f);
+                        failures += Require(!dungeon.CanOccupy(cheek, .18f),
+                            $"Seed {seed}: actors can pass through a stair side wall");
+                    }
                     else
                         failures += Require(firstElevation == secondElevation,
                             $"Seed {seed}: open gate incorrectly bridges an elevation change");
@@ -168,6 +179,8 @@ namespace Darkfall.Editor
                 if (generatedDepth % 10 != 0)
                     failures += Require(internalStairs > 0,
                         $"Seed {seed}: expected at least one internal elevation stair");
+                failures += Require(doors <= 1, $"Seed {seed}: doors must remain a rare threshold event");
+                generatedDoorCount += doors;
                 failures += Require(dungeon.ElevationLevel(dungeon.ExitCell.x, dungeon.ExitCell.y) == 0,
                     $"Seed {seed}: level exit must not overlap a raised platform");
                 var start = dungeon.CellCenter(dungeon.StartCell);
@@ -190,6 +203,8 @@ namespace Darkfall.Editor
                         $"Seed {seed}: generated passage {room - 1}->{room} is disconnected");
                 }
             }
+            failures += Require(generatedDoorCount >= 3 && generatedDoorCount <= 30,
+                $"Door grammar: expected a rare but observable sample, got {generatedDoorCount}/100 floors");
             var bossArena = DungeonGenerator.Generate(balance, 10, 1010);
             failures += Require(bossArena.Width == 30 && bossArena.Height == 30, "Boss arena must be 30x30");
             failures += Require(bossArena.IsFloor(bossArena.StartCell.x, bossArena.StartCell.y), "Boss arena start is blocked");

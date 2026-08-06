@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Darkfall.Core;
+using Darkfall.Gameplay;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -222,7 +223,10 @@ namespace Darkfall.World
                 var bits = CountMaskBits(mask);
                 if (bits != 1 && bits != 3) continue;
                 if (FeatureReplacesWallModule(data, point)) continue;
-                CreateArchitectureModule(bits == 3 ? "corner-inner" : "corner-outer",
+                // Role is named from the walkable side: a room corner (one occupied quadrant) is
+                // concave to the player, while a void notch (three occupied quadrants) is a convex
+                // masonry pier. The previous mapping was geometrically reversed.
+                CreateArchitectureModule(bits == 1 ? "corner-inner" : "corner-outer",
                     point, FlipCorner(mask), .94f, moduleIndex++, data.BoundaryHeight(point));
             }
         }
@@ -278,7 +282,7 @@ namespace Darkfall.World
         {
             foreach (var feature in data.Architecture)
             {
-                var radius = feature.Kind == DungeonArchitectureKind.OpenGate ? 1.35f : 1.05f;
+                var radius = feature.Kind == DungeonArchitectureKind.ElevationStairs ? 1.05f : 1.35f;
                 if (Vector2.Distance(point, feature.Position) < radius) return true;
             }
             return false;
@@ -313,6 +317,11 @@ namespace Darkfall.World
             var featureIndex = 100000;
             foreach (var feature in data.Architecture)
             {
+                if (feature.Kind == DungeonArchitectureKind.ClosedDoor)
+                {
+                    DungeonDoor.Spawn(data, feature, profile.Id, architectureDecor);
+                    continue;
+                }
                 var role = feature.Kind == DungeonArchitectureKind.OpenGate ? "arcade" : "stairs";
                 var scale = feature.Kind == DungeonArchitectureKind.OpenGate ? .98f : .86f;
                 CreateArchitectureModule(role, feature.Position, feature.Vertical, scale, featureIndex++, 0f);
@@ -363,7 +372,9 @@ namespace Darkfall.World
         }
 
         private static bool FlipCorner(int mask) =>
-            mask == 2 || mask == 4 || mask == 10 || mask == 11 || mask == 13;
+            // Screen-space mirroring swaps the logical east/south quadrants (2 <-> 8). It does
+            // not invert the near/far quadrants; doing that was what made most corners face out.
+            mask == 2 || mask == 13;
 
         private Material CreateTexturedMaterial(string path)
         {
