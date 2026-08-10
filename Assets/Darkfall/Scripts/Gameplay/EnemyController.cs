@@ -38,6 +38,12 @@ namespace Darkfall.Gameplay
         private float attackAnimationUntil;
         private float hitAnimationUntil;
         private string directionalSheet;
+        private float alertedUntil;
+        private Vector2 homePosition;
+        private Vector2 idleTarget;
+        private float nextIdleDecision;
+        private float idleRadius;
+        private float idlePause;
 
         public static int Count => Active.Count;
         public bool IsBoss => boss;
@@ -100,6 +106,9 @@ namespace Darkfall.Gameplay
             Active.Add(this);
             abilityReadyAt = Time.time + 4.5f;
             previousPosition = transform.position;
+            homePosition = transform.position;
+            idleTarget = homePosition;
+            ConfigureIdleBehavior(lowerType);
         }
 
         private void OnDestroy()
@@ -111,14 +120,25 @@ namespace Darkfall.Gameplay
         {
             var manager = GameManager.Instance;
             if (player == null || dungeon == null || definition == null || manager == null || manager.IsPaused || player.IsInvisible) return;
-            if (boss) UpdateBossPhaseAndAbilities();
             if (Time.time < stunnedUntil) return;
             var toPlayer = (Vector2)(player.transform.position - transform.position);
-            if (toPlayer.sqrMagnitude > .001f) facingDirection = toPlayer.normalized;
-            Animate((Vector2)transform.position - previousPosition);
-            previousPosition = transform.position;
             var distance = toPlayer.magnitude;
-            if (definition.canTeleport && Time.time >= nextTeleportCheck)
+            var sightRange = boss ? 13f : ranged ? 10f : 8f;
+            var seesPlayer = distance <= sightRange &&
+                             dungeon.HasLineOfSight(transform.position, player.transform.position);
+            if (seesPlayer)
+            {
+                alertedUntil = Time.time + 1.5f;
+                if (toPlayer.sqrMagnitude > .001f) facingDirection = toPlayer.normalized;
+            }
+            if (!seesPlayer && Time.time >= alertedUntil)
+            {
+                UpdateIdleBehavior();
+                return;
+            }
+            if (boss && seesPlayer) UpdateBossPhaseAndAbilities();
+
+            if (definition.canTeleport && seesPlayer && Time.time >= nextTeleportCheck)
             {
                 nextTeleportCheck = Time.time + 1.2f;
                 if (Random.value < definition.teleportChance)
@@ -139,15 +159,21 @@ namespace Darkfall.Gameplay
             if (Time.time < afraidUntil)
             {
                 var nextAway = (Vector2)transform.position - toPlayer.normalized * speed * Time.deltaTime;
-                if (dungeon.CanOccupy(nextAway)) transform.position = nextAway;
+                if (dungeon.CanTraverse(transform.position, nextAway)) transform.position = nextAway;
                 return;
             }
-            if (distance > attackRange)
+            var preferredRange = Mathf.Max(2.2f, attackRange * .72f);
+            if (ranged && distance < preferredRange)
+            {
+                var next = (Vector2)transform.position - toPlayer.normalized * speed * Time.deltaTime;
+                if (dungeon.CanTraverse(transform.position, next)) transform.position = next;
+            }
+            else if (distance > attackRange)
             {
                 var next = (Vector2)transform.position + toPlayer.normalized * speed * Time.deltaTime;
-                if (dungeon.CanOccupy(next)) transform.position = next;
+                if (dungeon.CanTraverse(transform.position, next)) transform.position = next;
             }
-            else if (Time.time >= nextAttack)
+            else if (seesPlayer && Time.time >= nextAttack)
             {
                 nextAttack = Time.time + (boss ? 0.85f : 1.15f);
                 attackAnimationUntil = Time.time + .28f;
@@ -159,6 +185,69 @@ namespace Darkfall.Gameplay
                     ApplyOnHitEffect();
                 }
             }
+        }
+
+        private void LateUpdate()
+        {
+            var current = (Vector2)transform.position;
+            Animate(current - previousPosition);
+            previousPosition = current;
+        }
+
+        private void ConfigureIdleBehavior(string lowerType)
+        {
+            if (boss)
+            {
+                idleRadius = 0f;
+                idlePause = 4f;
+            }
+            else if (lowerType.Contains("warden") || lowerType.Contains("sentinel") ||
+                     lowerType.Contains("guardian") || lowerType.Contains("golem"))
+            {
+                idleRadius = 1.8f;
+                idlePause = 2.8f;
+            }
+            else if (ranged || lowerType.Contains("mage") || lowerType.Contains("acolyte"))
+            {
+                idleRadius = 3.4f;
+                idlePause = 1.7f;
+            }
+            else if (lowerType.Contains("assassin") || lowerType.Contains("wraith") ||
+                     lowerType.Contains("stalker") || definition.canTeleport)
+            {
+                idleRadius = 5f;
+                idlePause = .9f;
+            }
+            else
+            {
+                idleRadius = 2.8f;
+                idlePause = 1.4f;
+            }
+            nextIdleDecision = Time.time + Random.Range(.3f, idlePause);
+        }
+
+        private void UpdateIdleBehavior()
+        {
+            if (idleRadius <= 0f) return;
+            var position = (Vector2)transform.position;
+            if (Vector2.Distance(position, idleTarget) < .18f || Time.time >= nextIdleDecision)
+            {
+                idleTarget = homePosition;
+                for (var attempt = 0; attempt < 10; attempt++)
+                {
+                    var candidate = homePosition + Random.insideUnitCircle * idleRadius;
+                    if (!dungeon.CanOccupy(candidate, .25f)) continue;
+                    idleTarget = candidate;
+                    break;
+                }
+                nextIdleDecision = Time.time + idlePause + Random.Range(.8f, 2.5f);
+            }
+            var direction = idleTarget - position;
+            if (direction.sqrMagnitude < .02f) return;
+            facingDirection = direction.normalized;
+            var next = position + direction.normalized * speed * .42f * Time.deltaTime;
+            if (dungeon.CanTraverse(position, next, .25f)) transform.position = next;
+            else nextIdleDecision = Time.time;
         }
 
         private void Animate(Vector2 movement)
@@ -202,6 +291,7 @@ namespace Darkfall.Gameplay
                 return;
             }
             health -= amount;
+            alertedUntil = Time.time + 5f;
             hitAnimationUntil = Time.time + .2f;
             if (GameManager.Instance.Player != null && GameManager.Instance.Player.Vampirism)
                 GameManager.Instance.Player.Heal(amount * 0.5f);
@@ -286,10 +376,11 @@ namespace Darkfall.Gameplay
         private void MoveOrAttackEnemy(EnemyController other)
         {
             var direction = (Vector2)(other.transform.position - transform.position);
+            if (direction.sqrMagnitude > .001f) facingDirection = direction.normalized;
             if (direction.magnitude > attackRange)
             {
                 var next = (Vector2)transform.position + direction.normalized * speed * Time.deltaTime;
-                if (dungeon.CanOccupy(next)) transform.position = next;
+                if (dungeon.CanTraverse(transform.position, next)) transform.position = next;
             }
             else if (Time.time >= nextAttack)
             {
@@ -354,7 +445,7 @@ namespace Darkfall.Gameplay
                     for (var i = 0; i < 15; i++)
                     {
                         var next = destination + toPlayer.normalized * .25f;
-                        if (!dungeon.CanOccupy(next)) break;
+                        if (!dungeon.CanTraverse(destination, next)) break;
                         destination = next;
                     }
                     transform.position = destination;

@@ -231,12 +231,42 @@ namespace Darkfall.World
                 var positive = feature.Vertical
                     ? ElevationLevel(Mathf.FloorToInt(feature.Position.x + .25f), Mathf.FloorToInt(point.y))
                     : ElevationLevel(Mathf.FloorToInt(point.x), Mathf.FloorToInt(feature.Position.y + .25f));
-                var t = Mathf.InverseLerp(thresholdCoordinate - rampHalfDepth,
-                    thresholdCoordinate + rampHalfDepth, normalCoordinate);
-                return Mathf.Lerp(negative, positive, t) * ElevationStepHeight;
+                // The feature position is the raised platform lip, not the middle of the ramp.
+                // Interpolating symmetrically around it made an actor remain half-submerged after
+                // their feet had already reached the upper floor. Keep the slope wholly on the
+                // lower side and arrive at full platform height exactly at the threshold.
+                if (negative < positive)
+                {
+                    var t = Mathf.InverseLerp(thresholdCoordinate - rampHalfDepth,
+                        thresholdCoordinate, normalCoordinate);
+                    return Mathf.Lerp(negative, positive, t) * ElevationStepHeight;
+                }
+                if (positive < negative)
+                {
+                    var t = Mathf.InverseLerp(thresholdCoordinate,
+                        thresholdCoordinate + rampHalfDepth, normalCoordinate);
+                    return Mathf.Lerp(negative, positive, t) * ElevationStepHeight;
+                }
+                return negative * ElevationStepHeight;
             }
 
             return ElevationLevel(Mathf.FloorToInt(point.x), Mathf.FloorToInt(point.y)) * ElevationStepHeight;
+        }
+
+        public bool IsOnElevationStair(Vector2 point)
+        {
+            foreach (var feature in architecture)
+            {
+                if (feature.Kind != DungeonArchitectureKind.ElevationStairs) continue;
+                var normalDistance = feature.Vertical
+                    ? Mathf.Abs(point.x - feature.Position.x)
+                    : Mathf.Abs(point.y - feature.Position.y);
+                var tangentDistance = feature.Vertical
+                    ? Mathf.Abs(point.y - feature.Position.y)
+                    : Mathf.Abs(point.x - feature.Position.x);
+                if (normalDistance <= .76f && tangentDistance <= .43f) return true;
+            }
+            return false;
         }
 
         public float BoundaryHeight(Vector2 point)
@@ -290,6 +320,20 @@ namespace Darkfall.World
                 if (tangentDistance <= .43f - radius * .25f && normalDistance <= .78f) return true;
             }
             return false;
+        }
+
+        public bool HasLineOfSight(Vector2 from, Vector2 to)
+        {
+            var distance = Vector2.Distance(from, to);
+            var steps = Mathf.Max(1, Mathf.CeilToInt(distance / .16f));
+            var previous = from;
+            for (var i = 1; i < steps; i++)
+            {
+                var sample = Vector2.Lerp(from, to, i / (float)steps);
+                if (!CanOccupy(sample, .05f) || !CanTraverse(previous, sample, .05f)) return false;
+                previous = sample;
+            }
+            return true;
         }
 
         private static bool TouchesObstacle(Vector2 point, float radius, IReadOnlyList<Rect> obstacles)

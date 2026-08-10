@@ -34,7 +34,7 @@ namespace Darkfall.Core
                 flipX = facing.x < 0f;
                 facing = Vector2.right;
             }
-            var row = DirectionRow(facing);
+            var row = DirectionRow(sheet, facing);
             var column = MotionColumn(sheet, motion, time);
             return sprites[row * Columns + column];
         }
@@ -156,9 +156,22 @@ namespace Darkfall.Core
             return result;
         }
 
-        private static int DirectionRow(Vector2 facing)
+        private static int DirectionRow(string sheet, Vector2 facing)
         {
-            if (Mathf.Abs(facing.x) > Mathf.Abs(facing.y)) return facing.x < 0 ? 1 : 2;
+            // The generated sheets do not share one side-row convention. Melee/ranged and some
+            // biome actors are front,left,right,back; caster-derived sheets are
+            // front,right,left,back. Get() mirrors one canonical right-facing row, so encode that
+            // per sheet instead of globally swapping every enemy to fix one mage.
+            if (Mathf.Abs(facing.x) > Mathf.Abs(facing.y))
+            {
+                var rightRowIsOne = sheet == "enemy-caster-v2" || sheet == "enemy-mimic-v1" ||
+                                    sheet == "enemy-drowned-sentinel-v1" ||
+                                    sheet == "enemy-spore-stalker-v1" ||
+                                    sheet == "enemy-obsidian-acolyte-v1";
+                return facing.x < 0f
+                    ? (rightRowIsOne ? 2 : 1)
+                    : (rightRowIsOne ? 1 : 2);
+            }
             return facing.y < 0 ? 0 : 3;
         }
 

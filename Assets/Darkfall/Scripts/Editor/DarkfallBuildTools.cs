@@ -140,7 +140,7 @@ namespace Darkfall.Editor
             failures += Require(GameManager.EnemyBudgetForDepth(balance, 1) < GameManager.EnemyBudgetForDepth(balance, 5) &&
                                 GameManager.EnemyBudgetForDepth(balance, 5) < GameManager.EnemyBudgetForDepth(balance, 9),
                 "Progression: regular enemy budget must grow with depth");
-            var generatedDoorCount = 0;
+            var generatedOptionalDoorCount = 0;
             var generatedStairFloors = 0;
             for (var seed = 0; seed < 100; seed++)
             {
@@ -151,10 +151,18 @@ namespace Darkfall.Editor
                 failures += Require(dungeon.IsFloor(dungeon.ExitCell.x, dungeon.ExitCell.y), $"Seed {seed}: invalid exit");
                 var internalStairs = 0;
                 var doors = 0;
+                var startDoors = 0;
                 foreach (var feature in dungeon.Architecture)
                 {
                     if (feature.Kind == DungeonArchitectureKind.ElevationStairs) internalStairs++;
-                    if (feature.Kind == DungeonArchitectureKind.ClosedDoor) doors++;
+                    if (feature.Kind == DungeonArchitectureKind.ClosedDoor)
+                    {
+                        doors++;
+                        var startBounds = dungeon.Rooms[0].bounds;
+                        if (feature.Position.x >= startBounds.xMin - .1f && feature.Position.x <= startBounds.xMax + .1f &&
+                            feature.Position.y >= startBounds.yMin - .1f && feature.Position.y <= startBounds.yMax + .1f)
+                            startDoors++;
+                    }
                     var passageX = Mathf.FloorToInt(feature.Position.x);
                     var passageY = Mathf.FloorToInt(feature.Position.y);
                     var validThreshold = feature.Vertical
@@ -195,8 +203,29 @@ namespace Darkfall.Editor
                             $"Seed {seed}: open gate incorrectly bridges an elevation change");
                 }
                 if (generatedDepth % 10 != 0 && internalStairs > 0) generatedStairFloors++;
-                failures += Require(doors <= 1, $"Seed {seed}: doors must remain a rare threshold event");
-                generatedDoorCount += doors;
+                var expectedStartDoors = generatedDepth % 10 == 0 ? 0 : 1;
+                failures += Require(startDoors == expectedStartDoors,
+                    $"Seed {seed}: arrival room must have {expectedStartDoors} safety door(s) " +
+                    $"(found {startDoors}, total {doors})");
+                if (generatedDepth % 10 != 0)
+                {
+                    var startBounds = dungeon.Rooms[0].bounds;
+                    var perimeterOpenings = 0;
+                    for (var y = startBounds.yMin; y < startBounds.yMax; y++)
+                    {
+                        if (dungeon.IsFloor(startBounds.xMin - 1, y)) perimeterOpenings++;
+                        if (dungeon.IsFloor(startBounds.xMax, y)) perimeterOpenings++;
+                    }
+                    for (var x = startBounds.xMin; x < startBounds.xMax; x++)
+                    {
+                        if (dungeon.IsFloor(x, startBounds.yMin - 1)) perimeterOpenings++;
+                        if (dungeon.IsFloor(x, startBounds.yMax)) perimeterOpenings++;
+                    }
+                    failures += Require(perimeterOpenings == 2,
+                        $"Seed {seed}: safety room perimeter has {perimeterOpenings} open cells instead of one two-cell door");
+                }
+                failures += Require(doors <= 2, $"Seed {seed}: doors must remain a rare threshold event");
+                generatedOptionalDoorCount += doors - startDoors;
                 failures += Require(dungeon.ElevationLevel(dungeon.ExitCell.x, dungeon.ExitCell.y) == 0,
                     $"Seed {seed}: level exit must not overlap a raised platform");
                 var start = dungeon.CellCenter(dungeon.StartCell);
@@ -223,8 +252,8 @@ namespace Darkfall.Editor
             // topology or asset direction. It should still appear on nearly every regular floor.
             failures += Require(generatedStairFloors >= 85,
                 "Architecture: internal stairs are absent from too many regular floors");
-            failures += Require(generatedDoorCount >= 3 && generatedDoorCount <= 30,
-                $"Door grammar: expected a rare but observable sample, got {generatedDoorCount}/100 floors");
+            failures += Require(generatedOptionalDoorCount >= 3 && generatedOptionalDoorCount <= 30,
+                $"Door grammar: expected a rare but observable optional sample, got {generatedOptionalDoorCount}/100 floors");
             var bossArena = DungeonGenerator.Generate(balance, 10, 1010);
             failures += Require(bossArena.Width == 30 && bossArena.Height == 30, "Boss arena must be 30x30");
             failures += Require(bossArena.IsFloor(bossArena.StartCell.x, bossArena.StartCell.y), "Boss arena start is blocked");

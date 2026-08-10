@@ -75,12 +75,18 @@ namespace Darkfall.World
         private void Refresh()
         {
             if (logicalOwner == null) return;
-            var surface = followDungeonSurface && GameManager.Instance?.Dungeon != null
-                ? GameManager.Instance.Dungeon.SurfaceHeight(logicalOwner.position)
+            var dungeon = GameManager.Instance?.Dungeon;
+            var surface = followDungeonSurface && dungeon != null
+                ? dungeon.SurfaceHeight(logicalOwner.position)
                 : 0f;
             transform.position = IsoWorld.Project(logicalOwner.position, elevation + surface);
             if (renderers == null || renderers.Length == 0) CacheRenderers();
-            var order = IsoWorld.SortingOrder(logicalOwner.position, sortingOffset);
+            // The stair sprite must remain part of the architectural join, above its platform
+            // fascia. While an actor occupies the narrow traversable flight, lift only the actor
+            // in depth so the single-piece stair art cannot swallow their feet or torso.
+            var stairActorBoost = followDungeonSurface && dungeon != null &&
+                                  dungeon.IsOnElevationStair(logicalOwner.position) ? 72 : 0;
+            var order = IsoWorld.SortingOrder(logicalOwner.position, sortingOffset + stairActorBoost);
             for (var i = 0; i < renderers.Length; i++)
                 if (renderers[i] != null) renderers[i].sortingOrder = order + rendererOffsets[i];
         }

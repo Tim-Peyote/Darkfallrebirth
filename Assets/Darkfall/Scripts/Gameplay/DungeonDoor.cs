@@ -75,10 +75,14 @@ namespace Darkfall.Gameplay
             owner.transform.position = position;
             var visual = new GameObject("Projected Jamb");
             visual.transform.SetParent(owner.transform, false);
-            visual.transform.localScale = Vector3.one * .82f;
             var renderer = visual.AddComponent<SpriteRenderer>();
-            renderer.sprite = ArchitectureSpriteLibrary.Module(biome, feature.Vertical ? "wall-right" : "wall-left");
-            renderer.flipX = feature.Vertical;
+            var role = feature.Vertical ? "wall-right" : "wall-left";
+            renderer.sprite = ArchitectureSpriteLibrary.Module(biome, role);
+            ArchitectureSpriteLibrary.Placement(biome, role, renderer.sprite, out var moduleScale,
+                out var moduleOffset);
+            visual.transform.localPosition = moduleOffset * .82f;
+            visual.transform.localScale = new Vector3(.82f * moduleScale.x, .82f * moduleScale.y, 1f);
+            renderer.flipX = ArchitectureSpriteLibrary.FlipForAxis(biome, role, feature.Vertical);
             renderer.color = Color.white;
             DarkfallRenderMaterials.MakeLit(renderer);
             visual.AddComponent<IsoVisual>().Initialize(owner.transform, 0f, 1002, false);
@@ -88,9 +92,12 @@ namespace Darkfall.Gameplay
         {
             var visual = new GameObject(objectName);
             visual.transform.SetParent(transform, false);
-            visual.transform.localScale = Vector3.one * scale;
             var renderer = visual.AddComponent<SpriteRenderer>();
             renderer.sprite = ArchitectureSpriteLibrary.Module(biome, role);
+            ArchitectureSpriteLibrary.Placement(biome, role, renderer.sprite, out var moduleScale,
+                out var moduleOffset);
+            visual.transform.localPosition = moduleOffset * scale;
+            visual.transform.localScale = new Vector3(scale * moduleScale.x, scale * moduleScale.y, 1f);
             renderer.flipX = flipX;
             renderer.color = Color.white;
             DarkfallRenderMaterials.MakeLit(renderer);

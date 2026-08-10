@@ -227,15 +227,7 @@ namespace Darkfall.Gameplay
 
         private bool HasLineOfSight(Vector2 target)
         {
-            var origin = (Vector2)transform.position;
-            var distance = Vector2.Distance(origin, target);
-            var steps = Mathf.Max(1, Mathf.CeilToInt(distance / 0.25f));
-            for (var i = 1; i < steps; i++)
-            {
-                var sample = Vector2.Lerp(origin, target, i / (float)steps);
-                if (!dungeon.CanOccupy(sample, 0.05f)) return false;
-            }
-            return true;
+            return dungeon != null && dungeon.HasLineOfSight(transform.position, target);
         }
 
         private System.Collections.IEnumerator AttackFlash()

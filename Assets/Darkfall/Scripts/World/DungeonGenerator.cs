@@ -25,27 +25,28 @@ namespace Darkfall.World
 
             for (var attempt = 0; attempt < attempts && rooms.Count < targetRooms; attempt++)
             {
-                var width = random.Next(minimumRoom, maximumRoom + 1);
-                var height = random.Next(minimumRoom, maximumRoom + 1);
+                var safeRoom = rooms.Count == 0;
+                var width = safeRoom ? random.Next(5, 7) : random.Next(minimumRoom, maximumRoom + 1);
+                var height = safeRoom ? random.Next(5, 7) : random.Next(minimumRoom, maximumRoom + 1);
                 // Deeper chapters increasingly introduce halls and transepts instead of merely
                 // placing more rooms on a larger map.
-                if (depth >= 6 && attempt % Mathf.Max(3, 8 - depth / 10) == 0)
+                if (!safeRoom && depth >= 6 && attempt % Mathf.Max(3, 8 - depth / 10) == 0)
                 {
                     if (random.Next(0, 2) == 0) width = Mathf.Min(size - 6, Mathf.RoundToInt(width * 1.28f));
                     else height = Mathf.Min(size - 6, Mathf.RoundToInt(height * 1.28f));
                 }
-                if (biomeStyle == 1)
+                if (!safeRoom && biomeStyle == 1)
                 {
                     var monumental = Mathf.Max(width, height);
                     width = Mathf.Min(size - 6, monumental);
                     height = Mathf.Min(size - 6, Mathf.Max(height, Mathf.RoundToInt(monumental * .82f)));
                 }
-                else if (biomeStyle == 2)
+                else if (!safeRoom && biomeStyle == 2)
                 {
                     if (random.Next(0, 2) == 0) width = Mathf.Min(size - 6, Mathf.RoundToInt(width * 1.32f));
                     else height = Mathf.Min(size - 6, Mathf.RoundToInt(height * 1.32f));
                 }
-                else if (biomeStyle == 4)
+                else if (!safeRoom && biomeStyle == 4)
                 {
                     var sanctum = Mathf.RoundToInt((width + height) * .5f);
                     width = height = Mathf.Min(size - 6, sanctum);
@@ -76,16 +77,20 @@ namespace Darkfall.World
             var extraConnections = Mathf.Min(5, Mathf.Max(1, rooms.Count / 4));
             for (var i = 0; i < extraConnections; i++)
             {
-                var first = random.Next(0, rooms.Count);
-                var second = random.Next(0, rooms.Count);
+                // Room zero is a protected arrival miniset. It keeps its original single route
+                // into the dungeon instead of receiving late shortcut corridors.
+                var first = random.Next(1, rooms.Count);
+                var second = random.Next(1, rooms.Count);
                 if (first == second) continue;
                 CarveConnection(floor, rooms[first].Center, rooms[second].Center, random);
             }
 
             EnsureRoomConnectivity(floor, rooms, random);
+            var arrivalThreshold = BuildSafeArrival(floor, rooms[0].bounds, rooms[1].Center);
+            EnsureNonArrivalConnectivity(floor, rooms, rooms[0].bounds);
 
             var dungeon = new DungeonData(floor, rooms);
-            BuildArchitectureGrammar(dungeon, depth, seed);
+            BuildArchitectureGrammar(dungeon, depth, seed, arrivalThreshold);
             return dungeon;
         }
 
@@ -98,6 +103,54 @@ namespace Darkfall.World
                 if (HasFloorRoute(floor, previous, current)) continue;
                 CarveConnection(floor, previous, current, random);
             }
+        }
+
+        private static void EnsureNonArrivalConnectivity(bool[,] floor, List<DungeonRoom> rooms,
+            RectInt arrivalRoom)
+        {
+            for (var room = 2; room < rooms.Count; room++)
+            {
+                var previous = rooms[room - 1].Center;
+                var current = rooms[room].Center;
+                if (!HasFloorRoute(floor, previous, current))
+                    CarveConnectionAvoidingArrival(floor, previous, current, arrivalRoom);
+            }
+        }
+
+        private static void CarveConnectionAvoidingArrival(bool[,] floor, Vector2Int from, Vector2Int to,
+            RectInt arrivalRoom)
+        {
+            var width = floor.GetLength(0);
+            var height = floor.GetLength(1);
+            var protectedArea = new RectInt(arrivalRoom.xMin - 2, arrivalRoom.yMin - 2,
+                arrivalRoom.width + 4, arrivalRoom.height + 4);
+            var visited = new bool[width, height];
+            var previous = new Vector2Int[width, height];
+            var queue = new Queue<Vector2Int>();
+            var directions = new[] { Vector2Int.right, Vector2Int.up, Vector2Int.left, Vector2Int.down };
+            queue.Enqueue(from);
+            visited[from.x, from.y] = true;
+            while (queue.Count > 0 && !visited[to.x, to.y])
+            {
+                var cell = queue.Dequeue();
+                foreach (var direction in directions)
+                {
+                    var next = cell + direction;
+                    if (next.x < 2 || next.y < 2 || next.x >= width - 2 || next.y >= height - 2 ||
+                        visited[next.x, next.y] || protectedArea.Contains(next)) continue;
+                    visited[next.x, next.y] = true;
+                    previous[next.x, next.y] = cell;
+                    queue.Enqueue(next);
+                }
+            }
+            if (!visited[to.x, to.y]) return;
+            var path = to;
+            while (path != from)
+            {
+                CarveDisc(floor, path.x, path.y, 2);
+                path = previous[path.x, path.y];
+            }
+            CarveDisc(floor, from.x, from.y, 2);
         }
 
         private static bool HasFloorRoute(bool[,] floor, Vector2Int start, Vector2Int goal)
@@ -146,7 +199,10 @@ namespace Darkfall.World
                     floor[x, y] = false;
             var dungeon = new DungeonData(floor, new List<DungeonRoom>
             {
-                new DungeonRoom { bounds = new RectInt(5, 14, 2, 2) },
+                // Boss floors are a single open encounter composition. This first logical region
+                // places the hero at the opposite end of the arena without building a safety
+                // chamber or threshold door around them.
+                new DungeonRoom { bounds = new RectInt(5, 13, 4, 4) },
                 new DungeonRoom { bounds = new RectInt(23, 14, 2, 2) }
             });
             return dungeon;
@@ -219,7 +275,76 @@ namespace Darkfall.World
             }
         }
 
-        private static void BuildArchitectureGrammar(DungeonData data, int depth, int seed)
+        private static ArchitectureThreshold BuildSafeArrival(bool[,] floor, RectInt room, Vector2Int target)
+        {
+            // Remove every accidental corridor touching the arrival room. A later narrow route is
+            // the sole connection, so the architecture pass can always fit one real door.
+            for (var y = room.yMin - 1; y <= room.yMax; y++)
+            {
+                floor[room.xMin - 1, y] = false;
+                floor[room.xMax, y] = false;
+            }
+            for (var x = room.xMin - 1; x <= room.xMax; x++)
+            {
+                floor[x, room.yMin - 1] = false;
+                floor[x, room.yMax] = false;
+            }
+
+            var center = new Vector2Int(room.xMin + room.width / 2, room.yMin + room.height / 2);
+            var delta = target - center;
+            Vector2Int outside;
+            Vector2Int second;
+            Vector2Int outward;
+            Vector2 thresholdPosition;
+            bool vertical;
+            if (Mathf.Abs(delta.x) >= Mathf.Abs(delta.y))
+            {
+                var x = delta.x >= 0 ? room.xMax : room.xMin - 1;
+                outside = new Vector2Int(x, center.y);
+                second = outside + Vector2Int.up;
+                outward = delta.x >= 0 ? Vector2Int.right : Vector2Int.left;
+                thresholdPosition = new Vector2(delta.x >= 0 ? room.xMax : room.xMin, center.y + 1f);
+                vertical = true;
+            }
+            else
+            {
+                var y = delta.y >= 0 ? room.yMax : room.yMin - 1;
+                outside = new Vector2Int(center.x, y);
+                second = outside + Vector2Int.right;
+                outward = delta.y >= 0 ? Vector2Int.up : Vector2Int.down;
+                thresholdPosition = new Vector2(center.x + 1f, delta.y >= 0 ? room.yMax : room.yMin);
+                vertical = false;
+            }
+            floor[outside.x, outside.y] = true;
+            floor[second.x, second.y] = true;
+
+            // Leave perpendicular to the room before turning toward the dungeon. Turning on the
+            // perimeter itself opens every cell between the doorway and the bend.
+            var departure = outside + outward * 2;
+            CarveTwoWideAxis(floor, outside, departure);
+            var bend = new Vector2Int(target.x, departure.y);
+            CarveTwoWideAxis(floor, departure, bend);
+            CarveTwoWideAxis(floor, bend, target);
+            return new ArchitectureThreshold(0, thresholdPosition, vertical, false, 2, false);
+        }
+
+        private static void CarveTwoWideAxis(bool[,] floor, Vector2Int from, Vector2Int to)
+        {
+            var step = new Vector2Int(Math.Sign(to.x - from.x), Math.Sign(to.y - from.y));
+            var tangent = step.x != 0 ? Vector2Int.up : Vector2Int.right;
+            var current = from;
+            while (true)
+            {
+                floor[current.x, current.y] = true;
+                var side = current + tangent;
+                floor[side.x, side.y] = true;
+                if (current == to) break;
+                current += step;
+            }
+        }
+
+        private static void BuildArchitectureGrammar(DungeonData data, int depth, int seed,
+            ArchitectureThreshold arrivalThreshold)
         {
             var candidates = new List<ArchitectureThreshold>();
             for (var roomIndex = 0; roomIndex < data.Rooms.Count; roomIndex++)
@@ -250,6 +375,14 @@ namespace Darkfall.World
                     }
                 if (!duplicate) thresholds.Add(candidate);
             }
+            var hasArrival = false;
+            foreach (var threshold in thresholds)
+                if (threshold.RoomIndex == 0 && Vector2.Distance(threshold.Position, arrivalThreshold.Position) < .2f)
+                {
+                    hasArrival = true;
+                    break;
+                }
+            if (!hasArrival) thresholds.Add(arrivalThreshold);
 
             // Elevation belongs to a room/platform, not to a freestanding stair sprite. Select a
             // few complete rooms, raise their floor, then turn every valid entrance of those rooms
@@ -260,7 +393,7 @@ namespace Darkfall.World
             // The exit room must stay flat so the same-floor stair never overlaps the independent
             // ExitPortal. The start room is allowed only when its complete threshold set can be
             // represented; spawn height is sampled from the surface and does not alter HP/state.
-            for (var roomIndex = 0; roomIndex < data.Rooms.Count - 1; roomIndex++)
+            for (var roomIndex = 1; roomIndex < data.Rooms.Count - 1; roomIndex++)
             {
                 var validEntrances = 0;
                 var allEntrancesRenderable = true;
@@ -296,10 +429,15 @@ namespace Darkfall.World
             var allowDoor = depth > 1 && ArchitectureFloorScore(seed, depth) % 100 < 16;
             foreach (var threshold in thresholds)
             {
+                if (threshold.RoomIndex == 0 &&
+                    Vector2.Distance(threshold.Position, arrivalThreshold.Position) > .2f) continue;
                 var kind = platformRooms.Contains(threshold.RoomIndex)
                     ? DungeonArchitectureKind.ElevationStairs
                     : DungeonArchitectureKind.OpenGate;
                 var doorLock = DungeonDoorLockKind.None;
+                // Arrival room thresholds are always real unlocked doors. Their blockers also
+                // occlude enemy perception/projectiles until the player chooses to leave safety.
+                if (threshold.RoomIndex == 0) kind = DungeonArchitectureKind.ClosedDoor;
                 // Doors are punctuation, not wallpaper. At most one ordinary floor threshold is
                 // promoted to a stateful door, and shallow first floors stay immediately readable.
                 if (allowDoor && !doorPlaced && kind == DungeonArchitectureKind.OpenGate && threshold.Width == 2 &&

@@ -67,7 +67,83 @@ namespace Darkfall.World
             var mesh = MakeMesh("Continuous Isometric Floor", vertices, triangles, colors, uvs);
             var material = CreateTexturedMaterial(profile.FloorTexture);
             CreateLayer(mesh.name, mesh, material, -20);
+            BuildRaisedFloorCaps(data);
             BuildElevationRisers(data);
+        }
+
+        private void BuildRaisedFloorCaps(DungeonData data)
+        {
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            var colors = new List<Color>();
+            var uvs = new List<Vector2>();
+            var seamVertices = new List<Vector3>();
+            var seamTriangles = new List<int>();
+            var seamColors = new List<Color>();
+            var seamUvs = new List<Vector2>();
+            const float uvScale = .08f;
+            for (var x = 0; x < data.Width; x++)
+            for (var y = 0; y < data.Height; y++)
+            {
+                var level = data.ElevationLevel(x, y);
+                if (level <= 0) continue;
+                var height = level * DungeonData.ElevationStepHeight;
+                var index = vertices.Count;
+                var logical = new[]
+                {
+                    new Vector2(x, y), new Vector2(x + 1, y),
+                    new Vector2(x + 1, y + 1), new Vector2(x, y + 1)
+                };
+                foreach (var point in logical)
+                {
+                    var projected = IsoWorld.Project(point);
+                    projected.y += height;
+                    vertices.Add(projected);
+                    uvs.Add(point * uvScale);
+                    colors.Add(profile.FloorTint * RandomTint(x, y));
+                }
+                triangles.Add(index); triangles.Add(index + 2); triangles.Add(index + 1);
+                triangles.Add(index); triangles.Add(index + 3); triangles.Add(index + 2);
+
+                // Even an away-facing ledge needs a graphic seam. Without it, an inaccessible
+                // upper floor reads as ordinary floor behind a wall because its vertical face is
+                // correctly hidden by the cap in this projection.
+                if (data.ElevationLevel(x - 1, y) < level &&
+                    !IsStairRiserOpening(data, new Vector2(x, y + .5f), true))
+                    AddPlatformCapSeam(seamVertices, seamTriangles, seamColors, seamUvs,
+                        new Vector2(x, y), new Vector2(x, y + 1), Vector2.right, height);
+                if (data.ElevationLevel(x + 1, y) < level &&
+                    !IsStairRiserOpening(data, new Vector2(x + 1, y + .5f), true))
+                    AddPlatformCapSeam(seamVertices, seamTriangles, seamColors, seamUvs,
+                        new Vector2(x + 1, y + 1), new Vector2(x + 1, y), Vector2.left, height);
+                if (data.ElevationLevel(x, y - 1) < level &&
+                    !IsStairRiserOpening(data, new Vector2(x + .5f, y), false))
+                    AddPlatformCapSeam(seamVertices, seamTriangles, seamColors, seamUvs,
+                        new Vector2(x + 1, y), new Vector2(x, y), Vector2.up, height);
+                if (data.ElevationLevel(x, y + 1) < level &&
+                    !IsStairRiserOpening(data, new Vector2(x + .5f, y + 1), false))
+                    AddPlatformCapSeam(seamVertices, seamTriangles, seamColors, seamUvs,
+                        new Vector2(x, y + 1), new Vector2(x + 1, y + 1), Vector2.down, height);
+            }
+            if (vertices.Count == 0) return;
+            var mesh = MakeMesh("Raised Platform Upper Floors", vertices, triangles, colors, uvs);
+            CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.FloorTexture), 972);
+            var seamMesh = MakeMesh("Raised Platform Cap Seams", seamVertices, seamTriangles, seamColors, seamUvs);
+            var seamShader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color");
+            var seamMaterial = new Material(seamShader) { color = Color.white };
+            materials.Add(seamMaterial);
+            CreateLayer(seamMesh.name, seamMesh, seamMaterial, 973);
+        }
+
+        private static void AddPlatformCapSeam(List<Vector3> vertices, List<int> triangles,
+            List<Color> colors, List<Vector2> uvs, Vector2 from, Vector2 to, Vector2 inward, float height)
+        {
+            var a = IsoWorld.Project(from) + Vector2.up * height;
+            var b = IsoWorld.Project(to) + Vector2.up * height;
+            var c = IsoWorld.Project(to + inward * .13f) + Vector2.up * height;
+            var d = IsoWorld.Project(from + inward * .13f) + Vector2.up * height;
+            AddScreenQuad(vertices, triangles, colors, uvs, a, b, c, d,
+                new Color(.035f, .026f, .02f, .88f), from, to);
         }
 
         private void BuildElevationRisers(DungeonData data)
@@ -241,17 +317,17 @@ namespace Darkfall.World
                         : new Vector2(coordinate, span.Fixed);
                     if (FeatureReplacesWallModule(data, anchor)) continue;
                     var role = span.Vertical ? "wall-right" : "wall-left";
-                    if (length >= 7 && section >= 2 && section <= length - 3 &&
-                        (section + edgeHash) % 7 == 3)
+                    // Accent files are authored as front-facing facade minisets. They may replace
+                    // only a compatible horizontal wall slot; using them on both axes produced
+                    // the transverse panels seen in the biome audit.
+                    if (!span.Vertical && length >= 8 && section >= 2 && section <= length - 3 &&
+                        (section + edgeHash) % 8 == 3)
                     {
                         var accent = (edgeHash + section) % 3;
-                        // The small lancet/arch asset reads as a doorway at gameplay scale even
-                        // though it is authored as a wall window. Keep passage semantics out of
-                        // decorative wall variation: only solid niches and damaged masonry may
-                        // be selected here. Real openings are emitted by the threshold grammar.
-                        role = accent == 1 ? "wall-broken" : "wall-niche";
+                        role = accent == 0 ? "wall-broken" : accent == 1 ? "wall-niche" : "arcade";
                     }
-                    CreateArchitectureModule(role, anchor, span.Vertical, .985f, moduleIndex++,
+                    var flip = ArchitectureSpriteLibrary.FlipForAxis(profile.Id, role, span.Vertical);
+                    CreateArchitectureModule(role, anchor, flip, .985f, moduleIndex++,
                         data.BoundaryHeight(anchor));
                 }
             }
@@ -386,7 +462,12 @@ namespace Darkfall.World
 
             var visual = new GameObject("Projected Architecture");
             visual.transform.SetParent(owner.transform, false);
-            visual.transform.localScale = new Vector3(horizontalScale > 0f ? horizontalScale : scale, scale, 1f);
+            ArchitectureSpriteLibrary.Placement(profile.Id, role, sprite, out var moduleScale,
+                out var moduleOffset);
+            visual.transform.localPosition = moduleOffset * scale;
+            visual.transform.localScale = new Vector3(
+                (horizontalScale > 0f ? horizontalScale : scale) * moduleScale.x,
+                scale * moduleScale.y, 1f);
 
             // Authored sprites already contain their own material shading. A restrained unlit pass
             // keeps carved detail legible in the global darkness; the lit pass still receives local
@@ -407,8 +488,8 @@ namespace Darkfall.World
             lit.sortingOrder = 1;
             DarkfallRenderMaterials.MakeLit(lit);
 
-            // Share the actor depth plane. The logical x+y position now decides whether the actor
-            // is in front of or behind a wall; the old +40 bias swallowed actors on the near side.
+            // Architecture stays on one depth system so the stair remains joined to both platform
+            // lips. Traversing actors receive their temporary stair-depth boost in IsoVisual.
             visual.AddComponent<IsoVisual>().Initialize(owner.transform, elevation, 1002, false);
         }
 
@@ -508,6 +589,11 @@ namespace Darkfall.World
                 var bounds = data.Rooms[roomIndex].bounds;
                 var hash = ((bounds.x * 73856093) ^ (bounds.y * 19349663) ^
                             (roomIndex * 83492791) ^ (profile.Chapter * 297121507)) & int.MaxValue;
+                if (roomIndex == 0)
+                {
+                    BuildArrivalDecor(data, bounds, hash);
+                    continue;
+                }
                 if (roomIndex % profile.LightEveryRooms == 1)
                 {
                     var lightProp = profile.Id == "ashen-catacombs" ? 2 : (roomIndex % 2 == 0 ? 0 : 8);
@@ -515,57 +601,183 @@ namespace Darkfall.World
                         profile.Id == "ashen-catacombs" ? 1f : .72f, "Biome Light", false, lightDecor);
                 }
 
-                // A Diablo theme room is reserved and decorated as one subject. Pick one wall zone
-                // for this room and build a deterministic cluster around it instead of scattering
-                // unrelated props over every walkable tile.
-                var theme = (hash / 17) % 4;
-                var anchor = ThemeAnchor(bounds, theme);
+                // Theme rooms are authored compositions, not circular noise. Most rooms remain
+                // quiet; selected rooms reserve either a wall bay, a corner, or (rarely) a formal
+                // central landmark. The profile only supplies biome art, so the spatial grammar is
+                // identical for all five biomes.
+                if (roomIndex >= data.Rooms.Count - 1 || bounds.width < 7 || bounds.height < 7 ||
+                    hash % 100 >= Mathf.RoundToInt(46f * profile.DecorDensity))
+                    continue;
+
                 var primary = profile.StructuralProps[(hash / 7) % profile.StructuralProps.Length];
-                if (roomIndex > 0 && roomIndex < data.Rooms.Count - 1 && bounds.width >= 10 && bounds.height >= 9)
-                    CreateProp(data, primary, anchor, .82f + (hash % 3) * .07f,
-                        $"Theme {theme} · Primary", true, structuralDecor);
-
-                var clusterCount = Mathf.Clamp(Mathf.RoundToInt(bounds.width * bounds.height / 48f *
-                    profile.DecorDensity), 2, 6);
-                for (var member = 0; member < clusterCount; member++)
-                {
-                    var angle = (member / (float)clusterCount) * Mathf.PI * 2f + theme * .43f;
-                    var radius = 1.05f + .55f * Hash01(hash + member * 92821);
-                    var position = anchor + new Vector2(Mathf.Cos(angle) * radius,
-                        Mathf.Sin(angle) * radius * .72f);
-                    position.x = Mathf.Clamp(position.x, bounds.xMin + 1.1f, bounds.xMax - 1.1f);
-                    position.y = Mathf.Clamp(position.y, bounds.yMin + 1.1f, bounds.yMax - 1.1f);
-                    var propIndex = profile.ClutterProps[(hash / (member + 3) + member * 5) %
-                                                         profile.ClutterProps.Length];
-                    CreateProp(data, propIndex, position, .48f + member % 3 * .08f,
-                        $"Theme {theme} · Detail", false, clutterDecor);
-                }
+                if (bounds.width >= 13 && bounds.height >= 11 && (hash / 31) % 7 == 0)
+                    BuildCentralTheme(data, bounds, hash, primary);
+                else if ((hash / 17 & 1) == 0)
+                    BuildWallTheme(data, bounds, hash, primary);
+                else
+                    BuildCornerTheme(data, bounds, hash, primary);
             }
         }
 
-        private static Vector2 ThemeAnchor(RectInt bounds, int theme)
+        private struct ThemeBay
         {
-            switch (theme)
+            public Vector2 Anchor;
+            public Vector2 Tangent;
+            public Vector2 Inward;
+
+            public ThemeBay(Vector2 anchor, Vector2 tangent, Vector2 inward)
             {
-                case 0: return new Vector2(bounds.center.x, bounds.yMax - 1.35f);
-                case 1: return new Vector2(bounds.xMax - 1.35f, bounds.center.y);
-                case 2: return new Vector2(bounds.center.x, bounds.yMin + 1.35f);
-                default: return new Vector2(bounds.xMin + 1.35f, bounds.center.y);
+                Anchor = anchor;
+                Tangent = tangent;
+                Inward = inward;
             }
         }
 
-        private void CreateProp(DungeonData data, int index, Vector2 position, float scale, string objectName, bool blocks,
+        private void BuildWallTheme(DungeonData data, RectInt bounds, int hash, int primary)
+        {
+            if (!TryChooseWallBay(data, bounds, hash, out var bay)) return;
+            if (!CreateProp(data, primary, bay.Anchor, .82f + hash % 3 * .06f,
+                    "Wall Theme · Primary", true, structuralDecor)) return;
+
+            // A readable triptych: two companions follow the wall and an offering sits in front.
+            // Details are subordinate to the primary and are never spawned if it failed.
+            PlaceThemeDetail(data, bounds, hash, bay.Anchor - bay.Tangent * 1.35f, 0);
+            PlaceThemeDetail(data, bounds, hash, bay.Anchor + bay.Tangent * 1.35f, 1);
+            if ((hash / 13) % 3 != 0)
+                PlaceThemeDetail(data, bounds, hash, bay.Anchor + bay.Inward * 1.05f, 2);
+        }
+
+        private void BuildCornerTheme(DungeonData data, RectInt bounds, int hash, int primary)
+        {
+            var corners = new[]
+            {
+                new ThemeBay(new Vector2(bounds.xMin + 1.35f, bounds.yMin + 1.35f), Vector2.right, Vector2.up),
+                new ThemeBay(new Vector2(bounds.xMax - 1.35f, bounds.yMin + 1.35f), Vector2.left, Vector2.up),
+                new ThemeBay(new Vector2(bounds.xMax - 1.35f, bounds.yMax - 1.35f), Vector2.left, Vector2.down),
+                new ThemeBay(new Vector2(bounds.xMin + 1.35f, bounds.yMax - 1.35f), Vector2.right, Vector2.down)
+            };
+            ThemeBay chosen = default;
+            var bestScore = float.MinValue;
+            for (var offset = 0; offset < corners.Length; offset++)
+            {
+                var candidate = corners[(hash + offset) % corners.Length];
+                var score = ThemeClearance(data, bounds, candidate.Anchor, true);
+                if (score <= bestScore) continue;
+                bestScore = score;
+                chosen = candidate;
+            }
+            if (bestScore < 1.85f || !CreateProp(data, primary, chosen.Anchor, .78f,
+                    "Corner Theme · Primary", true, structuralDecor)) return;
+            PlaceThemeDetail(data, bounds, hash, chosen.Anchor + chosen.Tangent * 1.2f, 0);
+            PlaceThemeDetail(data, bounds, hash, chosen.Anchor + chosen.Inward * 1.2f, 1);
+        }
+
+        private void BuildCentralTheme(DungeonData data, RectInt bounds, int hash, int primary)
+        {
+            var center = (Vector2)bounds.center;
+            if (ThemeClearance(data, bounds, center, false) < 2.5f ||
+                !CreateProp(data, primary, center, .9f, "Central Theme · Primary", true, structuralDecor))
+                return;
+
+            // Deliberate axial arrangement, leaving broad diagonal combat lanes around it.
+            var axis = (hash & 1) == 0 ? Vector2.right : Vector2.up;
+            PlaceThemeDetail(data, bounds, hash, center - axis * 1.65f, 0);
+            PlaceThemeDetail(data, bounds, hash, center + axis * 1.65f, 1);
+        }
+
+        private bool TryChooseWallBay(DungeonData data, RectInt bounds, int hash, out ThemeBay chosen)
+        {
+            var candidates = new[]
+            {
+                new ThemeBay(new Vector2(bounds.center.x, bounds.yMax - 1.25f), Vector2.right, Vector2.down),
+                new ThemeBay(new Vector2(bounds.xMax - 1.25f, bounds.center.y), Vector2.up, Vector2.left),
+                new ThemeBay(new Vector2(bounds.center.x, bounds.yMin + 1.25f), Vector2.right, Vector2.up),
+                new ThemeBay(new Vector2(bounds.xMin + 1.25f, bounds.center.y), Vector2.up, Vector2.right)
+            };
+            chosen = default;
+            var bestScore = float.MinValue;
+            for (var offset = 0; offset < candidates.Length; offset++)
+            {
+                var candidate = candidates[(hash + offset) % candidates.Length];
+                var score = ThemeClearance(data, bounds, candidate.Anchor, true);
+                score = Mathf.Min(score, ThemeClearance(data, bounds,
+                    candidate.Anchor - candidate.Tangent * 1.35f, true));
+                score = Mathf.Min(score, ThemeClearance(data, bounds,
+                    candidate.Anchor + candidate.Tangent * 1.35f, true));
+                if (score <= bestScore) continue;
+                bestScore = score;
+                chosen = candidate;
+            }
+            return bestScore >= 1.85f;
+        }
+
+        private float ThemeClearance(DungeonData data, RectInt bounds, Vector2 position, bool keepCenterClear)
+        {
+            if (position.x < bounds.xMin + .8f || position.x > bounds.xMax - .8f ||
+                position.y < bounds.yMin + .8f || position.y > bounds.yMax - .8f ||
+                !data.IsFloor(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y))) return -1f;
+            if (keepCenterClear && Vector2.Distance(position, bounds.center) < 2.15f) return -1f;
+            var clearance = Mathf.Min(Vector2.Distance(position, data.CellCenter(data.StartCell)),
+                Vector2.Distance(position, data.CellCenter(data.ExitCell)));
+            foreach (var feature in data.Architecture)
+                clearance = Mathf.Min(clearance, Vector2.Distance(position, feature.Position));
+            return clearance;
+        }
+
+        private void PlaceThemeDetail(DungeonData data, RectInt bounds, int hash, Vector2 position, int member)
+        {
+            if (ThemeClearance(data, bounds, position, false) < 1.65f) return;
+            var propIndex = profile.ClutterProps[(hash / (member + 3) + member * 5) % profile.ClutterProps.Length];
+            CreateProp(data, propIndex, position, .48f + member % 2 * .08f,
+                "Theme Detail", false, clutterDecor);
+        }
+
+        private void BuildArrivalDecor(DungeonData data, RectInt bounds, int hash)
+        {
+            // The arrival room is a deliberately quiet miniset: recognizable biome dressing,
+            // enough light to read the only door, and no blocking altar or random clutter in the
+            // player's first steps. Enemy spawning already excludes room zero.
+            var center = (Vector2)bounds.center;
+            var doorPosition = center + Vector2.down;
+            foreach (var feature in data.Architecture)
+                if (feature.Kind == DungeonArchitectureKind.ClosedDoor &&
+                    feature.Position.x >= bounds.xMin - .1f && feature.Position.x <= bounds.xMax + .1f &&
+                    feature.Position.y >= bounds.yMin - .1f && feature.Position.y <= bounds.yMax + .1f)
+                {
+                    doorPosition = feature.Position;
+                    break;
+                }
+            var doorDelta = doorPosition - center;
+            var shrinePosition = center;
+            if (Mathf.Abs(doorDelta.x) >= Mathf.Abs(doorDelta.y))
+                shrinePosition.x = doorDelta.x >= 0f ? bounds.xMin + 1.15f : bounds.xMax - 1.15f;
+            else
+                shrinePosition.y = doorDelta.y >= 0f ? bounds.yMin + 1.15f : bounds.yMax - 1.15f;
+            var shrineIndex = profile.StructuralProps[(hash / 7) % profile.StructuralProps.Length];
+            CreateProp(data, shrineIndex, shrinePosition, .72f,
+                "Arrival Shrine · " + profile.Id, false, structuralDecor);
+
+            var lightProp = profile.Id == "ashen-catacombs" ? 2 : ((hash & 1) == 0 ? 0 : 8);
+            CreateProp(data, lightProp, new Vector2(bounds.xMin + 1.05f, bounds.yMin + 1.05f),
+                profile.Id == "ashen-catacombs" ? .76f : .62f, "Arrival Vigil", false, lightDecor);
+
+            var offeringIndex = profile.ClutterProps[(hash / 11) % profile.ClutterProps.Length];
+            CreateProp(data, offeringIndex, new Vector2(bounds.xMax - 1.05f, bounds.yMin + 1.05f), .5f,
+                "Arrival Offering", false, clutterDecor);
+        }
+
+        private bool CreateProp(DungeonData data, int index, Vector2 position, float scale, string objectName, bool blocks,
             Transform group)
         {
-            if (!data.IsFloor(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y))) return;
+            if (!data.IsFloor(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y))) return false;
             foreach (var feature in data.Architecture)
-                if (Vector2.Distance(position, feature.Position) < 1.6f) return;
+                if (Vector2.Distance(position, feature.Position) < 1.6f) return false;
             if (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 1.25f ||
-                Vector2.Distance(position, data.CellCenter(data.ExitCell)) < 1.25f) return;
+                Vector2.Distance(position, data.CellCenter(data.ExitCell)) < 1.25f) return false;
             if (blocks && (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 2f ||
                            Vector2.Distance(position, data.CellCenter(data.ExitCell)) < 2f))
                 blocks = false;
-            if (blocks && !data.TryAddObstaclePreservingRoutes(position)) return;
+            if (blocks && !data.TryAddObstaclePreservingRoutes(position)) return false;
             var prop = new GameObject(objectName + " " + index);
             prop.transform.SetParent(group, false);
             prop.transform.position = position;
@@ -606,6 +818,7 @@ namespace Darkfall.World
                 AddFlame(visual.transform, new Vector2(.37f, .13f), .09f, 9);
                 data.AddLightSource(position + new Vector2(0, .2f), profile.FireTint * new Color(1, 1, 1, .62f), 3.6f, .1f);
             }
+            return true;
         }
 
         private static Transform CreateGroup(Transform parent, string name)
