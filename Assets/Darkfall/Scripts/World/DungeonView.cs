@@ -190,16 +190,17 @@ namespace Darkfall.World
         private void BuildArchitectureModules(DungeonContour contour, DungeonData data)
         {
             var moduleIndex = 0;
-            var cornerPoints = new HashSet<Vector2Int>();
+            var allCornerPoints = new HashSet<Vector2Int>();
             foreach (var segment in contour.Segments)
             {
                 var from = Quantize(segment.From);
                 var to = Quantize(segment.To);
                 var fromBits = CountMaskBits(FloorQuadrantMask(data, segment.From));
                 var toBits = CountMaskBits(FloorQuadrantMask(data, segment.To));
-                if (fromBits == 1 || fromBits == 3) cornerPoints.Add(from);
-                if (toBits == 1 || toBits == 3) cornerPoints.Add(to);
+                if (fromBits == 1 || fromBits == 3) allCornerPoints.Add(from);
+                if (toBits == 1 || toBits == 3) allCornerPoints.Add(to);
             }
+            var cornerPoints = new HashSet<Vector2Int>(allCornerPoints);
             cornerPoints.RemoveWhere(pointKey =>
             {
                 var point = new Vector2(pointKey.x * .5f, pointKey.y * .5f);
@@ -261,6 +262,7 @@ namespace Darkfall.World
                 CreateArchitectureModule(bits == 1 ? "corner-inner" : "corner-outer",
                     point, false, 1f, moduleIndex++, data.BoundaryHeight(point));
             }
+
         }
 
         private static void AddWallWindowObstacle(DungeonData data, Vector2 anchor, bool vertical)
@@ -368,10 +370,25 @@ namespace Darkfall.World
                 }
                 // Ordinary circulation is an empty threshold. The arcade artwork is a small
                 // double lancet wall module and must never masquerade as a walk-through gate.
-                if (feature.Kind == DungeonArchitectureKind.OpenGate) continue;
+                if (feature.Kind == DungeonArchitectureKind.OpenGate)
+                {
+                    CreateOpenPassageJambs(data, feature, ref featureIndex);
+                    continue;
+                }
                 CreateArchitectureModule("stairs", feature.Position, feature.Vertical, 1.03f,
                     featureIndex++, 0f);
             }
+        }
+
+        private void CreateOpenPassageJambs(DungeonData data, DungeonArchitectureFeature feature,
+            ref int featureIndex)
+        {
+            var tangent = feature.Vertical ? Vector2.up : Vector2.right;
+            var distance = feature.Width * .5f + .04f;
+            CreateArchitectureModule("column", feature.Position - tangent * distance, false, .58f,
+                featureIndex++, data.BoundaryHeight(feature.Position - tangent * distance));
+            CreateArchitectureModule("column", feature.Position + tangent * distance, false, .58f,
+                featureIndex++, data.BoundaryHeight(feature.Position + tangent * distance));
         }
 
         private void CreateArchitectureModule(string role, Vector2 anchor, bool flipX, float scale, int index,

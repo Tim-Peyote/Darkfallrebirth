@@ -69,7 +69,9 @@ namespace Darkfall.World
 
     public sealed class DungeonData
     {
-        public const float ElevationStepHeight = .56f;
+        // Matches the authored stair's upper landing (with the runtime 1.03 module scale). The
+        // former .56 value aligned the raised floor with the middle steps instead of the landing.
+        public const float ElevationStepHeight = .9f;
         private readonly bool[,] floor;
         private readonly bool[,] explored;
         private readonly bool[,] visible;
