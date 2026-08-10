@@ -20,23 +20,40 @@ namespace Darkfall.Core
             if (atlasName == null) return Prop(index);
             if (!BiomeProps.TryGetValue(atlasName, out var sprites))
             {
-                var atlas = Resources.Load<Texture2D>("Sprites/Environment/Biomes/" + atlasName + "-decor");
-                if (atlas == null) return Prop(index);
-                atlas.filterMode = FilterMode.Bilinear;
-                atlas.wrapMode = TextureWrapMode.Clamp;
                 sprites = new Sprite[Columns * Rows];
-                var width = atlas.width / (float)Columns;
-                var height = atlas.height / (float)Rows;
-                for (var row = 0; row < Rows; row++)
-                for (var column = 0; column < Columns; column++)
+                for (var i = 0; i < sprites.Length; i++)
                 {
-                    var rect = new Rect(column * width, atlas.height - (row + 1) * height, width, height);
-                    sprites[row * Columns + column] = Sprite.Create(atlas, rect, new Vector2(.5f, .18f), 300f,
+                    var individual = Resources.Load<Texture2D>(
+                        $"Sprites/Environment/Biomes/{atlasName}/decor-{i:00}");
+                    if (individual == null) continue;
+                    individual.filterMode = FilterMode.Bilinear;
+                    individual.wrapMode = TextureWrapMode.Clamp;
+                    sprites[i] = Sprite.Create(individual,
+                        new Rect(0, 0, individual.width, individual.height), new Vector2(.5f, .18f), 300f,
                         0, SpriteMeshType.Tight);
+                }
+                // Keep the original source sheet as a compatibility fallback while every caller
+                // moves to replaceable one-file modules. Runtime art never depends on re-slicing it.
+                var atlas = Resources.Load<Texture2D>("Sprites/Environment/Biomes/" + atlasName + "-decor");
+                if (atlas != null)
+                {
+                    atlas.filterMode = FilterMode.Bilinear;
+                    atlas.wrapMode = TextureWrapMode.Clamp;
+                    var width = atlas.width / (float)Columns;
+                    var height = atlas.height / (float)Rows;
+                    for (var row = 0; row < Rows; row++)
+                    for (var column = 0; column < Columns; column++)
+                    {
+                        var cellIndex = row * Columns + column;
+                        if (sprites[cellIndex] != null) continue;
+                        var rect = new Rect(column * width, atlas.height - (row + 1) * height, width, height);
+                        sprites[cellIndex] = Sprite.Create(atlas, rect, new Vector2(.5f, .18f), 300f,
+                            0, SpriteMeshType.Tight);
+                    }
                 }
                 BiomeProps[atlasName] = sprites;
             }
-            return sprites[Mathf.Clamp(index, 0, sprites.Length - 1)];
+            return sprites[Mathf.Clamp(index, 0, sprites.Length - 1)] ?? Prop(index);
         }
 
         public static Sprite Prop(int index)

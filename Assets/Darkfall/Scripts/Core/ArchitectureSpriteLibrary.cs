@@ -62,7 +62,10 @@ namespace Darkfall.Core
             }
 
             scale = new Vector2(reference.width / ink.width, reference.height / ink.height);
-            var referencePivot = new Vector2(ReferenceCanvas * .5f, ReferenceCanvas * .08f);
+            // The logical anchor is the first opaque pixel of the plinth. Anchoring to an
+            // arbitrary percentage of the source canvas leaves a transparent strip under the
+            // module and makes the whole wall read as suspended above the floor.
+            var referencePivot = new Vector2(ReferenceCanvas * .5f, reference.yMin);
             var sourcePivot = new Vector2(sprite.texture.width * .5f, sprite.texture.height * .08f);
             var desired = new Vector2(reference.center.x - referencePivot.x,
                 reference.yMin - referencePivot.y) / PixelsPerUnit;

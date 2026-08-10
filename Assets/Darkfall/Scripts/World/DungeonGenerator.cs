@@ -74,6 +74,7 @@ namespace Darkfall.World
             }
 
             MakeFarthestRoomLast(rooms);
+            AssignRoomThemes(rooms, biomeStyle, seed);
             var extraConnections = Mathf.Min(5, Mathf.Max(1, rooms.Count / 4));
             for (var i = 0; i < extraConnections; i++)
             {
@@ -91,7 +92,118 @@ namespace Darkfall.World
 
             var dungeon = new DungeonData(floor, rooms);
             BuildArchitectureGrammar(dungeon, depth, seed, arrivalThreshold);
+            BuildHazardGrammar(dungeon, biomeStyle, depth, seed);
             return dungeon;
+        }
+
+        private static void AssignRoomThemes(List<DungeonRoom> rooms, int biomeStyle, int seed)
+        {
+            for (var i = 0; i < rooms.Count; i++)
+            {
+                var room = rooms[i];
+                if (i == 0) room.theme = DungeonRoomTheme.Arrival;
+                else if (i == rooms.Count - 1) room.theme = DungeonRoomTheme.Exit;
+                else
+                {
+                    var score = ArchitectureRoomScore(i, seed ^ biomeStyle * 486187739);
+                    var common = new[]
+                    {
+                        DungeonRoomTheme.Shrine, DungeonRoomTheme.Reliquary,
+                        DungeonRoomTheme.Ossuary, DungeonRoomTheme.Armory,
+                        DungeonRoomTheme.Ritual
+                    };
+                    room.theme = score % 5 == 0
+                        ? biomeStyle == 1 ? DungeonRoomTheme.Forge
+                        : biomeStyle == 2 ? DungeonRoomTheme.Cistern
+                        : biomeStyle == 3 ? DungeonRoomTheme.Garden
+                        : biomeStyle == 4 ? DungeonRoomTheme.Observatory
+                        : DungeonRoomTheme.Ossuary
+                        : common[(score / 7) % common.Length];
+                }
+                rooms[i] = room;
+            }
+        }
+
+        private static void BuildHazardGrammar(DungeonData data, int biomeStyle, int depth, int seed)
+        {
+            // Hazards are coherent tile fields. A mask derived from four neighbours selects
+            // straight, bend, bank, end and island modules, so a river can never become a pile of
+            // unrelated decals. Shallow floors keep them rare and the protected arrival/exit
+            // rooms are excluded.
+            var candidates = new List<int>();
+            for (var i = 1; i < data.Rooms.Count - 1; i++)
+            {
+                var bounds = data.Rooms[i].bounds;
+                if (bounds.width >= 8 && bounds.height >= 8 && HazardFitsTheme(data.Rooms[i].theme, biomeStyle))
+                    candidates.Add(i);
+            }
+            // A chapter can legitimately roll no signature room; topology still gets a field,
+            // but never by borrowing the protected arrival or exit.
+            if (candidates.Count == 0)
+                for (var i = 1; i < data.Rooms.Count - 1; i++)
+                    if (data.Rooms[i].bounds.width >= 8 && data.Rooms[i].bounds.height >= 8) candidates.Add(i);
+            if (candidates.Count == 0) return;
+            var budget = Mathf.Clamp(depth / 12 + 1, 1, 3);
+            var random = new System.Random(seed ^ 0x6A09E667);
+            for (var field = 0; field < budget && candidates.Count > 0; field++)
+            {
+                var pick = random.Next(candidates.Count);
+                var roomIndex = candidates[pick];
+                candidates.RemoveAt(pick);
+                var bounds = data.Rooms[roomIndex].bounds;
+                var cells = new HashSet<Vector2Int>();
+                var path = new List<Vector2Int>();
+                var current = new Vector2Int(random.Next(bounds.xMin + 2, bounds.xMax - 2),
+                    random.Next(bounds.yMin + 2, bounds.yMax - 2));
+                var targetLength = random.Next(5, Mathf.Min(14, Mathf.Max(6, bounds.width + bounds.height - 5)));
+                var river = random.Next(100) < 58;
+                var primaryAxis = random.Next(2) == 0 ? Vector2Int.right : Vector2Int.up;
+                for (var step = 0; step < targetLength; step++)
+                {
+                    cells.Add(current);
+                    path.Add(current);
+                    if (!river && random.Next(100) < 45)
+                    {
+                        var side = current + (random.Next(2) == 0 ? Vector2Int.right : Vector2Int.up);
+                        if (bounds.Contains(side)) cells.Add(side);
+                    }
+                    var direction = river && random.Next(100) < 68 ? primaryAxis :
+                        new[] { Vector2Int.left, Vector2Int.right, Vector2Int.down, Vector2Int.up }[random.Next(4)];
+                    var next = current + direction;
+                    if (next.x < bounds.xMin + 1 || next.x >= bounds.xMax - 1 ||
+                        next.y < bounds.yMin + 1 || next.y >= bounds.yMax - 1)
+                        primaryAxis = -primaryAxis;
+                    else current = next;
+                }
+
+                var kind = (DungeonHazardKind)Mathf.Clamp(biomeStyle, 0, 4);
+                var damage = kind == DungeonHazardKind.Lava ? 16f :
+                    kind == DungeonHazardKind.VoidRift ? 13f : 9f;
+                var crossing = river && path.Count >= 7 ? path[path.Count / 2] : new Vector2Int(-1, -1);
+                foreach (var cell in cells)
+                {
+                    var connections = DungeonHazardConnections.None;
+                    if (cells.Contains(cell + Vector2Int.left)) connections |= DungeonHazardConnections.West;
+                    if (cells.Contains(cell + Vector2Int.right)) connections |= DungeonHazardConnections.East;
+                    if (cells.Contains(cell + Vector2Int.down)) connections |= DungeonHazardConnections.South;
+                    if (cells.Contains(cell + Vector2Int.up)) connections |= DungeonHazardConnections.North;
+                    var safeCrossing = cell == crossing;
+                    data.AddHazard(new DungeonHazardCell(cell, kind, connections,
+                        safeCrossing ? 0f : damage, safeCrossing));
+                }
+            }
+        }
+
+        private static bool HazardFitsTheme(DungeonRoomTheme theme, int biomeStyle)
+        {
+            switch (biomeStyle)
+            {
+                case 1: return theme == DungeonRoomTheme.Forge || theme == DungeonRoomTheme.Ritual;
+                case 2: return theme == DungeonRoomTheme.Cistern || theme == DungeonRoomTheme.Ritual;
+                case 3: return theme == DungeonRoomTheme.Garden || theme == DungeonRoomTheme.Ossuary;
+                case 4: return theme == DungeonRoomTheme.Observatory || theme == DungeonRoomTheme.Ritual;
+                default: return theme == DungeonRoomTheme.Ossuary || theme == DungeonRoomTheme.Ritual;
+            }
         }
 
         private static void EnsureRoomConnectivity(bool[,] floor, List<DungeonRoom> rooms, System.Random random)

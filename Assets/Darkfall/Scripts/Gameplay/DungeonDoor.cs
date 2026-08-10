@@ -174,7 +174,6 @@ namespace Darkfall.Gameplay
                 return true;
             }
             openingStarted = true;
-            GameManager.Instance?.Audio.PlayEffect("Inventory_open");
             return true;
         }
 

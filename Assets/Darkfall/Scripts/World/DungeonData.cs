@@ -4,11 +4,70 @@ using UnityEngine;
 
 namespace Darkfall.World
 {
+    public enum DungeonRoomTheme
+    {
+        None,
+        Arrival,
+        Exit,
+        Shrine,
+        Reliquary,
+        Ossuary,
+        Armory,
+        Ritual,
+        Cistern,
+        Forge,
+        Garden,
+        Observatory
+    }
+
     [Serializable]
     public struct DungeonRoom
     {
         public RectInt bounds;
+        public DungeonRoomTheme theme;
         public Vector2Int Center => new Vector2Int(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    }
+
+    public enum DungeonHazardKind
+    {
+        EmberSeep,
+        Lava,
+        Brine,
+        Bile,
+        VoidRift
+    }
+
+    [Flags]
+    public enum DungeonHazardConnections : byte
+    {
+        None = 0,
+        West = 1,
+        East = 2,
+        South = 4,
+        North = 8
+    }
+
+    /// <summary>
+    /// One logical hazard tile. Connections select the authored centre/edge/corner/end sprite;
+    /// gameplay damage is deliberately independent from that visual selection.
+    /// </summary>
+    public readonly struct DungeonHazardCell
+    {
+        public readonly Vector2Int Cell;
+        public readonly DungeonHazardKind Kind;
+        public readonly DungeonHazardConnections Connections;
+        public readonly float DamagePerSecond;
+        public readonly bool SafeCrossing;
+
+        public DungeonHazardCell(Vector2Int cell, DungeonHazardKind kind,
+            DungeonHazardConnections connections, float damagePerSecond, bool safeCrossing = false)
+        {
+            Cell = cell;
+            Kind = kind;
+            Connections = connections;
+            DamagePerSecond = damagePerSecond;
+            SafeCrossing = safeCrossing;
+        }
     }
 
     public readonly struct DungeonLightSource
@@ -82,11 +141,13 @@ namespace Darkfall.World
         private int nextDynamicObstacleId = 1;
         private readonly List<DungeonLightSource> lightSources = new List<DungeonLightSource>();
         private readonly List<DungeonArchitectureFeature> architecture = new List<DungeonArchitectureFeature>();
+        private readonly List<DungeonHazardCell> hazards = new List<DungeonHazardCell>();
         public int Width { get; }
         public int Height { get; }
         public IReadOnlyList<DungeonRoom> Rooms { get; }
         public IReadOnlyList<DungeonLightSource> LightSources => lightSources;
         public IReadOnlyList<DungeonArchitectureFeature> Architecture => architecture;
+        public IReadOnlyList<DungeonHazardCell> Hazards => hazards;
         public Vector2Int StartCell => Rooms[0].Center;
         public Vector2Int ExitCell => Rooms[Rooms.Count - 1].Center;
 
@@ -167,6 +228,23 @@ namespace Darkfall.World
         }
 
         internal void AddArchitecture(DungeonArchitectureFeature feature) => architecture.Add(feature);
+
+        internal void AddHazard(DungeonHazardCell hazard) => hazards.Add(hazard);
+
+        public float HazardDamageAt(Vector2 point)
+        {
+            var cell = new Vector2Int(Mathf.FloorToInt(point.x), Mathf.FloorToInt(point.y));
+            for (var i = 0; i < hazards.Count; i++)
+                if (hazards[i].Cell == cell) return hazards[i].DamagePerSecond;
+            return 0f;
+        }
+
+        public bool IsHazardCell(int x, int y)
+        {
+            for (var i = 0; i < hazards.Count; i++)
+                if (hazards[i].Cell.x == x && hazards[i].Cell.y == y) return true;
+            return false;
+        }
 
         internal void AddArchitectureObstacle(Rect area) => architectureObstacles.Add(area);
 

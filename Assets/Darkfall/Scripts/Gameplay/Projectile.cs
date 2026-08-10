@@ -45,7 +45,8 @@ namespace Darkfall.Gameplay
 
         private void Finish(bool impact)
         {
-            if (impact) CombatVfx.SpawnImpact(transform.position, visualStyle, color, .82f);
+            if (impact)
+                CombatVfx.SpawnImpact(transform.position, visualStyle, color, .82f);
             Destroy(gameObject);
         }
     }

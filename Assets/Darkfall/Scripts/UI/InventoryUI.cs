@@ -90,10 +90,16 @@ namespace Darkfall.UI
 
         private void SetVisible(bool value)
         {
+            if (visible == value)
+            {
+                if (value) Refresh();
+                return;
+            }
             visible = value;
             root.SetActive(value);
             if (!value && contextLayer != null) contextLayer.SetActive(false);
             game.PauseForModal(value);
+            game.Audio.PlayEffect("Inventory_open");
             if (value) Refresh();
         }
 

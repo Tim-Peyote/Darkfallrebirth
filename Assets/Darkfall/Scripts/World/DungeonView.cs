@@ -15,6 +15,8 @@ namespace Darkfall.World
         private Transform structuralDecor;
         private Transform lightDecor;
         private Transform clutterDecor;
+        private readonly Dictionary<DungeonHazardKind, Sprite> hazardBodySprites =
+            new Dictionary<DungeonHazardKind, Sprite>();
 
         public void Build(DungeonData data, int depth = 1)
         {
@@ -24,14 +26,132 @@ namespace Darkfall.World
             var contour = DungeonContour.Build(data);
             architectureDecor = CreateGroup(transform, "Architecture · " + profile.Id);
             BuildContourFloor(contour, data);
+            BuildHazardSurfaces(data);
             BuildContourWalls(contour, data);
-            BuildContourShadows(contour);
+            // Authored wall modules already contain a grounded plinth and receive local light.
+            // A contour-wide 2D caster projects large black wedges across the floor because it
+            // cannot represent the wall's actual height. Keep it only for the legacy mesh fallback.
+            if (!ArchitectureSpriteLibrary.HasBiome(profile.Id)) BuildContourShadows(contour);
             var decorRoot = new GameObject("Decor · " + profile.Id).transform;
             decorRoot.SetParent(transform, false);
             structuralDecor = CreateGroup(decorRoot, "Structural");
             lightDecor = CreateGroup(decorRoot, "Light Sources");
             clutterDecor = CreateGroup(decorRoot, "Clutter");
             BuildDecor(data);
+        }
+
+        private void BuildHazardSurfaces(DungeonData data)
+        {
+            if (data.Hazards.Count == 0) return;
+            var authoredRoot = CreateGroup(transform, "Hazard Modules · " + profile.Id);
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            var colors = new List<Color>();
+            var uvs = new List<Vector2>();
+            foreach (var hazard in data.Hazards)
+            {
+                var x = hazard.Cell.x;
+                var y = hazard.Cell.y;
+                if (hazard.Connections == (DungeonHazardConnections.West | DungeonHazardConnections.East |
+                                           DungeonHazardConnections.South | DungeonHazardConnections.North) &&
+                    CreateAuthoredHazardBody(authoredRoot, hazard, data))
+                    continue;
+                var shape = new List<Vector2>
+                {
+                    new Vector2(x + .18f, y + .06f), new Vector2(x + .82f, y + .06f),
+                    new Vector2(x + .94f, y + .18f), new Vector2(x + .94f, y + .82f),
+                    new Vector2(x + .82f, y + .94f), new Vector2(x + .18f, y + .94f),
+                    new Vector2(x + .06f, y + .82f), new Vector2(x + .06f, y + .18f)
+                };
+                if ((hazard.Connections & DungeonHazardConnections.West) != 0)
+                { shape[6] = new Vector2(x, y + .82f); shape[7] = new Vector2(x, y + .18f); }
+                if ((hazard.Connections & DungeonHazardConnections.East) != 0)
+                { shape[2] = new Vector2(x + 1, y + .18f); shape[3] = new Vector2(x + 1, y + .82f); }
+                if ((hazard.Connections & DungeonHazardConnections.South) != 0)
+                { shape[0] = new Vector2(x + .18f, y); shape[1] = new Vector2(x + .82f, y); }
+                if ((hazard.Connections & DungeonHazardConnections.North) != 0)
+                { shape[4] = new Vector2(x + .82f, y + 1); shape[5] = new Vector2(x + .18f, y + 1); }
+                AddHazardPolygon(vertices, triangles, colors, uvs, shape,
+                    hazard.SafeCrossing
+                        ? Color.Lerp(profile.FloorTint, profile.WallTint, .65f) * 1.18f
+                        : HazardColor(hazard.Kind),
+                    data.SurfaceHeight(new Vector2(x + .5f, y + .5f)) + .008f);
+            }
+            var mesh = MakeMesh("Connected Biome Hazards", vertices, triangles, colors, uvs);
+            CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.FloorTexture), -8);
+        }
+
+        private bool CreateAuthoredHazardBody(Transform parent, DungeonHazardCell hazard, DungeonData data)
+        {
+            if (!hazardBodySprites.TryGetValue(hazard.Kind, out var sprite))
+            {
+                var texture = Resources.Load<Texture2D>(HazardResourceFolder(hazard.Kind) + "/body-4way-01");
+                if (texture == null) return false;
+                texture.filterMode = FilterMode.Bilinear;
+                texture.wrapMode = TextureWrapMode.Clamp;
+                sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                    new Vector2(.5f, .5f), 345f, 0, SpriteMeshType.Tight);
+                hazardBodySprites[hazard.Kind] = sprite;
+            }
+            var module = new GameObject(hazard.Kind + " Body · 4-way");
+            module.transform.SetParent(parent, false);
+            module.transform.position = IsoWorld.Project(hazard.Cell + new Vector2(.5f, .5f)) +
+                                        Vector2.up * (data.SurfaceHeight(hazard.Cell + new Vector2(.5f, .5f)) + .008f);
+            var renderer = module.AddComponent<SpriteRenderer>();
+            renderer.sprite = sprite;
+            renderer.sortingOrder = -8;
+            DarkfallRenderMaterials.MakeLit(renderer);
+            return true;
+        }
+
+        private static string HazardResourceFolder(DungeonHazardKind kind)
+        {
+            const string root = "Sprites/Environment/Hazards/";
+            switch (kind)
+            {
+                case DungeonHazardKind.EmberSeep: return root + "ashen-catacombs";
+                case DungeonHazardKind.Lava: return root + "ember-vaults";
+                case DungeonHazardKind.Brine: return root + "drowned-crypt";
+                case DungeonHazardKind.Bile: return root + "charnel-gardens";
+                case DungeonHazardKind.VoidRift: return root + "obsidian-sanctum";
+                default: return root + "ashen-catacombs";
+            }
+        }
+
+        private static void AddHazardPolygon(List<Vector3> vertices, List<int> triangles,
+            List<Color> colors, List<Vector2> uvs, IReadOnlyList<Vector2> shape, Color color, float height)
+        {
+            var centerLogical = Vector2.zero;
+            for (var i = 0; i < shape.Count; i++) centerLogical += shape[i];
+            centerLogical /= shape.Count;
+            var center = vertices.Count;
+            vertices.Add(IsoWorld.Project(centerLogical) + Vector2.up * height);
+            colors.Add(color);
+            uvs.Add(centerLogical * .12f);
+            for (var i = 0; i < shape.Count; i++)
+            {
+                vertices.Add(IsoWorld.Project(shape[i]) + Vector2.up * height);
+                colors.Add(color * (i % 2 == 0 ? .86f : 1f));
+                uvs.Add(shape[i] * .12f);
+            }
+            for (var i = 0; i < shape.Count; i++)
+            {
+                triangles.Add(center);
+                triangles.Add(center + 1 + (i + 1) % shape.Count);
+                triangles.Add(center + 1 + i);
+            }
+        }
+
+        private static Color HazardColor(DungeonHazardKind kind)
+        {
+            switch (kind)
+            {
+                case DungeonHazardKind.Lava: return new Color(1f, .18f, .025f, .98f);
+                case DungeonHazardKind.Brine: return new Color(.08f, .48f, .52f, .88f);
+                case DungeonHazardKind.Bile: return new Color(.43f, .58f, .08f, .9f);
+                case DungeonHazardKind.VoidRift: return new Color(.42f, .08f, .67f, .92f);
+                default: return new Color(.48f, .075f, .035f, .88f);
+            }
         }
 
         private void BuildContourFloor(DungeonContour contour, DungeonData data)
@@ -112,38 +232,38 @@ namespace Darkfall.World
                     !IsStairRiserOpening(data, new Vector2(x, y + .5f), true))
                     AddPlatformCapSeam(seamVertices, seamTriangles, seamColors, seamUvs,
                         new Vector2(x, y), new Vector2(x, y + 1), Vector2.right, height);
-                if (data.ElevationLevel(x + 1, y) < level &&
-                    !IsStairRiserOpening(data, new Vector2(x + 1, y + .5f), true))
-                    AddPlatformCapSeam(seamVertices, seamTriangles, seamColors, seamUvs,
-                        new Vector2(x + 1, y + 1), new Vector2(x + 1, y), Vector2.left, height);
                 if (data.ElevationLevel(x, y - 1) < level &&
                     !IsStairRiserOpening(data, new Vector2(x + .5f, y), false))
                     AddPlatformCapSeam(seamVertices, seamTriangles, seamColors, seamUvs,
                         new Vector2(x + 1, y), new Vector2(x, y), Vector2.up, height);
-                if (data.ElevationLevel(x, y + 1) < level &&
-                    !IsStairRiserOpening(data, new Vector2(x + .5f, y + 1), false))
-                    AddPlatformCapSeam(seamVertices, seamTriangles, seamColors, seamUvs,
-                        new Vector2(x, y + 1), new Vector2(x + 1, y + 1), Vector2.down, height);
             }
             if (vertices.Count == 0) return;
             var mesh = MakeMesh("Raised Platform Upper Floors", vertices, triangles, colors, uvs);
             CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.FloorTexture), 972);
             var seamMesh = MakeMesh("Raised Platform Cap Seams", seamVertices, seamTriangles, seamColors, seamUvs);
-            var seamShader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color");
-            var seamMaterial = new Material(seamShader) { color = Color.white };
+            var seamMaterial = new Material(DarkfallRenderMaterials.SpriteLit)
+            {
+                color = Color.white,
+                mainTexture = Resources.Load<Texture2D>(profile.WallTexture)
+            };
             materials.Add(seamMaterial);
             CreateLayer(seamMesh.name, seamMesh, seamMaterial, 973);
         }
 
-        private static void AddPlatformCapSeam(List<Vector3> vertices, List<int> triangles,
+        private void AddPlatformCapSeam(List<Vector3> vertices, List<int> triangles,
             List<Color> colors, List<Vector2> uvs, Vector2 from, Vector2 to, Vector2 inward, float height)
         {
             var a = IsoWorld.Project(from) + Vector2.up * height;
             var b = IsoWorld.Project(to) + Vector2.up * height;
-            var c = IsoWorld.Project(to + inward * .13f) + Vector2.up * height;
-            var d = IsoWorld.Project(from + inward * .13f) + Vector2.up * height;
-            AddScreenQuad(vertices, triangles, colors, uvs, a, b, c, d,
-                new Color(.035f, .026f, .02f, .88f), from, to);
+            var lipTo = IsoWorld.Project(to + inward * .045f) + Vector2.up * height;
+            var lipFrom = IsoWorld.Project(from + inward * .045f) + Vector2.up * height;
+            var recessTo = IsoWorld.Project(to + inward * .15f) + Vector2.up * height;
+            var recessFrom = IsoWorld.Project(from + inward * .15f) + Vector2.up * height;
+            var stone = Color.Lerp(profile.WallTint, Color.white, profile.WallReadability) * .54f;
+            AddScreenQuad(vertices, triangles, colors, uvs, a, b, lipTo, lipFrom,
+                stone, from, to);
+            AddScreenQuad(vertices, triangles, colors, uvs, lipFrom, lipTo, recessTo, recessFrom,
+                Color.Lerp(profile.WallTint, profile.FloorTint, .35f) * .46f, from, to);
         }
 
         private void BuildElevationRisers(DungeonData data)
@@ -237,29 +357,28 @@ namespace Darkfall.World
                 wallTexture.filterMode = FilterMode.Bilinear;
             }
 
-            var shadowVertices = new List<Vector3>();
-            var shadowTriangles = new List<int>();
-            var shadowColors = new List<Color>();
-            var shadowUvs = new List<Vector2>();
-
-            foreach (var segment in contour.Segments)
-            {
-                AddContactShadow(shadowVertices, shadowTriangles, shadowColors, shadowUvs, segment.From, segment.To);
-            }
-            var shadowMesh = MakeMesh("Continuous Wall Contact Shadow", shadowVertices, shadowTriangles,
-                shadowColors, shadowUvs);
-            var shadowMaterial = new Material(DarkfallRenderMaterials.SpriteLit) { color = Color.white };
-            materials.Add(shadowMaterial);
-            CreateLayer(shadowMesh.name, shadowMesh, shadowMaterial, -5);
-
             // The continuous mesh is only a legacy fallback. Drawing it below a complete authored
-            // kit reintroduces the bright polygonal rails the modular architecture replaces.
+            // kit also duplicates the dark plinth painted into every module. The two baselines do
+            // not coincide exactly and read as a black air gap, making the wall appear to float.
             if (hasArchitecture)
             {
                 BuildArchitectureModules(contour, data);
                 BuildThresholdArchitecture(data);
                 return;
             }
+
+            var shadowVertices = new List<Vector3>();
+            var shadowTriangles = new List<int>();
+            var shadowColors = new List<Color>();
+            var shadowUvs = new List<Vector2>();
+            foreach (var segment in contour.Segments)
+                AddContactShadow(shadowVertices, shadowTriangles, shadowColors, shadowUvs,
+                    segment.From, segment.To);
+            var shadowMesh = MakeMesh("Continuous Wall Contact Shadow", shadowVertices, shadowTriangles,
+                shadowColors, shadowUvs);
+            var shadowMaterial = new Material(DarkfallRenderMaterials.SpriteLit) { color = Color.white };
+            materials.Add(shadowMaterial);
+            CreateLayer(shadowMesh.name, shadowMesh, shadowMaterial, -5);
 
             for (var depth = -2; depth <= maximumDepth + 2; depth++)
             {
@@ -609,13 +728,47 @@ namespace Darkfall.World
                     hash % 100 >= Mathf.RoundToInt(46f * profile.DecorDensity))
                     continue;
 
-                var primary = profile.StructuralProps[(hash / 7) % profile.StructuralProps.Length];
-                if (bounds.width >= 13 && bounds.height >= 11 && (hash / 31) % 7 == 0)
-                    BuildCentralTheme(data, bounds, hash, primary);
-                else if ((hash / 17 & 1) == 0)
-                    BuildWallTheme(data, bounds, hash, primary);
+                var theme = data.Rooms[roomIndex].theme;
+                var primary = ThemePrimary(theme, hash);
+                var formalCentre = theme == DungeonRoomTheme.Ritual || theme == DungeonRoomTheme.Reliquary ||
+                                   theme == DungeonRoomTheme.Observatory || theme == DungeonRoomTheme.Forge;
+                if (bounds.width >= 11 && bounds.height >= 10 &&
+                    (formalCentre || (hash / 31) % 7 == 0))
+                    BuildCentralTheme(data, bounds, hash, primary, theme);
+                else if (theme == DungeonRoomTheme.Shrine || theme == DungeonRoomTheme.Armory ||
+                         theme == DungeonRoomTheme.Cistern || (hash / 17 & 1) == 0)
+                    BuildWallTheme(data, bounds, hash, primary, theme);
                 else
-                    BuildCornerTheme(data, bounds, hash, primary);
+                    BuildCornerTheme(data, bounds, hash, primary, theme);
+            }
+        }
+
+        private int ThemePrimary(DungeonRoomTheme theme, int hash)
+        {
+            if (profile.Id == "ashen-catacombs")
+            {
+                switch (theme)
+                {
+                    case DungeonRoomTheme.Shrine: return (hash & 1) == 0 ? 1 : 8;
+                    case DungeonRoomTheme.Reliquary: return (hash & 1) == 0 ? 8 : 10;
+                    case DungeonRoomTheme.Ossuary: return 5;
+                    case DungeonRoomTheme.Armory: return (hash & 1) == 0 ? 4 : 7;
+                    case DungeonRoomTheme.Ritual: return (hash & 1) == 0 ? 11 : 8;
+                    default: return profile.StructuralProps[(hash / 7) % profile.StructuralProps.Length];
+                }
+            }
+            switch (theme)
+            {
+                case DungeonRoomTheme.Shrine: return 7;
+                case DungeonRoomTheme.Reliquary: return (hash & 1) == 0 ? 2 : 5;
+                case DungeonRoomTheme.Ossuary: return (hash & 1) == 0 ? 1 : 6;
+                case DungeonRoomTheme.Armory: return (hash & 1) == 0 ? 4 : 5;
+                case DungeonRoomTheme.Ritual: return (hash & 1) == 0 ? 8 : 10;
+                case DungeonRoomTheme.Cistern: return (hash & 1) == 0 ? 1 : 8;
+                case DungeonRoomTheme.Forge: return (hash & 1) == 0 ? 0 : 6;
+                case DungeonRoomTheme.Garden: return (hash & 1) == 0 ? 1 : 7;
+                case DungeonRoomTheme.Observatory: return (hash & 1) == 0 ? 8 : 10;
+                default: return profile.StructuralProps[(hash / 7) % profile.StructuralProps.Length];
             }
         }
 
@@ -633,7 +786,8 @@ namespace Darkfall.World
             }
         }
 
-        private void BuildWallTheme(DungeonData data, RectInt bounds, int hash, int primary)
+        private void BuildWallTheme(DungeonData data, RectInt bounds, int hash, int primary,
+            DungeonRoomTheme theme)
         {
             if (!TryChooseWallBay(data, bounds, hash, out var bay)) return;
             if (!CreateProp(data, primary, bay.Anchor, .82f + hash % 3 * .06f,
@@ -641,13 +795,14 @@ namespace Darkfall.World
 
             // A readable triptych: two companions follow the wall and an offering sits in front.
             // Details are subordinate to the primary and are never spawned if it failed.
-            PlaceThemeDetail(data, bounds, hash, bay.Anchor - bay.Tangent * 1.35f, 0);
-            PlaceThemeDetail(data, bounds, hash, bay.Anchor + bay.Tangent * 1.35f, 1);
+            PlaceThemeDetail(data, bounds, hash, bay.Anchor - bay.Tangent * 1.35f, 0, theme);
+            PlaceThemeDetail(data, bounds, hash, bay.Anchor + bay.Tangent * 1.35f, 1, theme);
             if ((hash / 13) % 3 != 0)
-                PlaceThemeDetail(data, bounds, hash, bay.Anchor + bay.Inward * 1.05f, 2);
+                PlaceThemeDetail(data, bounds, hash, bay.Anchor + bay.Inward * 1.05f, 2, theme);
         }
 
-        private void BuildCornerTheme(DungeonData data, RectInt bounds, int hash, int primary)
+        private void BuildCornerTheme(DungeonData data, RectInt bounds, int hash, int primary,
+            DungeonRoomTheme theme)
         {
             var corners = new[]
             {
@@ -668,11 +823,12 @@ namespace Darkfall.World
             }
             if (bestScore < 1.85f || !CreateProp(data, primary, chosen.Anchor, .78f,
                     "Corner Theme · Primary", true, structuralDecor)) return;
-            PlaceThemeDetail(data, bounds, hash, chosen.Anchor + chosen.Tangent * 1.2f, 0);
-            PlaceThemeDetail(data, bounds, hash, chosen.Anchor + chosen.Inward * 1.2f, 1);
+            PlaceThemeDetail(data, bounds, hash, chosen.Anchor + chosen.Tangent * 1.2f, 0, theme);
+            PlaceThemeDetail(data, bounds, hash, chosen.Anchor + chosen.Inward * 1.2f, 1, theme);
         }
 
-        private void BuildCentralTheme(DungeonData data, RectInt bounds, int hash, int primary)
+        private void BuildCentralTheme(DungeonData data, RectInt bounds, int hash, int primary,
+            DungeonRoomTheme theme)
         {
             var center = (Vector2)bounds.center;
             if (ThemeClearance(data, bounds, center, false) < 2.5f ||
@@ -681,8 +837,14 @@ namespace Darkfall.World
 
             // Deliberate axial arrangement, leaving broad diagonal combat lanes around it.
             var axis = (hash & 1) == 0 ? Vector2.right : Vector2.up;
-            PlaceThemeDetail(data, bounds, hash, center - axis * 1.65f, 0);
-            PlaceThemeDetail(data, bounds, hash, center + axis * 1.65f, 1);
+            PlaceThemeDetail(data, bounds, hash, center - axis * 1.65f, 0, theme);
+            PlaceThemeDetail(data, bounds, hash, center + axis * 1.65f, 1, theme);
+            if (bounds.width >= 13 && bounds.height >= 12)
+            {
+                var cross = new Vector2(-axis.y, axis.x);
+                PlaceThemeDetail(data, bounds, hash, center - cross * 1.65f, 2, theme);
+                PlaceThemeDetail(data, bounds, hash, center + cross * 1.65f, 3, theme);
+            }
         }
 
         private bool TryChooseWallBay(DungeonData data, RectInt bounds, int hash, out ThemeBay chosen)
@@ -724,12 +886,42 @@ namespace Darkfall.World
             return clearance;
         }
 
-        private void PlaceThemeDetail(DungeonData data, RectInt bounds, int hash, Vector2 position, int member)
+        private void PlaceThemeDetail(DungeonData data, RectInt bounds, int hash, Vector2 position, int member,
+            DungeonRoomTheme theme)
         {
             if (ThemeClearance(data, bounds, position, false) < 1.65f) return;
-            var propIndex = profile.ClutterProps[(hash / (member + 3) + member * 5) % profile.ClutterProps.Length];
+            var pool = ThemeDetailPool(theme);
+            var propIndex = pool[(hash / (member + 3) + member * 5) % pool.Length];
             CreateProp(data, propIndex, position, .48f + member % 2 * .08f,
-                "Theme Detail", false, clutterDecor);
+                "Theme Detail · " + theme, false, clutterDecor);
+        }
+
+        private int[] ThemeDetailPool(DungeonRoomTheme theme)
+        {
+            if (profile.Id == "ashen-catacombs")
+            {
+                switch (theme)
+                {
+                    case DungeonRoomTheme.Ossuary: return new[] { 5, 6, 7 };
+                    case DungeonRoomTheme.Armory: return new[] { 3, 4, 7 };
+                    case DungeonRoomTheme.Ritual: return new[] { 2, 5, 9 };
+                    case DungeonRoomTheme.Shrine: return new[] { 2, 5, 6 };
+                    default: return profile.ClutterProps;
+                }
+            }
+            switch (theme)
+            {
+                case DungeonRoomTheme.Shrine: return new[] { 0, 2, 9 };
+                case DungeonRoomTheme.Reliquary: return new[] { 2, 3, 9 };
+                case DungeonRoomTheme.Ossuary: return new[] { 1, 6, 11 };
+                case DungeonRoomTheme.Armory: return new[] { 4, 5, 11 };
+                case DungeonRoomTheme.Ritual: return new[] { 0, 3, 9, 10 };
+                case DungeonRoomTheme.Cistern: return new[] { 0, 2, 6, 9 };
+                case DungeonRoomTheme.Forge: return new[] { 0, 4, 6, 11 };
+                case DungeonRoomTheme.Garden: return new[] { 0, 3, 9, 11 };
+                case DungeonRoomTheme.Observatory: return new[] { 3, 8, 9, 10 };
+                default: return profile.ClutterProps;
+            }
         }
 
         private void BuildArrivalDecor(DungeonData data, RectInt bounds, int hash)
@@ -770,6 +962,7 @@ namespace Darkfall.World
             Transform group)
         {
             if (!data.IsFloor(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y))) return false;
+            if (data.IsHazardCell(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y))) return false;
             foreach (var feature in data.Architecture)
                 if (Vector2.Distance(position, feature.Position) < 1.6f) return false;
             if (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 1.25f ||
@@ -843,13 +1036,16 @@ namespace Darkfall.World
             root.transform.SetParent(transform, false);
             root.AddComponent<CompositeShadowCaster2D>();
             foreach (var segment in contour.Segments)
-                CreateShadowEdge(root.transform, segment.From, segment.To, profile.WallHeight);
+                CreateShadowEdge(root.transform, segment.From, segment.To);
         }
 
-        private static void CreateShadowEdge(Transform parent, Vector2 from, Vector2 to, float wallHeight)
+        private static void CreateShadowEdge(Transform parent, Vector2 from, Vector2 to)
         {
-            var a = IsoWorld.Project(from) + Vector2.up * (wallHeight * .55f);
-            var b = IsoWorld.Project(to) + Vector2.up * (wallHeight * .55f);
+            // A 2D caster has no real Z dimension. Raising it halfway up the facade detached the
+            // cast shadow from the plinth. Keep it almost on the floor so the shadow begins at the
+            // contact line and reads as weight, not as an air gap.
+            var a = IsoWorld.Project(from) + Vector2.up * .012f;
+            var b = IsoWorld.Project(to) + Vector2.up * .012f;
             var delta = b - a;
             var shadow = new GameObject("Wall Shadow Edge");
             shadow.transform.SetParent(parent, false);

@@ -566,6 +566,7 @@ namespace Darkfall.Core
             });
             if (Save.topRecords.Count > 10) Save.topRecords.RemoveRange(10, Save.topRecords.Count - 10);
             SaveService.Save(Save);
+            Audio.PlayEffect("Heroes_die");
             Audio.PlayMusic("GameOver");
             runtimeUI.ShowGameOver();
         }

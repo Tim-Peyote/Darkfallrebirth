@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Darkfall.Core;
 using Darkfall.Gameplay;
@@ -29,6 +30,14 @@ namespace Darkfall.Editor
             foreach (var tavernTrack in new[] { "tavern", "tavern2", "tavern3" })
                 failures += Require(Resources.Load<AudioClip>($"Audio/{tavernTrack}") != null,
                     $"Tavern music is missing: {tavernTrack}");
+            foreach (var effect in new[]
+                     {
+                         "sword", "Dagger", "Fireball", "enemy_hit", "enemy_die", "heroes_hit",
+                         "Heroes_die", "explosion", "Dash", "Armor", "health_potion", "item_pickup",
+                         "Inventory_open"
+                     })
+                failures += Require(Resources.Load<AudioClip>($"Audio/Fx/{effect}") != null,
+                    $"Gameplay audio effect is missing: {effect}");
             failures += Require(Resources.Load<Font>("Fonts/PTSans-Regular") != null, "Body UI font is missing");
             failures += Require(Resources.Load<Font>("Fonts/CormorantGaramond") != null, "Heading UI font is missing");
             failures += ValidateHeroFrames("mage");
@@ -67,8 +76,14 @@ namespace Darkfall.Editor
             failures += Require(LegacyCatalog.Data.enemies?.Length == 17, "Expected 12 shared and 5 biome enemy types");
             var biomeAssets = new[] { "ember", "drowned", "charnel", "obsidian" };
             foreach (var biome in biomeAssets)
+            {
                 failures += Require(Resources.Load<Texture2D>($"Sprites/Environment/Biomes/{biome}-decor") != null,
                     $"Biome decor atlas is missing: {biome}");
+                for (var prop = 0; prop < 12; prop++)
+                    failures += Require(Resources.Load<Texture2D>(
+                            $"Sprites/Environment/Biomes/{biome}/decor-{prop:00}") != null,
+                        $"Replaceable biome decor module is missing: {biome}/{prop:00}");
+            }
             var architectureBiomes = new[]
             {
                 "ashen-catacombs", "ember-vaults", "drowned-crypt", "charnel-gardens", "obsidian-sanctum"
@@ -82,6 +97,9 @@ namespace Darkfall.Editor
             {
                 failures += Require(ArchitectureSpriteLibrary.HasBiome(biome),
                     $"Architecture pipeline cannot load biome: {biome}");
+                failures += Require(Resources.Load<Texture2D>(
+                        $"Sprites/Environment/Hazards/{biome}/body-4way-01") != null,
+                    $"Authored four-way hazard module is missing: {biome}");
             foreach (var module in architectureModules)
                 failures += Require(Resources.Load<Texture2D>(
                         $"Sprites/Environment/Architecture/{biome}/{module}-01") != null,
@@ -228,6 +246,22 @@ namespace Darkfall.Editor
                 generatedOptionalDoorCount += doors - startDoors;
                 failures += Require(dungeon.ElevationLevel(dungeon.ExitCell.x, dungeon.ExitCell.y) == 0,
                     $"Seed {seed}: level exit must not overlap a raised platform");
+                var hazardCells = new HashSet<Vector2Int>();
+                foreach (var hazard in dungeon.Hazards) hazardCells.Add(hazard.Cell);
+                foreach (var hazard in dungeon.Hazards)
+                {
+                    failures += Require(dungeon.IsFloor(hazard.Cell.x, hazard.Cell.y),
+                        $"Seed {seed}: hazard is outside carved floor");
+                    failures += Require(hazard.Cell != dungeon.StartCell && hazard.Cell != dungeon.ExitCell,
+                        $"Seed {seed}: hazard overlaps a protected transition");
+                    var expected = DungeonHazardConnections.None;
+                    if (hazardCells.Contains(hazard.Cell + Vector2Int.left)) expected |= DungeonHazardConnections.West;
+                    if (hazardCells.Contains(hazard.Cell + Vector2Int.right)) expected |= DungeonHazardConnections.East;
+                    if (hazardCells.Contains(hazard.Cell + Vector2Int.down)) expected |= DungeonHazardConnections.South;
+                    if (hazardCells.Contains(hazard.Cell + Vector2Int.up)) expected |= DungeonHazardConnections.North;
+                    failures += Require(hazard.Connections == expected,
+                        $"Seed {seed}: hazard neighbour mask is inconsistent");
+                }
                 var start = dungeon.CellCenter(dungeon.StartCell);
                 failures += Require(dungeon.CanOccupy(start + Vector2.left * .3f, .22f), $"Seed {seed}: start blocks left movement");
                 failures += Require(dungeon.CanOccupy(start + Vector2.right * .3f, .22f), $"Seed {seed}: start blocks right movement");

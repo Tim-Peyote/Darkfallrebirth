@@ -96,7 +96,6 @@ namespace Darkfall.Gameplay
                 }
             }
             spriteRenderer.sprite = GameSpriteAtlas.Chest(true);
-            GameManager.Instance.Audio.PlayEffect("Inventory_open");
             Darkfall.UI.InventoryUI.Instance?.OpenChest(this);
         }
 

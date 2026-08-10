@@ -44,6 +44,7 @@ namespace Darkfall.Gameplay
         private float nextIdleDecision;
         private float idleRadius;
         private float idlePause;
+        private string attackEffect;
 
         public static int Count => Active.Count;
         public bool IsBoss => boss;
@@ -85,6 +86,12 @@ namespace Darkfall.Gameplay
             ranged = definition.projectileSpeed > 0 || definition.hasBow;
             gameObject.name = definition.type;
             var lowerType = definition.type.ToLowerInvariant();
+            // Only genuinely magical ranged attacks use the existing fireball sample. The project
+            // currently has no authored bow-release or poison-spit clip; substituting a two-second
+            // spell sound made archers and spitters produce the same layered magical barrage.
+            attackEffect = definition.hasBow || lowerType.Contains("spitter") ? null : ranged ? "Fireball" :
+                lowerType.Contains("skeleton") || lowerType.Contains("warden") || lowerType.Contains("knight")
+                    ? "sword" : "Dagger";
             directionalSheet = !string.IsNullOrEmpty(definition.sheet) ? definition.sheet :
                 lowerType.Contains("mimic") ? "enemy-mimic-v1" :
                 lowerType.Contains("archer") || lowerType.Contains("spitter") || lowerType.Contains("assassin")
@@ -177,6 +184,7 @@ namespace Darkfall.Gameplay
             {
                 nextAttack = Time.time + (boss ? 0.85f : 1.15f);
                 attackAnimationUntil = Time.time + .28f;
+                PlayAttackEffect();
                 if (ranged)
                     EnemyProjectile.Spawn(transform.position, toPlayer.normalized, damage, projectileSpeed, ParseColor(definition.color), ApplyOnHitEffect);
                 else
@@ -386,8 +394,15 @@ namespace Darkfall.Gameplay
             {
                 nextAttack = Time.time + 1.15f;
                 attackAnimationUntil = Time.time + .28f;
+                PlayAttackEffect();
                 other.TakeDamage(damage);
             }
+        }
+
+        private void PlayAttackEffect()
+        {
+            var audio = GameManager.Instance?.Audio;
+            if (audio != null) audio.PlayEffect(attackEffect);
         }
 
         private static EnemyController FindNearestOther(EnemyController source, float range)
@@ -436,6 +451,12 @@ namespace Darkfall.Gameplay
         private void UseBossAbility(string ability)
         {
             attackAnimationUntil = Time.time + .28f;
+            var audio = GameManager.Instance?.Audio;
+            // Do not label every boss action as an explosion. Summon, teleport and curse need
+            // their own authored clips; until those exist their VFX remain intentionally clean.
+            var abilityEffect = ability == "charge" ? "Dash" :
+                ability == "firebreath" ? "Fireball" : ability == "stomp" ? "explosion" : null;
+            if (audio != null && abilityEffect != null) audio.PlayEffect(abilityEffect);
             var toPlayer = (Vector2)(player.transform.position - transform.position);
             switch (ability)
             {

@@ -36,6 +36,7 @@ namespace Darkfall.Gameplay
         private Vector2 actualVelocity;
         private float attackAnimationUntil;
         private float hitAnimationUntil;
+        private float nextHazardTick;
         private string directionalSheet;
         private float visualScale = 1f;
 
@@ -110,10 +111,21 @@ namespace Darkfall.Gameplay
             var input = GameInput.Move;
             UpdateFacing(input);
             Move(input);
+            UpdateFloorHazard();
             Animate();
             if (Time.time >= nextAttack) Attack();
             if (GameInput.ConsumeAbility()) UseAbility();
             if (hero.heroClass == HeroClass.Rogue && GameInput.RogueDashPressed) UseAbility();
+        }
+
+        private void UpdateFloorHazard()
+        {
+            if (dungeon == null || Time.time < nextHazardTick) return;
+            var damagePerSecond = dungeon.HazardDamageAt(transform.position);
+            if (damagePerSecond <= 0f) return;
+            const float interval = .5f;
+            nextHazardTick = Time.time + interval;
+            TakeDamage(damagePerSecond * interval);
         }
 
         private void LateUpdate()
