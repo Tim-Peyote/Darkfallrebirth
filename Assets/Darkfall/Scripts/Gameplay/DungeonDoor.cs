@@ -42,8 +42,10 @@ namespace Darkfall.Gameplay
             door.killsRequired = 2 + Mathf.Clamp((GameManager.Instance?.Depth ?? 1) / 12, 0, 2);
             door.keyId = $"dungeon_key_{GameManager.Instance?.Depth ?? 1}";
 
-            door.openRenderer = door.CreateVisual("Open Doorway", biome, "arcade", feature.Vertical, 1.12f);
-            door.openRenderer.color = new Color(1f, 1f, 1f, 0f);
+            // The former arcade sprite is a double wall lancet, not an open door. An opened door
+            // is therefore a clear threshold between its jamb wings until a dedicated animated
+            // open-leaf module is authored for the biome.
+            door.openRenderer = null;
             door.closedRenderer = door.CreateVisual("Closed Door", biome, "door-closed", feature.Vertical, 1.16f);
             door.closedVisual = door.closedRenderer.transform;
             door.closedScale = door.closedVisual.localScale;

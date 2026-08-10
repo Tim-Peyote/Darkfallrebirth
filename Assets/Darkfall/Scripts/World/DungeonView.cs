@@ -83,38 +83,27 @@ namespace Darkfall.World
                 var level = data.ElevationLevel(x, y);
                 if (level <= 0) continue;
                 var height = data.SurfaceHeight(new Vector2(x + .5f, y + .5f));
-                if (data.ElevationLevel(x, y - 1) < level &&
-                    !IsStairRiserOpening(data, new Vector2(x + .5f, y), false))
+                if (data.ElevationLevel(x, y - 1) < level)
                     AddRiser(vertices, triangles, colors, uvs, new Vector2(x, y), new Vector2(x + 1, y), height, color);
-                if (data.ElevationLevel(x + 1, y) < level &&
-                    !IsStairRiserOpening(data, new Vector2(x + 1, y + .5f), true))
+                if (data.ElevationLevel(x + 1, y) < level)
                     AddRiser(vertices, triangles, colors, uvs, new Vector2(x + 1, y), new Vector2(x + 1, y + 1), height, color * .84f);
-                if (data.ElevationLevel(x, y + 1) < level &&
-                    !IsStairRiserOpening(data, new Vector2(x + .5f, y + 1), false))
+                if (data.ElevationLevel(x, y + 1) < level)
                     AddRiser(vertices, triangles, colors, uvs, new Vector2(x + 1, y + 1), new Vector2(x, y + 1), height, color);
-                if (data.ElevationLevel(x - 1, y) < level &&
-                    !IsStairRiserOpening(data, new Vector2(x, y + .5f), true))
+                if (data.ElevationLevel(x - 1, y) < level)
                     AddRiser(vertices, triangles, colors, uvs, new Vector2(x, y + 1), new Vector2(x, y), height, color * .84f);
             }
             if (vertices.Count == 0) return;
             var mesh = MakeMesh("Raised Platform Fascias", vertices, triangles, colors, uvs);
             CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.WallTexture), 970);
-        }
-
-        private static bool IsStairRiserOpening(DungeonData data, Vector2 midpoint, bool vertical)
-        {
-            foreach (var feature in data.Architecture)
+            var texture = Resources.Load<Texture2D>(profile.WallTexture);
+            var readabilityShader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Texture");
+            var readability = new Material(readabilityShader)
             {
-                if (feature.Kind != DungeonArchitectureKind.ElevationStairs || feature.Vertical != vertical) continue;
-                var normalDistance = vertical
-                    ? Mathf.Abs(midpoint.x - feature.Position.x)
-                    : Mathf.Abs(midpoint.y - feature.Position.y);
-                var tangentDistance = vertical
-                    ? Mathf.Abs(midpoint.y - feature.Position.y)
-                    : Mathf.Abs(midpoint.x - feature.Position.x);
-                if (normalDistance < .05f && tangentDistance <= .51f) return true;
-            }
-            return false;
+                color = new Color(.62f, .62f, .62f, .34f),
+                mainTexture = texture
+            };
+            materials.Add(readability);
+            CreateLayer("Raised Platform Readability", mesh, readability, 971);
         }
 
         private static void AddRiser(List<Vector3> vertices, List<int> triangles, List<Color> colors,
@@ -211,6 +200,11 @@ namespace Darkfall.World
                 if (fromBits == 1 || fromBits == 3) cornerPoints.Add(from);
                 if (toBits == 1 || toBits == 3) cornerPoints.Add(to);
             }
+            cornerPoints.RemoveWhere(pointKey =>
+            {
+                var point = new Vector2(pointKey.x * .5f, pointKey.y * .5f);
+                return !IsRenderableCornerMask(FloorQuadrantMask(data, point));
+            });
             foreach (var span in BuildBoundarySpans(contour.Segments))
             {
                 var length = Mathf.RoundToInt(span.End - span.Start);
@@ -228,6 +222,18 @@ namespace Darkfall.World
                         ? new Vector2(span.Fixed, coordinate)
                         : new Vector2(coordinate, span.Fixed);
                     if (FeatureReplacesWallModule(data, anchor)) continue;
+                    // Corner modules already include both adjoining wall arms. Do not draw the
+                    // terminal straight modules underneath them: that produced crossed caps,
+                    // doubled cornices and the bright T-junctions visible in the screenshots.
+                    var touchesCorner = false;
+                    foreach (var corner in cornerPoints)
+                    {
+                        var cornerPoint = new Vector2(corner.x * .5f, corner.y * .5f);
+                        if (Vector2.Distance(anchor, cornerPoint) > .76f) continue;
+                        touchesCorner = true;
+                        break;
+                    }
+                    if (touchesCorner) continue;
                     var role = span.Vertical ? "wall-right" : "wall-left";
                     if (length >= 7 && section >= 2 && section <= length - 3 &&
                         (section + edgeHash) % 7 == 3)
@@ -239,7 +245,7 @@ namespace Darkfall.World
                         // be selected here. Real openings are emitted by the threshold grammar.
                         role = accent == 1 ? "wall-broken" : "wall-niche";
                     }
-                    CreateArchitectureModule(role, anchor, span.Vertical, .92f, moduleIndex++,
+                    CreateArchitectureModule(role, anchor, span.Vertical, 1f, moduleIndex++,
                         data.BoundaryHeight(anchor));
                 }
             }
@@ -251,16 +257,9 @@ namespace Darkfall.World
                 var bits = CountMaskBits(mask);
                 if (bits != 1 && bits != 3) continue;
                 if (FeatureReplacesWallModule(data, point)) continue;
-                // The kit has horizontal mirrors, not a second near/far projection. A back-facing
-                // concave corner (mask 1), or its inverse (mask 14), cannot be represented by the
-                // available sprite without producing the long downward V/pillar seen in play.
-                // Let the two straight modules form that hidden/back junction instead.
-                if (mask == 1 || mask == 14) continue;
-                // Role is named from the walkable side: a room corner (one occupied quadrant) is
-                // concave to the player, while a void notch (three occupied quadrants) is a convex
-                // masonry pier. The previous mapping was geometrically reversed.
+                if (!IsRenderableCornerMask(mask)) continue;
                 CreateArchitectureModule(bits == 1 ? "corner-inner" : "corner-outer",
-                    point, FlipCorner(mask), .82f, moduleIndex++, data.BoundaryHeight(point));
+                    point, false, 1f, moduleIndex++, data.BoundaryHeight(point));
             }
         }
 
@@ -367,9 +366,11 @@ namespace Darkfall.World
                     DungeonDoor.Spawn(data, feature, profile.Id, architectureDecor);
                     continue;
                 }
-                var role = feature.Kind == DungeonArchitectureKind.OpenGate ? "arcade" : "stairs";
-                var scale = feature.Kind == DungeonArchitectureKind.OpenGate ? .98f : .86f;
-                CreateArchitectureModule(role, feature.Position, feature.Vertical, scale, featureIndex++, 0f);
+                // Ordinary circulation is an empty threshold. The arcade artwork is a small
+                // double lancet wall module and must never masquerade as a walk-through gate.
+                if (feature.Kind == DungeonArchitectureKind.OpenGate) continue;
+                CreateArchitectureModule("stairs", feature.Position, feature.Vertical, 1.03f,
+                    featureIndex++, 0f);
             }
         }
 
@@ -418,10 +419,12 @@ namespace Darkfall.World
             return bits;
         }
 
-        private static bool FlipCorner(int mask) =>
-            // Screen-space mirroring swaps the logical east/south quadrants (2 <-> 8). It does
-            // not invert the near/far quadrants; doing that was what made most corners face out.
-            mask == 2 || mask == 13;
+        private static bool IsRenderableCornerMask(int mask) =>
+            // The authored inner/outer modules are symmetric in screen X and have exactly one
+            // near/far projection. flipX therefore cannot represent all four logical quadrants.
+            // mask 4 is the visible concave room corner; mask 11 is its convex inverse. Other
+            // orientations are formed by the straight wall pair until directional art exists.
+            mask == 4 || mask == 11;
 
         private Material CreateTexturedMaterial(string path)
         {
