@@ -83,14 +83,15 @@ namespace Darkfall.World
                 var level = data.ElevationLevel(x, y);
                 if (level <= 0) continue;
                 var height = data.SurfaceHeight(new Vector2(x + .5f, y + .5f));
-                if (data.ElevationLevel(x, y - 1) < level)
-                    AddRiser(vertices, triangles, colors, uvs, new Vector2(x, y), new Vector2(x + 1, y), height, color);
-                if (data.ElevationLevel(x + 1, y) < level)
+                // Only screen-facing (+X/+Y) platform faces are visible in this projection. The
+                // -X/-Y faces are behind the upper floor; rendering them in a 2D pipeline makes
+                // them appear through that floor as interior walls.
+                if (data.ElevationLevel(x + 1, y) < level &&
+                    !IsStairRiserOpening(data, new Vector2(x + 1, y + .5f), true))
                     AddRiser(vertices, triangles, colors, uvs, new Vector2(x + 1, y), new Vector2(x + 1, y + 1), height, color * .84f);
-                if (data.ElevationLevel(x, y + 1) < level)
+                if (data.ElevationLevel(x, y + 1) < level &&
+                    !IsStairRiserOpening(data, new Vector2(x + .5f, y + 1), false))
                     AddRiser(vertices, triangles, colors, uvs, new Vector2(x + 1, y + 1), new Vector2(x, y + 1), height, color);
-                if (data.ElevationLevel(x - 1, y) < level)
-                    AddRiser(vertices, triangles, colors, uvs, new Vector2(x, y + 1), new Vector2(x, y), height, color * .84f);
             }
             if (vertices.Count == 0) return;
             var mesh = MakeMesh("Raised Platform Fascias", vertices, triangles, colors, uvs);
@@ -99,11 +100,27 @@ namespace Darkfall.World
             var readabilityShader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Texture");
             var readability = new Material(readabilityShader)
             {
-                color = new Color(.62f, .62f, .62f, .34f),
+                color = new Color(.9f, .9f, .9f, .52f),
                 mainTexture = texture
             };
             materials.Add(readability);
             CreateLayer("Raised Platform Readability", mesh, readability, 971);
+        }
+
+        private static bool IsStairRiserOpening(DungeonData data, Vector2 midpoint, bool vertical)
+        {
+            foreach (var feature in data.Architecture)
+            {
+                if (feature.Kind != DungeonArchitectureKind.ElevationStairs || feature.Vertical != vertical) continue;
+                var normalDistance = vertical
+                    ? Mathf.Abs(midpoint.x - feature.Position.x)
+                    : Mathf.Abs(midpoint.y - feature.Position.y);
+                var tangentDistance = vertical
+                    ? Mathf.Abs(midpoint.y - feature.Position.y)
+                    : Mathf.Abs(midpoint.x - feature.Position.x);
+                if (normalDistance < .05f && tangentDistance <= .51f) return true;
+            }
+            return false;
         }
 
         private static void AddRiser(List<Vector3> vertices, List<int> triangles, List<Color> colors,
@@ -111,10 +128,26 @@ namespace Darkfall.World
         {
             var lowerFrom = IsoWorld.Project(from);
             var lowerTo = IsoWorld.Project(to);
+            var plinth = height * .18f;
+            var frieze = height * .78f;
+
+            // A platform edge is a vertical architectural tile, not a stretched shadow quad.
+            // Use the full biome wall texture range and explicit masonry bands so height remains
+            // readable even outside local lights.
+            AddWallBand(vertices, triangles, colors, uvs, lowerFrom, lowerTo,
+                0f, plinth, color * .62f, from, to, 0f, .18f);
+            AddWallBand(vertices, triangles, colors, uvs, lowerFrom, lowerTo,
+                plinth, frieze, color * .94f, from, to, .18f, .76f);
+            AddWallBand(vertices, triangles, colors, uvs, lowerFrom, lowerTo,
+                frieze, height, color * 1.22f, from, to, .76f, 1f);
+
             var upperFrom = lowerFrom + Vector2.up * height;
             var upperTo = lowerTo + Vector2.up * height;
-            AddScreenQuad(vertices, triangles, colors, uvs, lowerFrom, lowerTo, upperTo, upperFrom,
-                color, from, to);
+            var edge = upperTo - upperFrom;
+            var lip = Vector2.Perpendicular(edge.normalized) * .045f;
+            if (lip.y < 0f) lip = -lip;
+            AddScreenQuad(vertices, triangles, colors, uvs, upperFrom, upperTo,
+                upperTo + lip, upperFrom + lip, color * 1.12f, from, to);
         }
 
         private void BuildContourWalls(DungeonContour contour, DungeonData data)
@@ -218,7 +251,7 @@ namespace Darkfall.World
                         // be selected here. Real openings are emitted by the threshold grammar.
                         role = accent == 1 ? "wall-broken" : "wall-niche";
                     }
-                    CreateArchitectureModule(role, anchor, span.Vertical, 1f, moduleIndex++,
+                    CreateArchitectureModule(role, anchor, span.Vertical, .985f, moduleIndex++,
                         data.BoundaryHeight(anchor));
                 }
             }
@@ -322,13 +355,27 @@ namespace Darkfall.World
                 // double lancet wall module and must never masquerade as a walk-through gate.
                 if (feature.Kind == DungeonArchitectureKind.OpenGate)
                     continue;
-                CreateArchitectureModule("stairs", feature.Position, feature.Vertical, 1.03f,
-                    featureIndex++, 0f);
+                var normal = feature.Vertical ? Vector2.right : Vector2.up;
+                var negativeLevel = data.ElevationLevel(
+                    Mathf.FloorToInt(feature.Position.x - normal.x * .25f),
+                    Mathf.FloorToInt(feature.Position.y - normal.y * .25f));
+                var positiveLevel = data.ElevationLevel(
+                    Mathf.FloorToInt(feature.Position.x + normal.x * .25f),
+                    Mathf.FloorToInt(feature.Position.y + normal.y * .25f));
+                var lowerDirection = negativeLevel < positiveLevel ? -normal : normal;
+                // The sprite pivot is at the foot of its first step. Place that foot on the lower
+                // half of the traversal ramp so the upper landing terminates at the raised floor.
+                var stairAnchor = feature.Position + lowerDirection * .64f;
+                // Width 2/3 thresholds share the same art. Stretch only screen X to close the
+                // side voids while retaining the authored vertical rise and landing height.
+                var stairHorizontalScale = feature.Width == 2 ? 1.28f : 1.48f;
+                CreateArchitectureModule("stairs", stairAnchor, feature.Vertical, 1.03f,
+                    featureIndex++, 0f, stairHorizontalScale);
             }
         }
 
         private void CreateArchitectureModule(string role, Vector2 anchor, bool flipX, float scale, int index,
-            float elevation = 0f)
+            float elevation = 0f, float horizontalScale = -1f)
         {
             var sprite = ArchitectureSpriteLibrary.Module(profile.Id, role);
             if (sprite == null) return;
@@ -339,7 +386,7 @@ namespace Darkfall.World
 
             var visual = new GameObject("Projected Architecture");
             visual.transform.SetParent(owner.transform, false);
-            visual.transform.localScale = Vector3.one * scale;
+            visual.transform.localScale = new Vector3(horizontalScale > 0f ? horizontalScale : scale, scale, 1f);
 
             // Authored sprites already contain their own material shading. A restrained unlit pass
             // keeps carved detail legible in the global darkness; the lit pass still receives local
