@@ -218,10 +218,7 @@ namespace Darkfall.World
                         // be selected here. Real openings are emitted by the threshold grammar.
                         role = accent == 1 ? "wall-broken" : "wall-niche";
                     }
-                    // A slight overlap closes perpendicular endpoints. The authored corner images
-                    // have a larger implicit footprint than the one-cell grid and cannot be mixed
-                    // with these wall modules without floating V shapes or doubled cornices.
-                    CreateArchitectureModule(role, anchor, span.Vertical, 1.04f, moduleIndex++,
+                    CreateArchitectureModule(role, anchor, span.Vertical, 1f, moduleIndex++,
                         data.BoundaryHeight(anchor));
                 }
             }
@@ -281,6 +278,9 @@ namespace Darkfall.World
         {
             foreach (var feature in data.Architecture)
             {
+                // Floor-to-floor thresholds are already open in the contour. Removing nearby
+                // side-wall modules again widens them into accidental rectangular holes.
+                if (feature.Kind == DungeonArchitectureKind.OpenGate) continue;
                 var radius = feature.Kind == DungeonArchitectureKind.ElevationStairs ? 1.05f : 1.35f;
                 if (Vector2.Distance(point, feature.Position) < radius) return true;
             }
