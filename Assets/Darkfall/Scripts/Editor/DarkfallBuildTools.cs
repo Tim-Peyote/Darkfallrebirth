@@ -79,10 +79,14 @@ namespace Darkfall.Editor
                 "wall-broken", "wall-niche", "column", "arcade", "stairs", "landmark"
             };
             foreach (var biome in architectureBiomes)
+            {
+                failures += Require(ArchitectureSpriteLibrary.HasBiome(biome),
+                    $"Architecture pipeline cannot load biome: {biome}");
             foreach (var module in architectureModules)
                 failures += Require(Resources.Load<Texture2D>(
                         $"Sprites/Environment/Architecture/{biome}/{module}-01") != null,
                     $"Architecture module is missing: {biome}/{module}");
+            }
             var biomeEnemySheets = new[]
             {
                 "enemy-ash-warden-v1", "enemy-ember-revenant-v1", "enemy-drowned-sentinel-v1",
@@ -137,6 +141,7 @@ namespace Darkfall.Editor
                                 GameManager.EnemyBudgetForDepth(balance, 5) < GameManager.EnemyBudgetForDepth(balance, 9),
                 "Progression: regular enemy budget must grow with depth");
             var generatedDoorCount = 0;
+            var generatedStairFloors = 0;
             for (var seed = 0; seed < 100; seed++)
             {
                 var generatedDepth = 1 + seed % 25;
@@ -171,14 +176,25 @@ namespace Darkfall.Editor
                         var cheek = feature.Position + tangent * (feature.Width * .5f - .12f);
                         failures += Require(!dungeon.CanOccupy(cheek, .18f),
                             $"Seed {seed}: actors can pass through a stair side wall");
+                        var normal = feature.Vertical ? Vector2.right : Vector2.up;
+                        var lowSide = feature.Position - normal * .55f;
+                        var highSide = feature.Position + normal * .55f;
+                        if (dungeon.SurfaceHeight(lowSide) > dungeon.SurfaceHeight(highSide))
+                            (lowSide, highSide) = (highSide, lowSide);
+                        failures += Require(dungeon.SurfaceHeight(highSide) - dungeon.SurfaceHeight(lowSide) > .35f,
+                            $"Seed {seed}: raised platform is not visually distinct");
+                        failures += Require(dungeon.CanTraverse(lowSide, highSide, .18f),
+                            $"Seed {seed}: stair ramp does not connect its platform");
+                        var outsideLane = lowSide + tangent * .75f;
+                        var outsideHigh = highSide + tangent * .75f;
+                        failures += Require(!dungeon.CanTraverse(outsideLane, outsideHigh, .18f),
+                            $"Seed {seed}: platform edge is climbable outside the stair miniset");
                     }
                     else
                         failures += Require(firstElevation == secondElevation,
                             $"Seed {seed}: open gate incorrectly bridges an elevation change");
                 }
-                if (generatedDepth % 10 != 0)
-                    failures += Require(internalStairs > 0,
-                        $"Seed {seed}: expected at least one internal elevation stair");
+                if (generatedDepth % 10 != 0 && internalStairs > 0) generatedStairFloors++;
                 failures += Require(doors <= 1, $"Seed {seed}: doors must remain a rare threshold event");
                 generatedDoorCount += doors;
                 failures += Require(dungeon.ElevationLevel(dungeon.ExitCell.x, dungeon.ExitCell.y) == 0,
@@ -203,6 +219,10 @@ namespace Darkfall.Editor
                         $"Seed {seed}: generated passage {room - 1}->{room} is disconnected");
                 }
             }
+            // A stair is optional architectural punctuation, never a quota that may override
+            // topology or asset direction. It should still appear on nearly every regular floor.
+            failures += Require(generatedStairFloors >= 85,
+                "Architecture: internal stairs are absent from too many regular floors");
             failures += Require(generatedDoorCount >= 3 && generatedDoorCount <= 30,
                 $"Door grammar: expected a rare but observable sample, got {generatedDoorCount}/100 floors");
             var bossArena = DungeonGenerator.Generate(balance, 10, 1010);

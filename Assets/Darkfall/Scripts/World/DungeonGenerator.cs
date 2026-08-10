@@ -226,13 +226,13 @@ namespace Darkfall.World
             {
                 var bounds = data.Rooms[roomIndex].bounds;
                 FindHorizontalThresholds(data, roomIndex, bounds.xMin, bounds.xMax,
-                    bounds.yMin, bounds.yMin - 1, bounds.yMin, false, candidates);
+                    bounds.yMin, bounds.yMin - 1, bounds.yMin, false, false, candidates);
                 FindHorizontalThresholds(data, roomIndex, bounds.xMin, bounds.xMax,
-                    bounds.yMax - 1, bounds.yMax, bounds.yMax, false, candidates);
+                    bounds.yMax - 1, bounds.yMax, bounds.yMax, false, true, candidates);
                 FindVerticalThresholds(data, roomIndex, bounds.yMin, bounds.yMax,
-                    bounds.xMin, bounds.xMin - 1, bounds.xMin, true, candidates);
+                    bounds.xMin, bounds.xMin - 1, bounds.xMin, true, false, candidates);
                 FindVerticalThresholds(data, roomIndex, bounds.yMin, bounds.yMax,
-                    bounds.xMax - 1, bounds.xMax, bounds.xMax, true, candidates);
+                    bounds.xMax - 1, bounds.xMax, bounds.xMax, true, true, candidates);
             }
 
             var thresholds = new List<ArchitectureThreshold>();
@@ -257,12 +257,23 @@ namespace Darkfall.World
             var platformBudget = Mathf.Clamp(1 + depth / 15 + data.Rooms.Count / 22, 1, 3);
             var platformRooms = new List<int>();
             var roomCandidates = new List<int>();
-            for (var roomIndex = 1; roomIndex < data.Rooms.Count - 1; roomIndex++)
+            // The exit room must stay flat so the same-floor stair never overlaps the independent
+            // ExitPortal. The start room is allowed only when its complete threshold set can be
+            // represented; spawn height is sampled from the surface and does not alter HP/state.
+            for (var roomIndex = 0; roomIndex < data.Rooms.Count - 1; roomIndex++)
             {
                 var validEntrances = 0;
+                var allEntrancesRenderable = true;
                 foreach (var threshold in thresholds)
-                    if (threshold.RoomIndex == roomIndex) validEntrances++;
-                if (validEntrances > 0) roomCandidates.Add(roomIndex);
+                    if (threshold.RoomIndex == roomIndex)
+                    {
+                        validEntrances++;
+                        allEntrancesRenderable &= threshold.SupportsRaisedPlatform;
+                    }
+                // A raised room is only legal when every stair ascends toward screen-back. The
+                // current stair kit has that projection plus its horizontal mirror; rotating it
+                // toward screen-front creates a freestanding stair on an unchanged plane.
+                if (validEntrances > 0 && allEntrancesRenderable) roomCandidates.Add(roomIndex);
             }
             roomCandidates.Sort((a, b) => ArchitectureRoomScore(a, seed).CompareTo(ArchitectureRoomScore(b, seed)));
             foreach (var roomIndex in roomCandidates)
@@ -348,7 +359,8 @@ namespace Darkfall.World
         }
 
         private static void FindHorizontalThresholds(DungeonData data, int roomIndex, int minimum, int maximum,
-            int insideY, int outsideY, float edgeY, bool flipX, List<ArchitectureThreshold> result)
+            int insideY, int outsideY, float edgeY, bool flipX, bool supportsRaisedPlatform,
+            List<ArchitectureThreshold> result)
         {
             var start = -1;
             for (var x = minimum; x <= maximum; x++)
@@ -357,13 +369,14 @@ namespace Darkfall.World
                 if (crossing && start < 0) start = x;
                 if (crossing || start < 0) continue;
                 result.Add(new ArchitectureThreshold(roomIndex, new Vector2((start + x) * .5f, edgeY),
-                    false, flipX, x - start));
+                    false, flipX, x - start, supportsRaisedPlatform));
                 start = -1;
             }
         }
 
         private static void FindVerticalThresholds(DungeonData data, int roomIndex, int minimum, int maximum,
-            int insideX, int outsideX, float edgeX, bool flipX, List<ArchitectureThreshold> result)
+            int insideX, int outsideX, float edgeX, bool flipX, bool supportsRaisedPlatform,
+            List<ArchitectureThreshold> result)
         {
             var start = -1;
             for (var y = minimum; y <= maximum; y++)
@@ -372,7 +385,7 @@ namespace Darkfall.World
                 if (crossing && start < 0) start = y;
                 if (crossing || start < 0) continue;
                 result.Add(new ArchitectureThreshold(roomIndex, new Vector2(edgeX, (start + y) * .5f),
-                    true, flipX, y - start));
+                    true, flipX, y - start, supportsRaisedPlatform));
                 start = -1;
             }
         }
@@ -384,14 +397,17 @@ namespace Darkfall.World
             public readonly bool Vertical;
             public readonly bool FlipX;
             public readonly int Width;
+            public readonly bool SupportsRaisedPlatform;
 
-            public ArchitectureThreshold(int roomIndex, Vector2 position, bool vertical, bool flipX, int width)
+            public ArchitectureThreshold(int roomIndex, Vector2 position, bool vertical, bool flipX, int width,
+                bool supportsRaisedPlatform)
             {
                 RoomIndex = roomIndex;
                 Position = position;
                 Vertical = vertical;
                 FlipX = flipX;
                 Width = width;
+                SupportsRaisedPlatform = supportsRaisedPlatform;
             }
         }
 

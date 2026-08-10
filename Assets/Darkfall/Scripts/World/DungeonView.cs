@@ -83,18 +83,38 @@ namespace Darkfall.World
                 var level = data.ElevationLevel(x, y);
                 if (level <= 0) continue;
                 var height = data.SurfaceHeight(new Vector2(x + .5f, y + .5f));
-                if (data.ElevationLevel(x, y - 1) < level)
+                if (data.ElevationLevel(x, y - 1) < level &&
+                    !IsStairRiserOpening(data, new Vector2(x + .5f, y), false))
                     AddRiser(vertices, triangles, colors, uvs, new Vector2(x, y), new Vector2(x + 1, y), height, color);
-                if (data.ElevationLevel(x + 1, y) < level)
+                if (data.ElevationLevel(x + 1, y) < level &&
+                    !IsStairRiserOpening(data, new Vector2(x + 1, y + .5f), true))
                     AddRiser(vertices, triangles, colors, uvs, new Vector2(x + 1, y), new Vector2(x + 1, y + 1), height, color * .84f);
-                if (data.ElevationLevel(x, y + 1) < level)
+                if (data.ElevationLevel(x, y + 1) < level &&
+                    !IsStairRiserOpening(data, new Vector2(x + .5f, y + 1), false))
                     AddRiser(vertices, triangles, colors, uvs, new Vector2(x + 1, y + 1), new Vector2(x, y + 1), height, color);
-                if (data.ElevationLevel(x - 1, y) < level)
+                if (data.ElevationLevel(x - 1, y) < level &&
+                    !IsStairRiserOpening(data, new Vector2(x, y + .5f), true))
                     AddRiser(vertices, triangles, colors, uvs, new Vector2(x, y + 1), new Vector2(x, y), height, color * .84f);
             }
             if (vertices.Count == 0) return;
             var mesh = MakeMesh("Raised Platform Fascias", vertices, triangles, colors, uvs);
             CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.WallTexture), 970);
+        }
+
+        private static bool IsStairRiserOpening(DungeonData data, Vector2 midpoint, bool vertical)
+        {
+            foreach (var feature in data.Architecture)
+            {
+                if (feature.Kind != DungeonArchitectureKind.ElevationStairs || feature.Vertical != vertical) continue;
+                var normalDistance = vertical
+                    ? Mathf.Abs(midpoint.x - feature.Position.x)
+                    : Mathf.Abs(midpoint.y - feature.Position.y);
+                var tangentDistance = vertical
+                    ? Mathf.Abs(midpoint.y - feature.Position.y)
+                    : Mathf.Abs(midpoint.x - feature.Position.x);
+                if (normalDistance < .05f && tangentDistance <= .51f) return true;
+            }
+            return false;
         }
 
         private static void AddRiser(List<Vector3> vertices, List<int> triangles, List<Color> colors,
@@ -212,10 +232,13 @@ namespace Darkfall.World
                     if (length >= 7 && section >= 2 && section <= length - 3 &&
                         (section + edgeHash) % 7 == 3)
                     {
-                        var accent = (edgeHash + section) % 4;
-                        role = accent == 1 ? "arch-open" : accent == 2 ? "wall-broken" : "wall-niche";
+                        var accent = (edgeHash + section) % 3;
+                        // The small lancet/arch asset reads as a doorway at gameplay scale even
+                        // though it is authored as a wall window. Keep passage semantics out of
+                        // decorative wall variation: only solid niches and damaged masonry may
+                        // be selected here. Real openings are emitted by the threshold grammar.
+                        role = accent == 1 ? "wall-broken" : "wall-niche";
                     }
-                    if (role == "arch-open") AddWallWindowObstacle(data, anchor, span.Vertical);
                     CreateArchitectureModule(role, anchor, span.Vertical, .92f, moduleIndex++,
                         data.BoundaryHeight(anchor));
                 }
@@ -228,6 +251,11 @@ namespace Darkfall.World
                 var bits = CountMaskBits(mask);
                 if (bits != 1 && bits != 3) continue;
                 if (FeatureReplacesWallModule(data, point)) continue;
+                // The kit has horizontal mirrors, not a second near/far projection. A back-facing
+                // concave corner (mask 1), or its inverse (mask 14), cannot be represented by the
+                // available sprite without producing the long downward V/pillar seen in play.
+                // Let the two straight modules form that hidden/back junction instead.
+                if (mask == 1 || mask == 14) continue;
                 // Role is named from the walkable side: a room corner (one occupied quadrant) is
                 // concave to the player, while a void notch (three occupied quadrants) is a convex
                 // masonry pier. The previous mapping was geometrically reversed.
@@ -378,7 +406,9 @@ namespace Darkfall.World
             lit.sortingOrder = 1;
             DarkfallRenderMaterials.MakeLit(lit);
 
-            visual.AddComponent<IsoVisual>().Initialize(owner.transform, elevation, 1040, false);
+            // Share the actor depth plane. The logical x+y position now decides whether the actor
+            // is in front of or behind a wall; the old +40 bias swallowed actors on the near side.
+            visual.AddComponent<IsoVisual>().Initialize(owner.transform, elevation, 1002, false);
         }
 
         private static int CountMaskBits(int mask)

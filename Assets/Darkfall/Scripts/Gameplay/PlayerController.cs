@@ -158,9 +158,9 @@ namespace Darkfall.Gameplay
             for (var i = 0; i < steps; i++)
             {
                 var xOnly = new Vector2(current.x + step.x, current.y);
-                if (dungeon.CanOccupy(xOnly, .22f)) current.x = xOnly.x;
+                if (dungeon.CanTraverse(current, xOnly, .22f)) current.x = xOnly.x;
                 var yOnly = new Vector2(current.x, current.y + step.y);
-                if (dungeon.CanOccupy(yOnly, .22f)) current.y = yOnly.y;
+                if (dungeon.CanTraverse(current, yOnly, .22f)) current.y = yOnly.y;
             }
             transform.position = current;
             if (Time.deltaTime > .0001f) actualVelocity = (current - start) / Time.deltaTime;

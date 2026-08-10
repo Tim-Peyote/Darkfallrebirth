@@ -69,6 +69,7 @@ namespace Darkfall.World
 
     public sealed class DungeonData
     {
+        public const float ElevationStepHeight = .56f;
         private readonly bool[,] floor;
         private readonly bool[,] explored;
         private readonly bool[,] visible;
@@ -210,20 +211,30 @@ namespace Darkfall.World
 
         public float SurfaceHeight(Vector2 point)
         {
-            const float stepHeight = .34f;
-            var cellX = Mathf.FloorToInt(point.x);
-            var cellY = Mathf.FloorToInt(point.y);
-            var fallback = ElevationLevel(cellX, cellY);
-            var gridX = point.x - .5f;
-            var gridY = point.y - .5f;
-            var x0 = Mathf.FloorToInt(gridX);
-            var y0 = Mathf.FloorToInt(gridY);
-            var tx = gridX - x0;
-            var ty = gridY - y0;
-            float Sample(int x, int y) => IsFloor(x, y) ? elevation[x, y] : fallback;
-            var bottom = Mathf.Lerp(Sample(x0, y0), Sample(x0 + 1, y0), tx);
-            var top = Mathf.Lerp(Sample(x0, y0 + 1), Sample(x0 + 1, y0 + 1), tx);
-            return Mathf.Lerp(bottom, top, ty) * stepHeight;
+            foreach (var feature in architecture)
+            {
+                if (feature.Kind != DungeonArchitectureKind.ElevationStairs) continue;
+                var normalCoordinate = feature.Vertical ? point.x : point.y;
+                var thresholdCoordinate = feature.Vertical ? feature.Position.x : feature.Position.y;
+                var tangentDistance = feature.Vertical
+                    ? Mathf.Abs(point.y - feature.Position.y)
+                    : Mathf.Abs(point.x - feature.Position.x);
+                const float rampHalfDepth = .72f;
+                if (tangentDistance > .43f || Mathf.Abs(normalCoordinate - thresholdCoordinate) > rampHalfDepth)
+                    continue;
+
+                var negative = feature.Vertical
+                    ? ElevationLevel(Mathf.FloorToInt(feature.Position.x - .25f), Mathf.FloorToInt(point.y))
+                    : ElevationLevel(Mathf.FloorToInt(point.x), Mathf.FloorToInt(feature.Position.y - .25f));
+                var positive = feature.Vertical
+                    ? ElevationLevel(Mathf.FloorToInt(feature.Position.x + .25f), Mathf.FloorToInt(point.y))
+                    : ElevationLevel(Mathf.FloorToInt(point.x), Mathf.FloorToInt(feature.Position.y + .25f));
+                var t = Mathf.InverseLerp(thresholdCoordinate - rampHalfDepth,
+                    thresholdCoordinate + rampHalfDepth, normalCoordinate);
+                return Mathf.Lerp(negative, positive, t) * ElevationStepHeight;
+            }
+
+            return ElevationLevel(Mathf.FloorToInt(point.x), Mathf.FloorToInt(point.y)) * ElevationStepHeight;
         }
 
         public float BoundaryHeight(Vector2 point)
@@ -257,6 +268,26 @@ namespace Darkfall.World
                 && IsWalkable(Mathf.FloorToInt(point.x + radius), Mathf.FloorToInt(point.y - radius))
                 && IsWalkable(Mathf.FloorToInt(point.x - radius), Mathf.FloorToInt(point.y + radius))
                 && IsWalkable(Mathf.FloorToInt(point.x + radius), Mathf.FloorToInt(point.y + radius));
+        }
+
+        public bool CanTraverse(Vector2 from, Vector2 to, float radius = .3f)
+        {
+            if (!CanOccupy(to, radius)) return false;
+            var fromLevel = ElevationLevel(Mathf.FloorToInt(from.x), Mathf.FloorToInt(from.y));
+            var toLevel = ElevationLevel(Mathf.FloorToInt(to.x), Mathf.FloorToInt(to.y));
+            if (fromLevel == toLevel) return true;
+            foreach (var feature in architecture)
+            {
+                if (feature.Kind != DungeonArchitectureKind.ElevationStairs) continue;
+                var tangentDistance = feature.Vertical
+                    ? Mathf.Abs(to.y - feature.Position.y)
+                    : Mathf.Abs(to.x - feature.Position.x);
+                var normalDistance = feature.Vertical
+                    ? Mathf.Abs(to.x - feature.Position.x)
+                    : Mathf.Abs(to.y - feature.Position.y);
+                if (tangentDistance <= .43f - radius * .25f && normalDistance <= .78f) return true;
+            }
+            return false;
         }
 
         private static bool TouchesObstacle(Vector2 point, float radius, IReadOnlyList<Rect> obstacles)

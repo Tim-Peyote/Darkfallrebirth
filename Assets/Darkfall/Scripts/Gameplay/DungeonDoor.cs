@@ -79,7 +79,7 @@ namespace Darkfall.Gameplay
             renderer.flipX = feature.Vertical;
             renderer.color = Color.white;
             DarkfallRenderMaterials.MakeLit(renderer);
-            visual.AddComponent<IsoVisual>().Initialize(owner.transform, 0f, 1048, false);
+            visual.AddComponent<IsoVisual>().Initialize(owner.transform, 0f, 1002, false);
         }
 
         private SpriteRenderer CreateVisual(string objectName, string biome, string role, bool flipX, float scale)
@@ -92,7 +92,7 @@ namespace Darkfall.Gameplay
             renderer.flipX = flipX;
             renderer.color = Color.white;
             DarkfallRenderMaterials.MakeLit(renderer);
-            visual.AddComponent<IsoVisual>().Initialize(transform, 0f, 1060, false);
+            visual.AddComponent<IsoVisual>().Initialize(transform, 0f, 1004, false);
             return renderer;
         }
 
