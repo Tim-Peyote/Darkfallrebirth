@@ -190,22 +190,6 @@ namespace Darkfall.World
         private void BuildArchitectureModules(DungeonContour contour, DungeonData data)
         {
             var moduleIndex = 0;
-            var allCornerPoints = new HashSet<Vector2Int>();
-            foreach (var segment in contour.Segments)
-            {
-                var from = Quantize(segment.From);
-                var to = Quantize(segment.To);
-                var fromBits = CountMaskBits(FloorQuadrantMask(data, segment.From));
-                var toBits = CountMaskBits(FloorQuadrantMask(data, segment.To));
-                if (fromBits == 1 || fromBits == 3) allCornerPoints.Add(from);
-                if (toBits == 1 || toBits == 3) allCornerPoints.Add(to);
-            }
-            var cornerPoints = new HashSet<Vector2Int>(allCornerPoints);
-            cornerPoints.RemoveWhere(pointKey =>
-            {
-                var point = new Vector2(pointKey.x * .5f, pointKey.y * .5f);
-                return !IsRenderableCornerMask(FloorQuadrantMask(data, point));
-            });
             foreach (var span in BuildBoundarySpans(contour.Segments))
             {
                 var length = Mathf.RoundToInt(span.End - span.Start);
@@ -223,18 +207,6 @@ namespace Darkfall.World
                         ? new Vector2(span.Fixed, coordinate)
                         : new Vector2(coordinate, span.Fixed);
                     if (FeatureReplacesWallModule(data, anchor)) continue;
-                    // Corner modules already include both adjoining wall arms. Do not draw the
-                    // terminal straight modules underneath them: that produced crossed caps,
-                    // doubled cornices and the bright T-junctions visible in the screenshots.
-                    var touchesCorner = false;
-                    foreach (var corner in cornerPoints)
-                    {
-                        var cornerPoint = new Vector2(corner.x * .5f, corner.y * .5f);
-                        if (Vector2.Distance(anchor, cornerPoint) > .76f) continue;
-                        touchesCorner = true;
-                        break;
-                    }
-                    if (touchesCorner) continue;
                     var role = span.Vertical ? "wall-right" : "wall-left";
                     if (length >= 7 && section >= 2 && section <= length - 3 &&
                         (section + edgeHash) % 7 == 3)
@@ -246,21 +218,12 @@ namespace Darkfall.World
                         // be selected here. Real openings are emitted by the threshold grammar.
                         role = accent == 1 ? "wall-broken" : "wall-niche";
                     }
-                    CreateArchitectureModule(role, anchor, span.Vertical, 1f, moduleIndex++,
+                    // A slight overlap closes perpendicular endpoints. The authored corner images
+                    // have a larger implicit footprint than the one-cell grid and cannot be mixed
+                    // with these wall modules without floating V shapes or doubled cornices.
+                    CreateArchitectureModule(role, anchor, span.Vertical, 1.04f, moduleIndex++,
                         data.BoundaryHeight(anchor));
                 }
-            }
-
-            foreach (var pointKey in cornerPoints)
-            {
-                var point = new Vector2(pointKey.x * .5f, pointKey.y * .5f);
-                var mask = FloorQuadrantMask(data, point);
-                var bits = CountMaskBits(mask);
-                if (bits != 1 && bits != 3) continue;
-                if (FeatureReplacesWallModule(data, point)) continue;
-                if (!IsRenderableCornerMask(mask)) continue;
-                CreateArchitectureModule(bits == 1 ? "corner-inner" : "corner-outer",
-                    point, false, 1f, moduleIndex++, data.BoundaryHeight(point));
             }
 
         }
@@ -314,16 +277,6 @@ namespace Darkfall.World
             return spans;
         }
 
-        private static int FloorQuadrantMask(DungeonData data, Vector2 point)
-        {
-            var x = Mathf.RoundToInt(point.x);
-            var y = Mathf.RoundToInt(point.y);
-            return (data.IsFloor(x - 1, y - 1) ? 1 : 0) |
-                   (data.IsFloor(x, y - 1) ? 2 : 0) |
-                   (data.IsFloor(x, y) ? 4 : 0) |
-                   (data.IsFloor(x - 1, y) ? 8 : 0);
-        }
-
         private static bool FeatureReplacesWallModule(DungeonData data, Vector2 point)
         {
             foreach (var feature in data.Architecture)
@@ -355,9 +308,6 @@ namespace Darkfall.World
              Mathf.RoundToInt((from.y + to.y) * 47f) * 19349663 ^
              profile.Chapter * 83492791 ^ sections * 31) & int.MaxValue;
 
-        private static Vector2Int Quantize(Vector2 point) =>
-            new Vector2Int(Mathf.RoundToInt(point.x * 2f), Mathf.RoundToInt(point.y * 2f));
-
         private void BuildThresholdArchitecture(DungeonData data)
         {
             var featureIndex = 100000;
@@ -371,24 +321,10 @@ namespace Darkfall.World
                 // Ordinary circulation is an empty threshold. The arcade artwork is a small
                 // double lancet wall module and must never masquerade as a walk-through gate.
                 if (feature.Kind == DungeonArchitectureKind.OpenGate)
-                {
-                    CreateOpenPassageJambs(data, feature, ref featureIndex);
                     continue;
-                }
                 CreateArchitectureModule("stairs", feature.Position, feature.Vertical, 1.03f,
                     featureIndex++, 0f);
             }
-        }
-
-        private void CreateOpenPassageJambs(DungeonData data, DungeonArchitectureFeature feature,
-            ref int featureIndex)
-        {
-            var tangent = feature.Vertical ? Vector2.up : Vector2.right;
-            var distance = feature.Width * .5f + .04f;
-            CreateArchitectureModule("column", feature.Position - tangent * distance, false, .58f,
-                featureIndex++, data.BoundaryHeight(feature.Position - tangent * distance));
-            CreateArchitectureModule("column", feature.Position + tangent * distance, false, .58f,
-                featureIndex++, data.BoundaryHeight(feature.Position + tangent * distance));
         }
 
         private void CreateArchitectureModule(string role, Vector2 anchor, bool flipX, float scale, int index,
@@ -428,20 +364,6 @@ namespace Darkfall.World
             // is in front of or behind a wall; the old +40 bias swallowed actors on the near side.
             visual.AddComponent<IsoVisual>().Initialize(owner.transform, elevation, 1002, false);
         }
-
-        private static int CountMaskBits(int mask)
-        {
-            var bits = 0;
-            for (var value = mask; value != 0; value >>= 1) bits += value & 1;
-            return bits;
-        }
-
-        private static bool IsRenderableCornerMask(int mask) =>
-            // The authored inner/outer modules are symmetric in screen X and have exactly one
-            // near/far projection. flipX therefore cannot represent all four logical quadrants.
-            // mask 4 is the visible concave room corner; mask 11 is its convex inverse. Other
-            // orientations are formed by the straight wall pair until directional art exists.
-            mask == 4 || mask == 11;
 
         private Material CreateTexturedMaterial(string path)
         {
