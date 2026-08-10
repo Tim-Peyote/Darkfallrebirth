@@ -30,11 +30,19 @@ namespace Darkfall.Core
 
         public static bool HasBiome(string biome) => Module(biome, "wall-left") != null;
 
+        public static string WallRoleForAxis(string biome, bool vertical)
+        {
+            // Logical axes are shared by every biome. Drowned source art was exported with its
+            // left/right filenames interchanged, so normalize that authoring difference here.
+            if (biome == "drowned-crypt") return vertical ? "wall-left" : "wall-right";
+            return vertical ? "wall-right" : "wall-left";
+        }
+
         /// <summary>Normalizes how independently-authored right-wall files face the world axis.</summary>
         public static bool FlipForAxis(string biome, string role, bool vertical)
         {
             if (!vertical) return false;
-            if (role != "wall-right") return true;
+            if (role != "wall-right") return false;
             // Only the original catacomb right wall was exported with reversed handedness.
             // Drowned and charnel already contain a complementary right-facing sprite; mirroring
             // either of them turns a continuous wall run into the transverse "picket fence".

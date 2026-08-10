@@ -45,12 +45,18 @@ namespace Darkfall.World
             var triangles = new List<int>();
             var colors = new List<Color>();
             var uvs = new List<Vector2>();
+            var upperVertices = new List<Vector3>();
+            var upperTriangles = new List<int>();
+            var upperColors = new List<Color>();
+            var upperUvs = new List<Vector2>();
             foreach (var hazard in data.Hazards)
             {
                 var x = hazard.Cell.x;
                 var y = hazard.Cell.y;
-                if (CreateAuthoredHazardModule(authoredRoot, hazard, data))
-                    continue;
+                // Authored modules provide biome-specific banks, bridges and surface detail.
+                // The connected underlay remains mandatory: without it a river becomes a row of
+                // isolated props whenever a generated sprite has transparent margins.
+                CreateAuthoredHazardModule(authoredRoot, hazard, data);
                 var shape = new List<Vector2>
                 {
                     new Vector2(x + .18f, y + .06f), new Vector2(x + .82f, y + .06f),
@@ -66,14 +72,33 @@ namespace Darkfall.World
                 { shape[0] = new Vector2(x + .18f, y); shape[1] = new Vector2(x + .82f, y); }
                 if ((hazard.Connections & DungeonHazardConnections.North) != 0)
                 { shape[4] = new Vector2(x + .82f, y + 1); shape[5] = new Vector2(x + .18f, y + 1); }
-                AddHazardPolygon(vertices, triangles, colors, uvs, shape,
-                    hazard.SafeCrossing
-                        ? Color.Lerp(profile.FloorTint, profile.WallTint, .65f) * 1.18f
-                        : HazardColor(hazard.Kind),
-                    data.SurfaceHeight(new Vector2(x + .5f, y + .5f)) + .008f);
+                var upper = data.ElevationLevel(x, y) > 0;
+                if (upper)
+                    AddHazardPolygon(upperVertices, upperTriangles, upperColors, upperUvs, shape,
+                        HazardSurfaceColor(hazard), data.SurfaceHeight(new Vector2(x + .5f, y + .5f)) + .008f);
+                else
+                    AddHazardPolygon(vertices, triangles, colors, uvs, shape,
+                        HazardSurfaceColor(hazard), .008f);
             }
-            var mesh = MakeMesh("Connected Biome Hazards", vertices, triangles, colors, uvs);
-            CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.FloorTexture), -8);
+            CreateHazardLayer("Connected Biome Hazards", vertices, triangles, colors, uvs, -9);
+            CreateHazardLayer("Connected Upper Biome Hazards", upperVertices, upperTriangles,
+                upperColors, upperUvs, 974);
+        }
+
+        private Color HazardSurfaceColor(DungeonHazardCell hazard) => hazard.SafeCrossing
+            ? Color.Lerp(profile.FloorTint, profile.WallTint, .65f) * 1.18f
+            : HazardColor(hazard.Kind);
+
+        private void CreateHazardLayer(string name, List<Vector3> vertices, List<int> triangles,
+            List<Color> colors, List<Vector2> uvs, int sortingOrder)
+        {
+            if (vertices.Count == 0) return;
+            var mesh = MakeMesh(name, vertices, triangles, colors, uvs);
+            // Hazard color is part of its gameplay readability. It remains self-readable in the
+            // ambient darkness while authored banks above it still receive local 2D lighting.
+            var surfaceMaterial = new Material(DarkfallRenderMaterials.SpriteUnlit) { color = Color.white };
+            materials.Add(surfaceMaterial);
+            CreateLayer(mesh.name, mesh, surfaceMaterial, sortingOrder);
         }
 
         private bool CreateAuthoredHazardModule(Transform parent, DungeonHazardCell hazard, DungeonData data)
@@ -98,7 +123,7 @@ namespace Darkfall.World
             var renderer = module.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
             ConfigureHazardOrientation(renderer, hazard.Connections, moduleName);
-            renderer.sortingOrder = -8;
+            renderer.sortingOrder = data.ElevationLevel(hazard.Cell.x, hazard.Cell.y) > 0 ? 975 : -8;
             DarkfallRenderMaterials.MakeLit(renderer);
             return true;
         }
@@ -272,7 +297,7 @@ namespace Darkfall.World
             // as a fake open passage despite traversal being blocked.
             if (!data.IsFloor(lowerX, lowerY) || data.ElevationLevel(lowerX, lowerY) >=
                 data.ElevationLevel(upperX, upperY) || IsStairRiserOpening(data, anchor, vertical)) return;
-            var role = vertical ? "wall-right" : "wall-left";
+            var role = ArchitectureSpriteLibrary.WallRoleForAxis(profile.Id, vertical);
             var flip = ArchitectureSpriteLibrary.FlipForAxis(profile.Id, role, vertical);
             CreateArchitectureModule(role, anchor, flip, .985f, moduleIndex++, top);
         }
@@ -326,6 +351,15 @@ namespace Darkfall.World
             if (vertices.Count == 0) return;
             var mesh = MakeMesh("Raised Platform Upper Floors", vertices, triangles, colors, uvs);
             CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.FloorTexture), 972);
+            var floorTexture = Resources.Load<Texture2D>(profile.FloorTexture);
+            var capReadability = new Material(DarkfallRenderMaterials.SpriteUnlit)
+            {
+                color = new Color(profile.FloorTint.r * .52f, profile.FloorTint.g * .52f,
+                    profile.FloorTint.b * .52f, .28f),
+                mainTexture = floorTexture
+            };
+            materials.Add(capReadability);
+            CreateLayer("Raised Platform Floor Readability", mesh, capReadability, 973);
             var seamMesh = MakeMesh("Raised Platform Cap Seams", seamVertices, seamTriangles, seamColors, seamUvs);
             var seamMaterial = new Material(DarkfallRenderMaterials.SpriteLit)
             {
@@ -333,7 +367,7 @@ namespace Darkfall.World
                 mainTexture = Resources.Load<Texture2D>(profile.WallTexture)
             };
             materials.Add(seamMaterial);
-            CreateLayer(seamMesh.name, seamMesh, seamMaterial, 973);
+            CreateLayer(seamMesh.name, seamMesh, seamMaterial, 976);
         }
 
         private void AddPlatformCapSeam(List<Vector3> vertices, List<int> triangles,
@@ -521,7 +555,7 @@ namespace Darkfall.World
                         ? new Vector2(span.Fixed, coordinate)
                         : new Vector2(coordinate, span.Fixed);
                     if (FeatureReplacesWallModule(data, anchor)) continue;
-                    var role = span.Vertical ? "wall-right" : "wall-left";
+                    var role = ArchitectureSpriteLibrary.WallRoleForAxis(profile.Id, span.Vertical);
                     // Accent files are authored as front-facing facade minisets. They may replace
                     // only a compatible horizontal wall slot; using them on both axes produced
                     // the transverse panels seen in the biome audit.

@@ -322,6 +322,7 @@ namespace Darkfall.Editor
                 // Audit frames are deliberately brighter than gameplay: their job is to expose
                 // seams, wrong axes and grounding defects, not to approve them by hiding them.
                 ambient.intensity = Mathf.Max(.82f, DungeonVisualProfile.ForDepth(depth).AmbientIntensity);
+                ambient.shadowsEnabled = false;
 
                 var elevationFocus = dungeon.Rooms[Mathf.Min(1, dungeon.Rooms.Count - 1)].Center;
                 foreach (var room in dungeon.Rooms)

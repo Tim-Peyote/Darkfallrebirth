@@ -38,6 +38,10 @@ namespace Darkfall.World
             ambient.lightType = Light2D.LightType.Global;
             ambient.color = Color.Lerp(new Color(.40f, .41f, .44f), profile.WallTint, .22f);
             ambient.intensity = profile.AmbientIntensity;
+            // Ambient establishes the readable darkness floor. Occlusion belongs to the Nox-style
+            // player lobe and authored point lights below; allowing a closed contour to shadow the
+            // global fill turns an entire room into a black slab and creates the "floating wall" band.
+            ambient.shadowsEnabled = false;
         }
 
         private Light2D CreateOccludedWorldLight(DungeonData dungeon, DungeonLightSource source, int index)
