@@ -35,9 +35,10 @@ namespace Darkfall.Core
         {
             if (!vertical) return false;
             if (role != "wall-right") return true;
-            // These two source sets encode wall-right with the opposite handedness. This is asset
-            // metadata, not a different dungeon grammar.
-            return biome == "ashen-catacombs" || biome == "drowned-crypt";
+            // Only the original catacomb right wall was exported with reversed handedness.
+            // Drowned and charnel already contain a complementary right-facing sprite; mirroring
+            // either of them turns a continuous wall run into the transverse "picket fence".
+            return biome == "ashen-catacombs";
         }
 
         /// <summary>
@@ -79,9 +80,10 @@ namespace Darkfall.Core
             var key = biome + "/" + role;
             if (Cache.TryGetValue(key, out var cached)) return cached;
 
-            var version = biome == "charnel-gardens" && (role == "wall-left" || role == "wall-right")
-                ? "-02"
-                : "-01";
+            // The organic charnel pair is the canonical kit. The experimental 02 pair has a
+            // different screen-axis contract and is intentionally kept as replaceable source art,
+            // not selected by the shared dungeon grammar.
+            var version = "-01";
             var texture = Resources.Load<Texture2D>(Root + key + version);
             if (texture == null)
             {

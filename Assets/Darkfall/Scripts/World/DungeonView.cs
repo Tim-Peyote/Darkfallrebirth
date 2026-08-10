@@ -15,8 +15,7 @@ namespace Darkfall.World
         private Transform structuralDecor;
         private Transform lightDecor;
         private Transform clutterDecor;
-        private readonly Dictionary<DungeonHazardKind, Sprite> hazardBodySprites =
-            new Dictionary<DungeonHazardKind, Sprite>();
+        private readonly Dictionary<string, Sprite> hazardSprites = new Dictionary<string, Sprite>();
 
         public void Build(DungeonData data, int depth = 1)
         {
@@ -28,16 +27,14 @@ namespace Darkfall.World
             BuildContourFloor(contour, data);
             BuildHazardSurfaces(data);
             BuildContourWalls(contour, data);
-            // Authored wall modules already contain a grounded plinth and receive local light.
-            // A contour-wide 2D caster projects large black wedges across the floor because it
-            // cannot represent the wall's actual height. Keep it only for the legacy mesh fallback.
-            if (!ArchitectureSpriteLibrary.HasBiome(profile.Id)) BuildContourShadows(contour);
+            BuildContourShadows(contour);
             var decorRoot = new GameObject("Decor · " + profile.Id).transform;
             decorRoot.SetParent(transform, false);
             structuralDecor = CreateGroup(decorRoot, "Structural");
             lightDecor = CreateGroup(decorRoot, "Light Sources");
             clutterDecor = CreateGroup(decorRoot, "Clutter");
             BuildDecor(data);
+            BuildBiomeEvents(data);
         }
 
         private void BuildHazardSurfaces(DungeonData data)
@@ -52,9 +49,7 @@ namespace Darkfall.World
             {
                 var x = hazard.Cell.x;
                 var y = hazard.Cell.y;
-                if (hazard.Connections == (DungeonHazardConnections.West | DungeonHazardConnections.East |
-                                           DungeonHazardConnections.South | DungeonHazardConnections.North) &&
-                    CreateAuthoredHazardBody(authoredRoot, hazard, data))
+                if (CreateAuthoredHazardModule(authoredRoot, hazard, data))
                     continue;
                 var shape = new List<Vector2>
                 {
@@ -81,27 +76,83 @@ namespace Darkfall.World
             CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.FloorTexture), -8);
         }
 
-        private bool CreateAuthoredHazardBody(Transform parent, DungeonHazardCell hazard, DungeonData data)
+        private bool CreateAuthoredHazardModule(Transform parent, DungeonHazardCell hazard, DungeonData data)
         {
-            if (!hazardBodySprites.TryGetValue(hazard.Kind, out var sprite))
+            var moduleName = HazardModuleName(hazard);
+            var folder = HazardResourceFolder(hazard.Kind);
+            var cacheKey = folder + "/" + moduleName;
+            if (!hazardSprites.TryGetValue(cacheKey, out var sprite))
             {
-                var texture = Resources.Load<Texture2D>(HazardResourceFolder(hazard.Kind) + "/body-4way-01");
+                var texture = Resources.Load<Texture2D>(cacheKey + "-01");
                 if (texture == null) return false;
                 texture.filterMode = FilterMode.Bilinear;
                 texture.wrapMode = TextureWrapMode.Clamp;
                 sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
                     new Vector2(.5f, .5f), 345f, 0, SpriteMeshType.Tight);
-                hazardBodySprites[hazard.Kind] = sprite;
+                hazardSprites[cacheKey] = sprite;
             }
-            var module = new GameObject(hazard.Kind + " Body · 4-way");
+            var module = new GameObject(hazard.Kind + " · " + moduleName);
             module.transform.SetParent(parent, false);
             module.transform.position = IsoWorld.Project(hazard.Cell + new Vector2(.5f, .5f)) +
                                         Vector2.up * (data.SurfaceHeight(hazard.Cell + new Vector2(.5f, .5f)) + .008f);
             var renderer = module.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
+            ConfigureHazardOrientation(renderer, hazard.Connections, moduleName);
             renderer.sortingOrder = -8;
             DarkfallRenderMaterials.MakeLit(renderer);
             return true;
+        }
+
+        private static string HazardModuleName(DungeonHazardCell hazard)
+        {
+            if (hazard.SafeCrossing) return "bridge";
+            var mask = hazard.Connections;
+            var count = 0;
+            if ((mask & DungeonHazardConnections.West) != 0) count++;
+            if ((mask & DungeonHazardConnections.East) != 0) count++;
+            if ((mask & DungeonHazardConnections.South) != 0) count++;
+            if ((mask & DungeonHazardConnections.North) != 0) count++;
+            if (count == 0) return "isolated";
+            if (count == 1) return "end";
+            if (count == 2)
+                return ((mask & (DungeonHazardConnections.West | DungeonHazardConnections.East)) ==
+                        (DungeonHazardConnections.West | DungeonHazardConnections.East) ||
+                        (mask & (DungeonHazardConnections.South | DungeonHazardConnections.North)) ==
+                        (DungeonHazardConnections.South | DungeonHazardConnections.North)) ? "straight" : "corner";
+            if (count == 3) return "tee";
+            return "body-4way";
+        }
+
+        private static void ConfigureHazardOrientation(SpriteRenderer renderer,
+            DungeonHazardConnections mask, string moduleName)
+        {
+            // The authored canonical pieces face west (end), west/east (straight),
+            // west+north (corner), and west+east+south (tee). Isometric axes are mirrored,
+            // never arbitrarily rotated, so pixel scale and connection width remain stable.
+            if (moduleName == "straight" || moduleName == "bridge")
+            {
+                renderer.flipX = (mask & (DungeonHazardConnections.South | DungeonHazardConnections.North)) != 0;
+                return;
+            }
+            if (moduleName == "end")
+            {
+                renderer.flipX = (mask & (DungeonHazardConnections.South | DungeonHazardConnections.East)) != 0;
+                renderer.flipY = (mask & (DungeonHazardConnections.North | DungeonHazardConnections.East)) != 0;
+                return;
+            }
+            if (moduleName == "corner")
+            {
+                renderer.flipX = (mask & DungeonHazardConnections.East) != 0;
+                renderer.flipY = (mask & DungeonHazardConnections.South) != 0;
+                return;
+            }
+            if (moduleName == "tee")
+            {
+                renderer.flipX = (mask & DungeonHazardConnections.West) == 0 ||
+                                 (mask & DungeonHazardConnections.North) == 0;
+                renderer.flipY = (mask & DungeonHazardConnections.South) == 0 ||
+                                 (mask & DungeonHazardConnections.East) == 0;
+            }
         }
 
         private static string HazardResourceFolder(DungeonHazardKind kind)
@@ -189,6 +240,41 @@ namespace Darkfall.World
             CreateLayer(mesh.name, mesh, material, -20);
             BuildRaisedFloorCaps(data);
             BuildElevationRisers(data);
+            BuildElevationGuardrails(data);
+        }
+
+        private void BuildElevationGuardrails(DungeonData data)
+        {
+            if (!ArchitectureSpriteLibrary.HasBiome(profile.Id)) return;
+            var moduleIndex = 70000;
+            for (var x = 0; x < data.Width; x++)
+            for (var y = 0; y < data.Height; y++)
+            {
+                var level = data.ElevationLevel(x, y);
+                if (level <= 0) continue;
+                var top = level * DungeonData.ElevationStepHeight;
+                AddElevationGuardrail(data, x, y, x - 1, y,
+                    new Vector2(x, y + .5f), true, top, ref moduleIndex);
+                AddElevationGuardrail(data, x, y, x + 1, y,
+                    new Vector2(x + 1, y + .5f), true, top, ref moduleIndex);
+                AddElevationGuardrail(data, x, y, x, y - 1,
+                    new Vector2(x + .5f, y), false, top, ref moduleIndex);
+                AddElevationGuardrail(data, x, y, x, y + 1,
+                    new Vector2(x + .5f, y + 1), false, top, ref moduleIndex);
+            }
+        }
+
+        private void AddElevationGuardrail(DungeonData data, int upperX, int upperY, int lowerX, int lowerY,
+            Vector2 anchor, bool vertical, float top, ref int moduleIndex)
+        {
+            // Outer dungeon contours already own their wall. This guardrail exists only where two
+            // walkable floors touch at different levels: precisely the case that otherwise reads
+            // as a fake open passage despite traversal being blocked.
+            if (!data.IsFloor(lowerX, lowerY) || data.ElevationLevel(lowerX, lowerY) >=
+                data.ElevationLevel(upperX, upperY) || IsStairRiserOpening(data, anchor, vertical)) return;
+            var role = vertical ? "wall-right" : "wall-left";
+            var flip = ArchitectureSpriteLibrary.FlipForAxis(profile.Id, role, vertical);
+            CreateArchitectureModule(role, anchor, flip, .985f, moduleIndex++, top);
         }
 
         private void BuildRaisedFloorCaps(DungeonData data)
@@ -743,6 +829,119 @@ namespace Darkfall.World
             }
         }
 
+        private void BuildBiomeEvents(DungeonData data)
+        {
+            var eventRoot = CreateGroup(structuralDecor, "Biome Events · " + profile.Id);
+            var placed = 0;
+            var fallbackRoom = -1;
+            var fallbackArea = 0;
+            for (var roomIndex = 1; roomIndex < data.Rooms.Count - 1; roomIndex++)
+            {
+                var room = data.Rooms[roomIndex];
+                var bounds = room.bounds;
+                if (bounds.width < 7 || bounds.height < 7) continue;
+                if (bounds.width * bounds.height > fallbackArea)
+                {
+                    fallbackArea = bounds.width * bounds.height;
+                    fallbackRoom = roomIndex;
+                }
+                var hash = ((bounds.x * 92837111) ^ (bounds.y * 689287499) ^
+                            (roomIndex * 283923481) ^ (profile.Chapter * 104729)) & int.MaxValue;
+                // Landmarks are rare enough to remain memorable, but every sufficiently large
+                // dungeon receives several. Selection is semantic rather than a recoloured pool.
+                if (hash % 100 >= Mathf.RoundToInt(44f * profile.DecorDensity)) continue;
+                if (TryBuildBiomeEvent(data, eventRoot, roomIndex, hash)) placed++;
+            }
+
+            // A biome identity cannot disappear because all semantic rolls missed. Guarantee one
+            // signature composition on every regular floor, while still obeying route clearance.
+            if (placed == 0 && fallbackRoom >= 0)
+                TryBuildBiomeEvent(data, eventRoot, fallbackRoom,
+                    (fallbackRoom * 283923481 ^ profile.Chapter * 104729) & int.MaxValue);
+        }
+
+        private bool TryBuildBiomeEvent(DungeonData data, Transform eventRoot, int roomIndex, int hash)
+        {
+            var room = data.Rooms[roomIndex];
+            var bounds = room.bounds;
+            var index = BiomeEventIndex(room.theme, hash);
+            var center = (Vector2)bounds.center;
+            var offset = new Vector2(((hash / 7) % 3 - 1) * .7f, ((hash / 19) % 3 - 1) * .55f);
+            var position = center + offset;
+            if (ThemeClearance(data, bounds, position, false) < 2.45f) return false;
+            if (!data.TryAddObstaclePreservingRoutes(position)) return false;
+            var sprite = BiomeEventSpriteLibrary.Get(profile.Id, index);
+            if (sprite == null) return false;
+
+            var root = new GameObject("Biome Event · " + room.theme + " · " + index);
+            root.transform.SetParent(eventRoot, false);
+            root.transform.position = position;
+            var visual = new GameObject("Projected Event");
+            visual.transform.SetParent(root.transform, false);
+            visual.transform.localScale = Vector3.one * (.88f + hash % 4 * .045f);
+            var renderer = visual.AddComponent<SpriteRenderer>();
+            renderer.sprite = sprite;
+            DarkfallRenderMaterials.MakeLit(renderer);
+            visual.AddComponent<IsoVisual>().Initialize(root.transform, 0f, 1010);
+            var caster = visual.AddComponent<ShadowCaster2D>();
+            caster.castsShadows = true;
+            caster.selfShadows = false;
+            caster.alphaCutoff = .2f;
+
+            if (IsLuminousBiomeEvent(index))
+                data.AddLightSource(position + new Vector2(0, .25f), profile.FireTint, 5.4f, .17f);
+            if (IsHostileBiomeEvent(index))
+                root.AddComponent<BiomeEventHazard>().Initialize(1.25f, 12f + profile.Chapter * .7f);
+            return true;
+        }
+
+        private int BiomeEventIndex(DungeonRoomTheme theme, int hash)
+        {
+            switch (profile.Id)
+            {
+                case "ember-vaults":
+                    if (theme == DungeonRoomTheme.Forge) return new[] { 0, 1, 2, 5 }[(hash / 11) % 4];
+                    if (theme == DungeonRoomTheme.Ritual) return (hash & 1) == 0 ? 3 : 4;
+                    return hash % 6;
+                case "drowned-crypt":
+                    if (theme == DungeonRoomTheme.Cistern) return new[] { 1, 4, 5 }[(hash / 11) % 3];
+                    if (theme == DungeonRoomTheme.Shrine) return (hash & 1) == 0 ? 0 : 3;
+                    if (theme == DungeonRoomTheme.Ritual) return 4;
+                    return hash % 6;
+                case "charnel-gardens":
+                    if (theme == DungeonRoomTheme.Garden) return new[] { 0, 1, 2, 3, 4 }[(hash / 11) % 5];
+                    if (theme == DungeonRoomTheme.Ritual || theme == DungeonRoomTheme.Ossuary) return 5;
+                    return hash % 6;
+                case "obsidian-sanctum":
+                    if (theme == DungeonRoomTheme.Observatory) return (hash & 1) == 0 ? 0 : 1;
+                    if (theme == DungeonRoomTheme.Ritual) return new[] { 2, 3, 4 }[(hash / 11) % 3];
+                    return (hash & 1) == 0 ? 2 : 5;
+                default:
+                    if (theme == DungeonRoomTheme.Ossuary) return (hash & 1) == 0 ? 0 : 2;
+                    if (theme == DungeonRoomTheme.Ritual) return (hash & 1) == 0 ? 1 : 3;
+                    if (theme == DungeonRoomTheme.Shrine) return 4;
+                    return (hash & 1) == 0 ? 0 : 5;
+            }
+        }
+
+        private bool IsLuminousBiomeEvent(int index)
+        {
+            if (profile.Id == "ember-vaults") return index == 2 || index == 3 || index == 4;
+            if (profile.Id == "drowned-crypt") return index == 3 || index == 5;
+            if (profile.Id == "charnel-gardens") return index == 0 || index == 3 || index == 4;
+            if (profile.Id == "obsidian-sanctum") return index != 1;
+            return index == 1 || index == 3;
+        }
+
+        private bool IsHostileBiomeEvent(int index)
+        {
+            if (profile.Id == "ember-vaults") return index == 3 || index == 4;
+            if (profile.Id == "drowned-crypt") return index == 4;
+            if (profile.Id == "charnel-gardens") return index == 1 || index == 4;
+            if (profile.Id == "obsidian-sanctum") return index == 3 || index == 4;
+            return index == 3;
+        }
+
         private int ThemePrimary(DungeonRoomTheme theme, int hash)
         {
             if (profile.Id == "ashen-catacombs")
@@ -1051,7 +1250,9 @@ namespace Darkfall.World
             shadow.transform.SetParent(parent, false);
             shadow.transform.position = (a + b) * .5f;
             shadow.transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg);
-            shadow.transform.localScale = new Vector3(delta.magnitude, .12f, 1);
+            // A thin occlusion edge preserves Nox-like local-light blocking without projecting the
+            // broad detached black band that made authored wall plinths appear to float.
+            shadow.transform.localScale = new Vector3(delta.magnitude, .035f, 1);
             var renderer = shadow.AddComponent<SpriteRenderer>();
             renderer.sprite = RuntimeAssets.Square;
             renderer.color = Color.clear;

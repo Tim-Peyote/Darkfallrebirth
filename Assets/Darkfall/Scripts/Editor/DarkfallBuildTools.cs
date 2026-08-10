@@ -8,6 +8,7 @@ using Darkfall.World;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace Darkfall.Editor
 {
@@ -97,9 +98,15 @@ namespace Darkfall.Editor
             {
                 failures += Require(ArchitectureSpriteLibrary.HasBiome(biome),
                     $"Architecture pipeline cannot load biome: {biome}");
-                failures += Require(Resources.Load<Texture2D>(
-                        $"Sprites/Environment/Hazards/{biome}/body-4way-01") != null,
-                    $"Authored four-way hazard module is missing: {biome}");
+                foreach (var hazardModule in new[]
+                         { "straight", "corner", "end", "tee", "isolated", "bridge", "body-4way" })
+                    failures += Require(Resources.Load<Texture2D>(
+                            $"Sprites/Environment/Hazards/{biome}/{hazardModule}-01") != null,
+                        $"Authored hazard module is missing: {biome}/{hazardModule}");
+                for (var eventIndex = 0; eventIndex < 6; eventIndex++)
+                    failures += Require(Resources.Load<Texture2D>(
+                            $"Sprites/Environment/Events/{biome}/event-{eventIndex:00}") != null,
+                        $"Biome event module is missing: {biome}/{eventIndex:00}");
             foreach (var module in architectureModules)
                 failures += Require(Resources.Load<Texture2D>(
                         $"Sprites/Environment/Architecture/{biome}/{module}-01") != null,
@@ -296,6 +303,75 @@ namespace Darkfall.Editor
 
             if (failures > 0) throw new InvalidOperationException($"Darkfall validation failed: {failures} error(s)");
             Debug.Log("Darkfall validation passed: structure, resources and 100 dungeon seeds are valid.");
+        }
+
+        [MenuItem("Darkfall/Capture Biome Visual Audit")]
+        public static void CaptureBiomeVisualAudit()
+        {
+            var output = Path.GetFullPath("work/visual-audit");
+            Directory.CreateDirectory(output);
+            foreach (var depth in new[] { 1, 11, 21, 31, 41 })
+            {
+                var dungeon = DungeonGenerator.Generate(GameBalance.RuntimeDefault(), depth, 73000 + depth);
+                var root = new GameObject("Visual Audit Root");
+                root.AddComponent<DungeonView>().Build(dungeon, depth);
+                var ambient = new GameObject("Visual Audit Ambient").AddComponent<Light2D>();
+                ambient.lightType = Light2D.LightType.Global;
+                ambient.color = Color.Lerp(new Color(.40f, .41f, .44f),
+                    DungeonVisualProfile.ForDepth(depth).WallTint, .22f);
+                // Audit frames are deliberately brighter than gameplay: their job is to expose
+                // seams, wrong axes and grounding defects, not to approve them by hiding them.
+                ambient.intensity = Mathf.Max(.82f, DungeonVisualProfile.ForDepth(depth).AmbientIntensity);
+
+                var elevationFocus = dungeon.Rooms[Mathf.Min(1, dungeon.Rooms.Count - 1)].Center;
+                foreach (var room in dungeon.Rooms)
+                    if (dungeon.ElevationLevel(Mathf.FloorToInt(room.Center.x), Mathf.FloorToInt(room.Center.y)) > 0)
+                    {
+                        elevationFocus = room.Center;
+                        break;
+                    }
+                CaptureAuditFrame(output, depth, "elevation", elevationFocus);
+
+                if (dungeon.Hazards.Count > 0)
+                    CaptureAuditFrame(output, depth, "hazard", dungeon.Hazards[0].Cell + Vector2.one * .5f);
+
+                foreach (var candidate in root.GetComponentsInChildren<Transform>(true))
+                {
+                    if (!candidate.name.StartsWith("Biome Event ·")) continue;
+                    CaptureAuditFrame(output, depth, "event", candidate.position);
+                    break;
+                }
+                UnityEngine.Object.DestroyImmediate(ambient.gameObject);
+                UnityEngine.Object.DestroyImmediate(root);
+            }
+            Debug.Log("Darkfall visual audit captured: " + output);
+        }
+
+        private static void CaptureAuditFrame(string output, int depth, string subject, Vector2 logicalFocus)
+        {
+            var projected = IsoWorld.Project(logicalFocus);
+            var cameraObject = new GameObject("Visual Audit Camera · " + subject);
+            var camera = cameraObject.AddComponent<Camera>();
+            camera.orthographic = true;
+            camera.orthographicSize = subject == "event" ? 4.8f : 6.4f;
+            camera.aspect = 16f / 9f;
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color(.006f, .005f, .012f, 1f);
+            camera.transform.position = new Vector3(projected.x, projected.y, -10f);
+            var target = new RenderTexture(1920, 1080, 24, RenderTextureFormat.ARGB32);
+            camera.targetTexture = target;
+            camera.Render();
+            RenderTexture.active = target;
+            var capture = new Texture2D(1920, 1080, TextureFormat.RGBA32, false);
+            capture.ReadPixels(new Rect(0, 0, 1920, 1080), 0, 0);
+            capture.Apply();
+            File.WriteAllBytes(Path.Combine(output,
+                $"depth-{depth:00}-{DungeonVisualProfile.ForDepth(depth).Id}-{subject}.png"), capture.EncodeToPNG());
+            RenderTexture.active = null;
+            camera.targetTexture = null;
+            UnityEngine.Object.DestroyImmediate(capture);
+            UnityEngine.Object.DestroyImmediate(target);
+            UnityEngine.Object.DestroyImmediate(cameraObject);
         }
 
         [MenuItem("Darkfall/Configure Build")]
