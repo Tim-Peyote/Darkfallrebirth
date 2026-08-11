@@ -82,9 +82,15 @@ namespace Darkfall.Core
             runtimeUI = gameObject.AddComponent<RuntimeUI>();
             runtimeUI.Initialize(this);
             Audio.PlayMusic("Main");
+            // Screenshot capture is QA-only and intentionally absent from non-development
+            // players. Keep its call behind the same symbols as its implementation so Windows
+            // release compilation never references a stripped method.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-darkfall-lighting-audit") >= 0)
                 StartCoroutine(RunLightingVisualAudit());
-            else if (Array.IndexOf(Environment.GetCommandLineArgs(), "-darkfall-smoke") >= 0)
+            else
+#endif
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-darkfall-smoke") >= 0)
                 BeginReleaseSmoke();
         }
 
