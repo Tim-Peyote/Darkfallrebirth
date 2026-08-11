@@ -35,7 +35,7 @@ namespace Darkfall.Editor
                      {
                          "sword", "Dagger", "Fireball", "enemy_hit", "enemy_die", "heroes_hit",
                          "Heroes_die", "explosion", "Dash", "Armor", "health_potion", "item_pickup",
-                         "Inventory_open"
+                         "Inventory_open", "Inventory_close"
                      })
                 failures += Require(Resources.Load<AudioClip>($"Audio/Fx/{effect}") != null,
                     $"Gameplay audio effect is missing: {effect}");
@@ -103,7 +103,7 @@ namespace Darkfall.Editor
                     failures += Require(Resources.Load<Texture2D>(
                             $"Sprites/Environment/Hazards/{biome}/{hazardModule}-01") != null,
                         $"Authored hazard module is missing: {biome}/{hazardModule}");
-                for (var eventIndex = 0; eventIndex < 6; eventIndex++)
+                for (var eventIndex = 0; eventIndex < 12; eventIndex++)
                     failures += Require(Resources.Load<Texture2D>(
                             $"Sprites/Environment/Events/{biome}/event-{eventIndex:00}") != null,
                         $"Biome event module is missing: {biome}/{eventIndex:00}");
@@ -154,6 +154,24 @@ namespace Darkfall.Editor
             interactionInventory.SwapBackpack(1, 3);
             failures += Require(interactionInventory.Slots[3]?.id == "test_potion",
                 "Inventory interaction: backpack drag swap failed");
+
+            var stackingInventory = new InventorySystem();
+            failures += Require(stackingInventory.Add(new ItemInstance
+                { id = "potion_roll_a", baseId = "health_potion", kind = ItemKind.Potion, quantity = 1 }),
+                "Inventory lifecycle: first consumable stack could not be added");
+            failures += Require(stackingInventory.Add(new ItemInstance
+                { id = "potion_roll_b", baseId = "health_potion", kind = ItemKind.Potion, quantity = 2 }),
+                "Inventory lifecycle: second consumable stack could not be added");
+            failures += Require(stackingInventory.Count("health_potion") == 3 &&
+                                stackingInventory.Slots[1] == null,
+                "Inventory lifecycle: generated consumables with unique instance ids did not stack by base type");
+            failures += Require(stackingInventory.TryConsume("health_potion", 2) &&
+                                stackingInventory.Count("health_potion") == 1,
+                "Inventory lifecycle: stacked consumable could not be consumed correctly");
+
+            failures += ValidateLootLifecycle();
+            failures += ValidateShopCatalog();
+            failures += ValidateEnemyCatalog();
 
             var balance = GameBalance.RuntimeDefault();
             failures += Require(balance.baseEnemyCount == 12, "Progression: default starting enemy budget must be 12");
@@ -255,6 +273,8 @@ namespace Darkfall.Editor
                     $"Seed {seed}: level exit must not overlap a raised platform");
                 var hazardCells = new HashSet<Vector2Int>();
                 foreach (var hazard in dungeon.Hazards) hazardCells.Add(hazard.Cell);
+                var hazardByCell = new Dictionary<Vector2Int, DungeonHazardCell>();
+                foreach (var hazard in dungeon.Hazards) hazardByCell[hazard.Cell] = hazard;
                 foreach (var hazard in dungeon.Hazards)
                 {
                     failures += Require(dungeon.IsFloor(hazard.Cell.x, hazard.Cell.y),
@@ -268,6 +288,35 @@ namespace Darkfall.Editor
                     if (hazardCells.Contains(hazard.Cell + Vector2Int.up)) expected |= DungeonHazardConnections.North;
                     failures += Require(hazard.Connections == expected,
                         $"Seed {seed}: hazard neighbour mask is inconsistent");
+                }
+                var unvisitedHazards = new HashSet<Vector2Int>(hazardCells);
+                while (unvisitedHazards.Count > 0)
+                {
+                    var origin = default(Vector2Int);
+                    foreach (var candidate in unvisitedHazards) { origin = candidate; break; }
+                    var queue = new Queue<Vector2Int>();
+                    queue.Enqueue(origin);
+                    unvisitedHazards.Remove(origin);
+                    var sources = 0;
+                    var sinks = 0;
+                    var componentKind = hazardByCell[origin].Kind;
+                    while (queue.Count > 0)
+                    {
+                        var cell = queue.Dequeue();
+                        var currentHazard = hazardByCell[cell];
+                        if (currentHazard.Terminal == DungeonHazardTerminal.Source) sources++;
+                        if (currentHazard.Terminal == DungeonHazardTerminal.Sink) sinks++;
+                        failures += Require(currentHazard.Kind == componentKind,
+                            $"Seed {seed}: two hazard materials were joined into one river");
+                        foreach (var direction in new[] { Vector2Int.left, Vector2Int.right, Vector2Int.down, Vector2Int.up })
+                        {
+                            var next = cell + direction;
+                            if (!unvisitedHazards.Remove(next)) continue;
+                            queue.Enqueue(next);
+                        }
+                    }
+                    failures += Require(sources == 1 && sinks == 1,
+                        $"Seed {seed}: hazard flow must have exactly one source and one sink");
                 }
                 var start = dungeon.CellCenter(dungeon.StartCell);
                 failures += Require(dungeon.CanOccupy(start + Vector2.left * .3f, .22f), $"Seed {seed}: start blocks left movement");
@@ -324,24 +373,44 @@ namespace Darkfall.Editor
                 ambient.intensity = Mathf.Max(.82f, DungeonVisualProfile.ForDepth(depth).AmbientIntensity);
                 ambient.shadowsEnabled = false;
 
-                var elevationFocus = dungeon.Rooms[Mathf.Min(1, dungeon.Rooms.Count - 1)].Center;
+                Vector2 elevationFocus = dungeon.Rooms[Mathf.Min(1, dungeon.Rooms.Count - 1)].Center;
+                var foundElevation = false;
                 foreach (var room in dungeon.Rooms)
-                    if (dungeon.ElevationLevel(Mathf.FloorToInt(room.Center.x), Mathf.FloorToInt(room.Center.y)) > 0)
+                {
+                    var cell = Vector2Int.FloorToInt(room.Center);
+                    if (dungeon.IsFloor(cell.x, cell.y) && dungeon.ElevationLevel(cell.x, cell.y) > 0)
                     {
                         elevationFocus = room.Center;
+                        foundElevation = true;
                         break;
                     }
+                }
+                if (!foundElevation)
+                    for (var x = 0; x < dungeon.Width && !foundElevation; x++)
+                    for (var y = 0; y < dungeon.Height; y++)
+                        if (dungeon.IsFloor(x, y) && dungeon.ElevationLevel(x, y) > 0)
+                        {
+                            elevationFocus = new Vector2(x + .5f, y + .5f);
+                            foundElevation = true;
+                            break;
+                        }
                 CaptureAuditFrame(output, depth, "elevation", elevationFocus);
 
                 if (dungeon.Hazards.Count > 0)
                     CaptureAuditFrame(output, depth, "hazard", dungeon.Hazards[0].Cell + Vector2.one * .5f);
 
+                Transform firstEvent = null;
                 foreach (var candidate in root.GetComponentsInChildren<Transform>(true))
                 {
                     if (!candidate.name.StartsWith("Biome Event ·")) continue;
-                    CaptureAuditFrame(output, depth, "event", candidate.position);
+                    if (firstEvent == null) firstEvent = candidate;
+                    var pieces = candidate.name.Split('·');
+                    if (pieces.Length < 3 || !int.TryParse(pieces[2].Trim(), out var eventIndex) || eventIndex < 6)
+                        continue;
+                    firstEvent = candidate;
                     break;
                 }
+                if (firstEvent != null) CaptureAuditFrame(output, depth, "event", firstEvent.position);
                 UnityEngine.Object.DestroyImmediate(ambient.gameObject);
                 UnityEngine.Object.DestroyImmediate(root);
             }
@@ -481,6 +550,121 @@ namespace Darkfall.Editor
             var failures = Require(sheet != null, $"{displayName} directional sheet is missing");
             failures += Require(sheet != null && sheet.width == 1774 && sheet.height == 887,
                 $"{displayName} directional sheet must match the 8x4 enemy grid dimensions");
+            return failures;
+        }
+
+        private static int ValidateLootLifecycle()
+        {
+            var failures = 0;
+            var baseIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var definition in LegacyCatalog.Items) baseIds.Add(definition.baseId);
+            var kinds = new HashSet<ItemKind>();
+            var rarities = new HashSet<ItemRarity>();
+            var previousState = UnityEngine.Random.state;
+            UnityEngine.Random.InitState(913733);
+            foreach (var depth in new[] { 1, 10, 11, 21, 31, 41, 50 })
+            for (var roll = 0; roll < 160; roll++)
+            {
+                var item = InventorySystem.GenerateLoot(depth);
+                failures += Require(item != null, $"Loot depth {depth}: generator returned null");
+                if (item == null) continue;
+                kinds.Add(item.kind);
+                rarities.Add(item.rarity);
+                failures += Require(baseIds.Contains(item.baseId),
+                    $"Loot depth {depth}: unknown base item {item.baseId}");
+                failures += Require(item.quantity > 0, $"Loot depth {depth}: {item.baseId} has invalid quantity");
+                failures += Require(item.itemLevel > 0 && item.power > 0 && float.IsFinite(item.power),
+                    $"Loot depth {depth}: {item.baseId} has invalid progression values");
+                failures += Require(Resources.Load<Texture2D>("Sprites/Items/Individual/" + item.baseId) != null,
+                    $"Loot depth {depth}: generated item art is missing for {item.baseId}");
+                var bag = new InventorySystem();
+                failures += Require(bag.Add(item) && bag.Count(item.baseId) == item.quantity,
+                    $"Loot depth {depth}: generated {item.baseId} cannot enter inventory");
+            }
+            UnityEngine.Random.state = previousState;
+            failures += Require(kinds.Contains(ItemKind.Potion) && kinds.Contains(ItemKind.Scroll) &&
+                                kinds.Count >= 6,
+                "Loot distribution: generated sample does not cover consumables, scrolls and equipment types");
+            failures += Require(rarities.Contains(ItemRarity.Common) && rarities.Contains(ItemRarity.Rare) &&
+                                rarities.Contains(ItemRarity.Epic) && rarities.Contains(ItemRarity.Legendary),
+                "Loot distribution: generated sample does not cover all rarity tiers");
+            return failures;
+        }
+
+        private static int ValidateShopCatalog()
+        {
+            var failures = 0;
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            var supported = new HashSet<string>(StringComparer.Ordinal)
+                { "max_hp", "damage", "defense", "speed", "crit", "attack_speed", "heal_full", "attack_radius" };
+            foreach (var upgrade in LegacyCatalog.Data.shop)
+            {
+                failures += Require(upgrade != null && !string.IsNullOrEmpty(upgrade.id),
+                    "Shop catalog: upgrade without id");
+                if (upgrade == null || string.IsNullOrEmpty(upgrade.id)) continue;
+                failures += Require(ids.Add(upgrade.id), $"Shop catalog: duplicate upgrade id {upgrade.id}");
+                failures += Require(supported.Contains(upgrade.id),
+                    $"Shop catalog: {upgrade.id} has no PlayerController application rule");
+                failures += Require(upgrade.basePrice > 0 && float.IsFinite(upgrade.basePrice),
+                    $"Shop catalog: {upgrade.id} has invalid price");
+                failures += Require(upgrade.maxPurchases > 0,
+                    $"Shop catalog: {upgrade.id} cannot be purchased");
+                failures += Require(upgrade.id == "heal_full" || upgrade.value > 0,
+                    $"Shop catalog: {upgrade.id} has no upgrade value");
+            }
+            failures += Require(ids.Count >= 5, "Shop catalog: not enough offers to fill the sanctuary shop");
+            return failures;
+        }
+
+        private static int ValidateEnemyCatalog()
+        {
+            var failures = 0;
+            var types = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var enemy in LegacyCatalog.Data.enemies)
+                failures += ValidateEnemyDefinition(enemy, false, types);
+            foreach (var boss in LegacyCatalog.Data.bosses)
+                failures += ValidateEnemyDefinition(boss, true, types);
+
+            foreach (var depth in new[] { 1, 4, 11, 21, 31, 41, 50 })
+            {
+                var biome = DungeonVisualProfile.ForDepth(depth).Id;
+                var eligible = 0;
+                var local = 0;
+                foreach (var enemy in LegacyCatalog.Data.enemies)
+                    if (enemy.levelRequirement <= depth &&
+                        (string.IsNullOrEmpty(enemy.biome) || enemy.biome == biome))
+                    {
+                        eligible++;
+                        if (enemy.biome == biome) local++;
+                    }
+                failures += Require(eligible > 0, $"Enemy pool depth {depth}: no eligible enemies");
+                if (depth >= 4)
+                    failures += Require(local > 0, $"Enemy pool depth {depth}: biome {biome} has no signature inhabitant");
+            }
+            failures += Require(Resources.Load<Texture2D>("Sprites/Directional/enemy-mimic-v1") != null,
+                "Mimic lifecycle: directional sprite sheet is unavailable in Resources");
+            return failures;
+        }
+
+        private static int ValidateEnemyDefinition(LegacyEnemy enemy, bool boss, HashSet<string> types)
+        {
+            var failures = 0;
+            failures += Require(enemy != null && !string.IsNullOrEmpty(enemy.type),
+                $"{(boss ? "Boss" : "Enemy")} catalog: definition without type");
+            if (enemy == null || string.IsNullOrEmpty(enemy.type)) return failures;
+            failures += Require(types.Add(enemy.type), $"Enemy catalog: duplicate type {enemy.type}");
+            failures += Require(enemy.hp > 0 && enemy.damage > 0 && enemy.speed > 0 && enemy.attackRange > 0,
+                $"Enemy catalog: {enemy.type} has invalid combat values");
+            failures += Require(enemy.reward >= 0 && enemy.levelRequirement >= 0,
+                $"Enemy catalog: {enemy.type} has invalid progression values");
+            failures += Require(!enemy.hasBow || enemy.projectileSpeed > 0,
+                $"Enemy catalog: bow user {enemy.type} has no projectile speed");
+            if (!string.IsNullOrEmpty(enemy.sheet))
+                failures += Require(Resources.Load<Texture2D>("Sprites/Directional/" + enemy.sheet) != null,
+                    $"Enemy catalog: authored sheet is missing for {enemy.type}");
+            if (boss)
+                failures += Require(enemy.abilities != null && enemy.abilities.Length > 0,
+                    $"Boss catalog: {enemy.type} has no active abilities");
             return failures;
         }
     }

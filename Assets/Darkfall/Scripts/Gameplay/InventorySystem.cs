@@ -54,7 +54,7 @@ namespace Darkfall.Gameplay
             if (item.kind == ItemKind.Potion || item.kind == ItemKind.Scroll)
             {
                 for (var i = 0; i < Slots.Length; i++)
-                    if (Slots[i] != null && Slots[i].id == item.id)
+                    if (Slots[i] != null && Slots[i].baseId == item.baseId)
                     {
                         Slots[i].quantity += item.quantity;
                         Changed?.Invoke();
@@ -277,7 +277,6 @@ namespace Darkfall.Gameplay
             float equipmentWeight, potionWeight;
             switch (playerClass)
             {
-                case HeroClass.Warrior: equipmentWeight = .50f; potionWeight = .30f; break;
                 case HeroClass.Rogue: equipmentWeight = .40f; potionWeight = .35f; break;
                 default: equipmentWeight = .20f; potionWeight = .30f; break;
             }

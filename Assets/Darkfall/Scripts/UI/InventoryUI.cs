@@ -99,7 +99,7 @@ namespace Darkfall.UI
             root.SetActive(value);
             if (!value && contextLayer != null) contextLayer.SetActive(false);
             game.PauseForModal(value);
-            game.Audio.PlayEffect("Inventory_open");
+            game.Audio.PlayEffect(value ? "Inventory_open" : "Inventory_close");
             if (value) Refresh();
         }
 
@@ -501,8 +501,16 @@ namespace Darkfall.UI
 
             AddTextAt(window.transform, "ИНВЕНТАРЬ", 30, new Vector2(0, -43), new Vector2(680, 46), TextAnchor.MiddleCenter,
                 new Vector2(.5f, 1), new Vector2(.5f, 1));
-            gold = AddTextAt(window.transform, "", 17, new Vector2(-34, -43), new Vector2(280, 36), TextAnchor.MiddleRight,
-                new Vector2(1, 1), new Vector2(1, 1));
+            var goldBadge = Panel("Gold Counter", header.transform, Color.white);
+            DarkFantasySkin.Apply(goldBadge.GetComponent<Image>(), DarkFantasySkin.Slot, DarkFantasySkin.Gold);
+            SetRect(goldBadge.GetComponent<RectTransform>(), new Vector2(1, .5f), new Vector2(1, .5f),
+                new Vector2(238, 46), new Vector2(-18, 0));
+            gold = AddTextAt(goldBadge.transform, "", 19, Vector2.zero, new Vector2(204, 36), TextAnchor.MiddleCenter);
+            gold.font = boldFont;
+            gold.color = DarkFantasySkin.Gold;
+            var goldOutline = gold.gameObject.AddComponent<Outline>();
+            goldOutline.effectColor = new Color(.04f, .025f, .01f, .92f);
+            goldOutline.effectDistance = new Vector2(1, -1);
 
             var equipmentPanel = Panel("Equipped Gear", window.transform, Color.white);
             DarkFantasySkin.Apply(equipmentPanel.GetComponent<Image>(), DarkFantasySkin.Tooltip);

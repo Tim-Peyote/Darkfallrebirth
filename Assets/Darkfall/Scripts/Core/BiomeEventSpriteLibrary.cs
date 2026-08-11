@@ -9,7 +9,7 @@ namespace Darkfall.Core
 
         public static Sprite Get(string biome, int index)
         {
-            var key = biome + "/event-" + Mathf.Clamp(index, 0, 5).ToString("00");
+            var key = biome + "/event-" + Mathf.Clamp(index, 0, 11).ToString("00");
             if (Cache.TryGetValue(key, out var sprite)) return sprite;
             var texture = Resources.Load<Texture2D>("Sprites/Environment/Events/" + key);
             if (texture == null) return null;

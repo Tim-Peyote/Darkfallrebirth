@@ -75,10 +75,12 @@ namespace Darkfall.World
                 var upper = data.ElevationLevel(x, y) > 0;
                 if (upper)
                     AddHazardPolygon(upperVertices, upperTriangles, upperColors, upperUvs, shape,
-                        HazardSurfaceColor(hazard), data.SurfaceHeight(new Vector2(x + .5f, y + .5f)) + .008f);
+                        HazardSurfaceColor(hazard), data.SurfaceHeight(new Vector2(x + .5f, y + .5f)) + .008f,
+                        hazard.FlowIndex / (float)Mathf.Max(1, hazard.FlowLength - 1));
                 else
                     AddHazardPolygon(vertices, triangles, colors, uvs, shape,
-                        HazardSurfaceColor(hazard), .008f);
+                        HazardSurfaceColor(hazard), .008f,
+                        hazard.FlowIndex / (float)Mathf.Max(1, hazard.FlowLength - 1));
             }
             CreateHazardLayer("Connected Biome Hazards", vertices, triangles, colors, uvs, -9);
             CreateHazardLayer("Connected Upper Biome Hazards", upperVertices, upperTriangles,
@@ -98,7 +100,8 @@ namespace Darkfall.World
             // ambient darkness while authored banks above it still receive local 2D lighting.
             var surfaceMaterial = new Material(DarkfallRenderMaterials.SpriteUnlit) { color = Color.white };
             materials.Add(surfaceMaterial);
-            CreateLayer(mesh.name, mesh, surfaceMaterial, sortingOrder);
+            var layer = CreateLayer(mesh.name, mesh, surfaceMaterial, sortingOrder);
+            layer.AddComponent<HazardSurfaceAnimator>().Initialize(mesh, HazardKindForBiome(profile.Id));
         }
 
         private bool CreateAuthoredHazardModule(Transform parent, DungeonHazardCell hazard, DungeonData data)
@@ -195,7 +198,8 @@ namespace Darkfall.World
         }
 
         private static void AddHazardPolygon(List<Vector3> vertices, List<int> triangles,
-            List<Color> colors, List<Vector2> uvs, IReadOnlyList<Vector2> shape, Color color, float height)
+            List<Color> colors, List<Vector2> uvs, IReadOnlyList<Vector2> shape, Color color, float height,
+            float flowPhase)
         {
             var centerLogical = Vector2.zero;
             for (var i = 0; i < shape.Count; i++) centerLogical += shape[i];
@@ -203,12 +207,12 @@ namespace Darkfall.World
             var center = vertices.Count;
             vertices.Add(IsoWorld.Project(centerLogical) + Vector2.up * height);
             colors.Add(color);
-            uvs.Add(centerLogical * .12f);
+            uvs.Add(new Vector2(flowPhase, .5f));
             for (var i = 0; i < shape.Count; i++)
             {
                 vertices.Add(IsoWorld.Project(shape[i]) + Vector2.up * height);
                 colors.Add(color * (i % 2 == 0 ? .86f : 1f));
-                uvs.Add(shape[i] * .12f);
+                uvs.Add(new Vector2(flowPhase, i / (float)shape.Count));
             }
             for (var i = 0; i < shape.Count; i++)
             {
@@ -333,8 +337,10 @@ namespace Darkfall.World
                     uvs.Add(point * uvScale);
                     colors.Add(profile.FloorTint * RandomTint(x, y));
                 }
-                triangles.Add(index); triangles.Add(index + 2); triangles.Add(index + 1);
-                triangles.Add(index); triangles.Add(index + 3); triangles.Add(index + 2);
+                // Project() reverses the apparent Y axis. These must be clockwise in projected
+                // space or the 2D renderer culls the entire upper plane as a back face.
+                triangles.Add(index); triangles.Add(index + 1); triangles.Add(index + 2);
+                triangles.Add(index); triangles.Add(index + 2); triangles.Add(index + 3);
 
                 // Even an away-facing ledge needs a graphic seam. Without it, an inaccessible
                 // upper floor reads as ordinary floor behind a wall because its vertical face is
@@ -351,15 +357,6 @@ namespace Darkfall.World
             if (vertices.Count == 0) return;
             var mesh = MakeMesh("Raised Platform Upper Floors", vertices, triangles, colors, uvs);
             CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.FloorTexture), 972);
-            var floorTexture = Resources.Load<Texture2D>(profile.FloorTexture);
-            var capReadability = new Material(DarkfallRenderMaterials.SpriteUnlit)
-            {
-                color = new Color(profile.FloorTint.r * .52f, profile.FloorTint.g * .52f,
-                    profile.FloorTint.b * .52f, .28f),
-                mainTexture = floorTexture
-            };
-            materials.Add(capReadability);
-            CreateLayer("Raised Platform Floor Readability", mesh, capReadability, 973);
             var seamMesh = MakeMesh("Raised Platform Cap Seams", seamVertices, seamTriangles, seamColors, seamUvs);
             var seamMaterial = new Material(DarkfallRenderMaterials.SpriteLit)
             {
@@ -413,8 +410,9 @@ namespace Darkfall.World
             var mesh = MakeMesh("Raised Platform Fascias", vertices, triangles, colors, uvs);
             CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.WallTexture), 970);
             var texture = Resources.Load<Texture2D>(profile.WallTexture);
-            var readabilityShader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Texture");
-            var readability = new Material(readabilityShader)
+            // Shader.Find-only variants can be stripped from a player build even though they are
+            // available in Editor. Reuse the URP 2D material path referenced by the renderer asset.
+            var readability = new Material(DarkfallRenderMaterials.SpriteUnlit)
             {
                 color = new Color(.9f, .9f, .9f, .52f),
                 mainTexture = texture
@@ -912,11 +910,14 @@ namespace Darkfall.World
             root.transform.position = position;
             var visual = new GameObject("Projected Event");
             visual.transform.SetParent(root.transform, false);
-            visual.transform.localScale = Vector3.one * (.88f + hash % 4 * .045f);
+            var eventScale = index >= 6 ? 1.24f + hash % 4 * .06f : .88f + hash % 4 * .045f;
+            visual.transform.localScale = Vector3.one * eventScale;
             var renderer = visual.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
             DarkfallRenderMaterials.MakeLit(renderer);
             visual.AddComponent<IsoVisual>().Initialize(root.transform, 0f, 1010);
+            if (index >= 6)
+                visual.AddComponent<BiomeEventAnimator>().Initialize(profile.Id, index);
             var caster = visual.AddComponent<ShadowCaster2D>();
             caster.castsShadows = true;
             caster.selfShadows = false;
@@ -925,8 +926,37 @@ namespace Darkfall.World
             if (IsLuminousBiomeEvent(index))
                 data.AddLightSource(position + new Vector2(0, .25f), profile.FireTint, 5.4f, .17f);
             if (IsHostileBiomeEvent(index))
-                root.AddComponent<BiomeEventHazard>().Initialize(1.25f, 12f + profile.Chapter * .7f);
+                root.AddComponent<BiomeEventHazard>().Initialize(1.25f, 12f + profile.Chapter * .7f,
+                    HazardKindForBiome(profile.Id));
+            BuildBiomeEventComposition(data, bounds, room.theme, position, hash, index);
             return true;
+        }
+
+        private void BuildBiomeEventComposition(DungeonData data, RectInt bounds, DungeonRoomTheme theme,
+            Vector2 center, int hash, int eventIndex)
+        {
+            // A signature object is a room composition, not a collectible dropped in empty space.
+            // Small non-blocking satellites give it history and function while preserving the
+            // combat lanes and the route guarantees owned by the dungeon data.
+            var forward = (hash & 1) == 0 ? Vector2.right : Vector2.up;
+            if ((hash / 5 & 1) != 0) forward = -forward;
+            var side = new Vector2(-forward.y, forward.x);
+            var offsets = new[]
+            {
+                -forward * 1.72f - side * .78f,
+                forward * 1.58f + side * .92f,
+                side * 1.82f - forward * .28f
+            };
+            var pool = ThemeDetailPool(theme);
+            var count = eventIndex >= 6 && bounds.width >= 9 && bounds.height >= 9 ? 3 : 2;
+            for (var member = 0; member < count; member++)
+            {
+                var position = center + offsets[(member + hash / 17) % offsets.Length];
+                if (ThemeClearance(data, bounds, position, false) < 1.45f) continue;
+                var propIndex = pool[(hash / (member + 7) + eventIndex * 3 + member * 5) % pool.Length];
+                CreateProp(data, propIndex, position, .42f + member % 2 * .08f,
+                    "Event Satellite · " + theme, false, clutterDecor);
+            }
         }
 
         private int BiomeEventIndex(DungeonRoomTheme theme, int hash)
@@ -934,46 +964,69 @@ namespace Darkfall.World
             switch (profile.Id)
             {
                 case "ember-vaults":
-                    if (theme == DungeonRoomTheme.Forge) return new[] { 0, 1, 2, 5 }[(hash / 11) % 4];
-                    if (theme == DungeonRoomTheme.Ritual) return (hash & 1) == 0 ? 3 : 4;
-                    return hash % 6;
+                    if (theme == DungeonRoomTheme.Forge) return Pick(hash, 0, 1, 2, 5, 6, 8, 10);
+                    if (theme == DungeonRoomTheme.Ritual) return Pick(hash, 3, 4, 7, 9, 11);
+                    if (theme == DungeonRoomTheme.Armory) return Pick(hash, 1, 5, 6, 10, 11);
+                    return Pick(hash, 0, 2, 3, 4, 7, 8, 9);
                 case "drowned-crypt":
-                    if (theme == DungeonRoomTheme.Cistern) return new[] { 1, 4, 5 }[(hash / 11) % 3];
-                    if (theme == DungeonRoomTheme.Shrine) return (hash & 1) == 0 ? 0 : 3;
-                    if (theme == DungeonRoomTheme.Ritual) return 4;
-                    return hash % 6;
+                    if (theme == DungeonRoomTheme.Cistern) return Pick(hash, 1, 4, 5, 6, 7, 8, 10);
+                    if (theme == DungeonRoomTheme.Shrine) return Pick(hash, 0, 3, 9, 11);
+                    if (theme == DungeonRoomTheme.Ritual) return Pick(hash, 4, 8, 9, 11);
+                    if (theme == DungeonRoomTheme.Reliquary) return Pick(hash, 2, 3, 6, 11);
+                    return Pick(hash, 0, 1, 2, 5, 7, 10);
                 case "charnel-gardens":
-                    if (theme == DungeonRoomTheme.Garden) return new[] { 0, 1, 2, 3, 4 }[(hash / 11) % 5];
-                    if (theme == DungeonRoomTheme.Ritual || theme == DungeonRoomTheme.Ossuary) return 5;
-                    return hash % 6;
+                    if (theme == DungeonRoomTheme.Garden) return Pick(hash, 0, 1, 2, 3, 4, 6, 7, 8, 9, 11);
+                    if (theme == DungeonRoomTheme.Ritual) return Pick(hash, 5, 8, 10, 11);
+                    if (theme == DungeonRoomTheme.Ossuary) return Pick(hash, 5, 7, 10);
+                    if (theme == DungeonRoomTheme.Shrine) return Pick(hash, 0, 4, 6, 10);
+                    return Pick(hash, 1, 2, 3, 6, 9, 11);
                 case "obsidian-sanctum":
-                    if (theme == DungeonRoomTheme.Observatory) return (hash & 1) == 0 ? 0 : 1;
-                    if (theme == DungeonRoomTheme.Ritual) return new[] { 2, 3, 4 }[(hash / 11) % 3];
-                    return (hash & 1) == 0 ? 2 : 5;
+                    if (theme == DungeonRoomTheme.Observatory) return Pick(hash, 0, 1, 6, 7, 8, 9, 11);
+                    if (theme == DungeonRoomTheme.Ritual) return Pick(hash, 2, 3, 4, 7, 9, 10);
+                    if (theme == DungeonRoomTheme.Reliquary) return Pick(hash, 1, 5, 8, 10);
+                    return Pick(hash, 2, 5, 6, 8, 9, 11);
                 default:
-                    if (theme == DungeonRoomTheme.Ossuary) return (hash & 1) == 0 ? 0 : 2;
-                    if (theme == DungeonRoomTheme.Ritual) return (hash & 1) == 0 ? 1 : 3;
-                    if (theme == DungeonRoomTheme.Shrine) return 4;
-                    return (hash & 1) == 0 ? 0 : 5;
+                    if (theme == DungeonRoomTheme.Ossuary) return Pick(hash, 0, 2, 6, 7);
+                    if (theme == DungeonRoomTheme.Ritual) return Pick(hash, 1, 3, 8, 10);
+                    if (theme == DungeonRoomTheme.Shrine) return Pick(hash, 4, 6, 10, 11);
+                    if (theme == DungeonRoomTheme.Reliquary) return Pick(hash, 5, 9, 11);
+                    return Pick(hash, 0, 2, 5, 7, 9);
             }
+        }
+
+        private static int Pick(int hash, params int[] choices)
+        {
+            return choices[(hash / 11) % choices.Length];
         }
 
         private bool IsLuminousBiomeEvent(int index)
         {
-            if (profile.Id == "ember-vaults") return index == 2 || index == 3 || index == 4;
-            if (profile.Id == "drowned-crypt") return index == 3 || index == 5;
-            if (profile.Id == "charnel-gardens") return index == 0 || index == 3 || index == 4;
-            if (profile.Id == "obsidian-sanctum") return index != 1;
-            return index == 1 || index == 3;
+            if (profile.Id == "ember-vaults") return index == 2 || index == 3 || index == 4 || index >= 6;
+            if (profile.Id == "drowned-crypt") return index == 3 || index == 5 || index == 7 || index == 9;
+            if (profile.Id == "charnel-gardens") return index == 0 || index == 3 || index == 4 || index == 6 || index == 9;
+            if (profile.Id == "obsidian-sanctum") return index != 1 && index != 7;
+            return index == 1 || index == 3 || index == 8 || index == 10;
         }
 
         private bool IsHostileBiomeEvent(int index)
         {
-            if (profile.Id == "ember-vaults") return index == 3 || index == 4;
-            if (profile.Id == "drowned-crypt") return index == 4;
-            if (profile.Id == "charnel-gardens") return index == 1 || index == 4;
-            if (profile.Id == "obsidian-sanctum") return index == 3 || index == 4;
-            return index == 3;
+            if (profile.Id == "ember-vaults") return index == 3 || index == 4 || index == 9 || index == 11;
+            if (profile.Id == "drowned-crypt") return index == 4 || index == 8;
+            if (profile.Id == "charnel-gardens") return index == 1 || index == 4 || index == 8 || index == 11;
+            if (profile.Id == "obsidian-sanctum") return index == 3 || index == 4 || index == 7 || index == 9 || index == 10;
+            return index == 3 || index == 11;
+        }
+
+        private static DungeonHazardKind HazardKindForBiome(string biome)
+        {
+            switch (biome)
+            {
+                case "ember-vaults": return DungeonHazardKind.Lava;
+                case "drowned-crypt": return DungeonHazardKind.Brine;
+                case "charnel-gardens": return DungeonHazardKind.Bile;
+                case "obsidian-sanctum": return DungeonHazardKind.VoidRift;
+                default: return DungeonHazardKind.EmberSeep;
+            }
         }
 
         private int ThemePrimary(DungeonRoomTheme theme, int hash)
@@ -1310,7 +1363,7 @@ namespace Darkfall.World
             return mesh;
         }
 
-        private void CreateLayer(string name, Mesh mesh, Material material, int sortingOrder)
+        private GameObject CreateLayer(string name, Mesh mesh, Material material, int sortingOrder)
         {
             var layer = new GameObject(name);
             layer.transform.SetParent(transform, false);
@@ -1318,6 +1371,7 @@ namespace Darkfall.World
             var renderer = layer.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = material;
             renderer.sortingOrder = sortingOrder;
+            return layer;
         }
 
         private static float RandomTint(int x, int y)

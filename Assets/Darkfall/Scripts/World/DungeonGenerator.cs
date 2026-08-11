@@ -151,35 +151,21 @@ namespace Darkfall.World
                 var roomIndex = candidates[pick];
                 candidates.RemoveAt(pick);
                 var bounds = data.Rooms[roomIndex].bounds;
-                var cells = new HashSet<Vector2Int>();
-                var path = new List<Vector2Int>();
-                var current = new Vector2Int(random.Next(bounds.xMin + 2, bounds.xMax - 2),
-                    random.Next(bounds.yMin + 2, bounds.yMax - 2));
-                var targetLength = random.Next(5, Mathf.Min(14, Mathf.Max(6, bounds.width + bounds.height - 5)));
-                var river = random.Next(100) < 58;
-                var primaryAxis = random.Next(2) == 0 ? Vector2Int.right : Vector2Int.up;
-                for (var step = 0; step < targetLength; step++)
-                {
-                    cells.Add(current);
-                    path.Add(current);
-                    if (!river && random.Next(100) < 45)
-                    {
-                        var side = current + (random.Next(2) == 0 ? Vector2Int.right : Vector2Int.up);
-                        if (bounds.Contains(side)) cells.Add(side);
-                    }
-                    var direction = river && random.Next(100) < 68 ? primaryAxis :
-                        new[] { Vector2Int.left, Vector2Int.right, Vector2Int.down, Vector2Int.up }[random.Next(4)];
-                    var next = current + direction;
-                    if (next.x < bounds.xMin + 1 || next.x >= bounds.xMax - 1 ||
-                        next.y < bounds.yMin + 1 || next.y >= bounds.yMax - 1)
-                        primaryAxis = -primaryAxis;
-                    else current = next;
-                }
+                // A liquid/seep/rift is a directed feature, not a random paint brush. It enters
+                // from one room boundary, meanders without teleporting or doubling back, and
+                // leaves through the opposite boundary. This guarantees exactly two meaningful
+                // terminals and keeps every visual module four-neighbour connected.
+                var path = BuildDirectedHazardPath(bounds, random);
+                var cells = new HashSet<Vector2Int>(path);
+                if (path.Count < 3) continue;
 
                 var kind = (DungeonHazardKind)Mathf.Clamp(biomeStyle, 0, 4);
                 var damage = kind == DungeonHazardKind.Lava ? 16f :
                     kind == DungeonHazardKind.VoidRift ? 13f : 9f;
-                var crossing = river && path.Count >= 7 ? path[path.Count / 2] : new Vector2Int(-1, -1);
+                var crossing = path.Count >= 7 ? path[path.Count / 2] : new Vector2Int(-1, -1);
+                var flowIndices = new Dictionary<Vector2Int, int>();
+                for (var i = 0; i < path.Count; i++)
+                    if (!flowIndices.ContainsKey(path[i])) flowIndices[path[i]] = i;
                 foreach (var cell in cells)
                 {
                     var connections = DungeonHazardConnections.None;
@@ -188,10 +174,48 @@ namespace Darkfall.World
                     if (cells.Contains(cell + Vector2Int.down)) connections |= DungeonHazardConnections.South;
                     if (cells.Contains(cell + Vector2Int.up)) connections |= DungeonHazardConnections.North;
                     var safeCrossing = cell == crossing;
+                    var terminal = cell == path[0] ? DungeonHazardTerminal.Source :
+                        cell == path[path.Count - 1] ? DungeonHazardTerminal.Sink : DungeonHazardTerminal.None;
                     data.AddHazard(new DungeonHazardCell(cell, kind, connections,
-                        safeCrossing ? 0f : damage, safeCrossing));
+                        safeCrossing ? 0f : damage, safeCrossing, terminal, flowIndices[cell], path.Count));
                 }
             }
+        }
+
+        private static List<Vector2Int> BuildDirectedHazardPath(RectInt bounds, System.Random random)
+        {
+            var path = new List<Vector2Int>();
+            var horizontal = random.Next(2) == 0;
+            var minX = bounds.xMin + 1;
+            var maxX = bounds.xMax - 2;
+            var minY = bounds.yMin + 1;
+            var maxY = bounds.yMax - 2;
+            var current = horizontal
+                ? new Vector2Int(minX, random.Next(minY + 1, maxY))
+                : new Vector2Int(random.Next(minX + 1, maxX), minY);
+            path.Add(current);
+
+            var primaryEnd = horizontal ? maxX : maxY;
+            while ((horizontal ? current.x : current.y) < primaryEnd)
+            {
+                // Lateral movement is inserted as its own cardinal step. The old generator moved
+                // diagonally in intent and then relied on chance to fill the missing joint.
+                if (random.Next(100) < 42)
+                {
+                    var lateral = random.Next(2) == 0 ? -1 : 1;
+                    var candidate = horizontal
+                        ? new Vector2Int(current.x, Mathf.Clamp(current.y + lateral, minY, maxY))
+                        : new Vector2Int(Mathf.Clamp(current.x + lateral, minX, maxX), current.y);
+                    if (candidate != current && !path.Contains(candidate))
+                    {
+                        current = candidate;
+                        path.Add(current);
+                    }
+                }
+                current += horizontal ? Vector2Int.right : Vector2Int.up;
+                path.Add(current);
+            }
+            return path;
         }
 
         private static bool HazardFitsTheme(DungeonRoomTheme theme, int biomeStyle)

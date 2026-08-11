@@ -37,6 +37,13 @@ namespace Darkfall.World
         VoidRift
     }
 
+    public enum DungeonHazardTerminal : byte
+    {
+        None,
+        Source,
+        Sink
+    }
+
     [Flags]
     public enum DungeonHazardConnections : byte
     {
@@ -58,15 +65,22 @@ namespace Darkfall.World
         public readonly DungeonHazardConnections Connections;
         public readonly float DamagePerSecond;
         public readonly bool SafeCrossing;
+        public readonly DungeonHazardTerminal Terminal;
+        public readonly int FlowIndex;
+        public readonly int FlowLength;
 
         public DungeonHazardCell(Vector2Int cell, DungeonHazardKind kind,
-            DungeonHazardConnections connections, float damagePerSecond, bool safeCrossing = false)
+            DungeonHazardConnections connections, float damagePerSecond, bool safeCrossing = false,
+            DungeonHazardTerminal terminal = DungeonHazardTerminal.None, int flowIndex = 0, int flowLength = 1)
         {
             Cell = cell;
             Kind = kind;
             Connections = connections;
             DamagePerSecond = damagePerSecond;
             SafeCrossing = safeCrossing;
+            Terminal = terminal;
+            FlowIndex = flowIndex;
+            FlowLength = Mathf.Max(1, flowLength);
         }
     }
 
@@ -233,10 +247,20 @@ namespace Darkfall.World
 
         public float HazardDamageAt(Vector2 point)
         {
+            return TryGetHazardAt(point, out var hazard) ? hazard.DamagePerSecond : 0f;
+        }
+
+        public bool TryGetHazardAt(Vector2 point, out DungeonHazardCell hazard)
+        {
             var cell = new Vector2Int(Mathf.FloorToInt(point.x), Mathf.FloorToInt(point.y));
             for (var i = 0; i < hazards.Count; i++)
-                if (hazards[i].Cell == cell) return hazards[i].DamagePerSecond;
-            return 0f;
+                if (hazards[i].Cell == cell)
+                {
+                    hazard = hazards[i];
+                    return true;
+                }
+            hazard = default;
+            return false;
         }
 
         public bool IsHazardCell(int x, int y)

@@ -79,6 +79,8 @@ namespace Darkfall.Core
             runtimeUI = gameObject.AddComponent<RuntimeUI>();
             runtimeUI.Initialize(this);
             Audio.PlayMusic("Main");
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-darkfall-smoke") >= 0)
+                StartCoroutine(RunReleaseSmoke());
         }
 
         private void Update()
@@ -308,9 +310,14 @@ namespace Darkfall.Core
 
         public void NextLevel()
         {
+            AdvanceLevel(true);
+        }
+
+        private void AdvanceLevel(bool persistProgress)
+        {
             Depth++;
             Save.bestDepth = Mathf.Max(Save.bestDepth, Depth);
-            SaveService.Save(Save);
+            if (persistProgress) SaveService.Save(Save);
             Audio.PlayEffect("item_pickup");
             if (Depth > 1 && (Depth - 1) % 3 == 0)
             {
@@ -544,6 +551,11 @@ namespace Darkfall.Core
 
         public void GameOver()
         {
+            FinishRun(true);
+        }
+
+        private void FinishRun(bool persistRecord)
+        {
             IsPaused = true;
             blockingModal = true;
             Time.timeScale = 0;
@@ -565,10 +577,82 @@ namespace Darkfall.Core
                 return kills != 0 ? kills : a.seconds.CompareTo(b.seconds);
             });
             if (Save.topRecords.Count > 10) Save.topRecords.RemoveRange(10, Save.topRecords.Count - 10);
-            SaveService.Save(Save);
+            if (persistRecord) SaveService.Save(Save);
             Audio.PlayEffect("Heroes_die");
             Audio.PlayMusic("GameOver");
             runtimeUI.ShowGameOver();
+        }
+
+        private System.Collections.IEnumerator RunReleaseSmoke()
+        {
+            yield return null;
+            var failures = new List<string>();
+            void Check(bool condition, string message)
+            {
+                if (!condition) failures.Add(message);
+            }
+
+            StartRun();
+            yield return null;
+            Check(Depth == 1 && Player != null && Dungeon != null && ExitPortal.Active != null,
+                "start/restart did not create a complete first floor");
+            Check(EnemyController.Count == EnemyBudgetForDepth(Balance, 1),
+                "first floor did not spawn the expected active creep population");
+            Check(Gold == 0 && Inventory != null && Inventory.Count("health_potion") == 0,
+                "new run did not reset economy and inventory");
+
+            if (Player != null && ExitPortal.Active != null)
+            {
+                ExitPortal.Active.Empower();
+                Player.transform.position = ExitPortal.Active.transform.position;
+                Check(ExitPortal.InteractNearest(Player), "empowered floor exit could not be interacted with");
+                Check(IsPaused && blockingModal, "floor exit did not open the completion state");
+                AdvanceLevel(false);
+                yield return null;
+                Check(Depth == 2 && Player != null && Dungeon != null && !IsPaused,
+                    "descent did not build the next floor");
+            }
+
+            while (Depth < 4)
+            {
+                CompleteLevel();
+                AdvanceLevel(false);
+                yield return null;
+            }
+            Check(Depth == 4 && IsPaused && blockingModal && ShopOffers.Length > 0,
+                "sanctuary shop did not open after the third cleared floor");
+            AddGold(100000);
+            var goldBeforePurchase = Gold;
+            Check(ShopOffers.Length > 0 && BuyShopOffer(0), "sanctuary shop purchase failed");
+            Check(Gold < goldBeforePurchase && PurchaseCount(ShopOffers[0].id) == 1,
+                "sanctuary purchase did not update gold and purchase count");
+            ContinueAfterShop();
+            yield return null;
+            Check(Depth == 4 && Player != null && Dungeon != null && !IsPaused,
+                "leaving sanctuary did not resume the same run");
+
+            if (Dungeon != null && Dungeon.Rooms.Count > 1)
+            {
+                var enemiesBeforeMimic = EnemyController.Count;
+                SpawnMimic(Dungeon.CellCenter(Dungeon.Rooms[1].Center));
+                Check(EnemyController.Count == enemiesBeforeMimic + 1,
+                    "mimic did not enter the active enemy registry");
+            }
+
+            var recordsBeforeDeath = Save.topRecords.Count;
+            FinishRun(false);
+            Check(IsPaused && blockingModal && Save.topRecords.Count == recordsBeforeDeath + 1,
+                "death did not create the game-over state and run record");
+            StartRun();
+            yield return null;
+            Check(Depth == 1 && Gold == 0 && SessionKills == 0 && Player != null && !IsPaused,
+                "start again did not reset the run after death");
+
+            if (failures.Count == 0)
+                Debug.Log("DARKFALL_RELEASE_SMOKE_PASS: start, descent, sanctuary, shop, mimic, death and restart");
+            else
+                foreach (var failure in failures) Debug.LogError("DARKFALL_RELEASE_SMOKE_FAIL: " + failure);
+            Application.Quit(failures.Count == 0 ? 0 : 2);
         }
 
         private void OnApplicationPause(bool paused)

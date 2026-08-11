@@ -70,7 +70,7 @@ namespace Darkfall.World
             light.color = new Color(color.r, color.g, color.b, 1f);
             light.intensity = intensity * Mathf.Lerp(.7f, 1f, color.a);
             light.shapeLightFalloffSize = falloff;
-            light.falloffIntensity = .48f;
+            light.falloffIntensity = .82f;
             light.overlapOperation = Light2D.OverlapOperation.AlphaBlend;
             light.shadowsEnabled = true;
             light.shadowIntensity = .70f;
@@ -127,64 +127,89 @@ namespace Darkfall.World
 
     internal sealed class NoxPlayerFreeformLight : MonoBehaviour
     {
-        private const int RayCount = 96;
+        private const int RayCount = 72;
+        private const float ShapeRefreshInterval = .065f;
         private PlayerController player;
+        private DungeonData dungeon;
         private Light2D outerLight;
+        private Light2D nearLight;
         private Light2D coreLight;
         private readonly Vector3[] outerPath = new Vector3[RayCount];
+        private readonly Vector3[] nearPath = new Vector3[RayCount];
+        private readonly float[] rawDistances = new float[RayCount];
+        private readonly float[] clippedDistances = new float[RayCount];
+        private readonly Vector2[] directions = new Vector2[RayCount];
+        private float nextShapeRefresh;
 
         public void Initialize(DungeonData data, PlayerController target)
         {
             player = target;
+            dungeon = data;
             outerLight = DungeonLighting.ConfigureFreeformLight(gameObject,
-                new Color(.78f, .70f, .58f, 1f), 1.34f, 3.8f);
-            BuildConvexVisionShape();
+                new Color(.72f, .67f, .58f, 1f), .34f, 1.35f);
+            var nearObject = new GameObject("Near Directional Light");
+            nearObject.transform.SetParent(transform, false);
+            nearLight = DungeonLighting.ConfigureFreeformLight(nearObject,
+                new Color(.82f, .73f, .60f, 1f), .52f, 1.05f);
 
             var coreObject = new GameObject("Warm Light Core");
             coreObject.transform.SetParent(transform, false);
             coreLight = coreObject.AddComponent<Light2D>();
             coreLight.lightType = Light2D.LightType.Point;
             coreLight.color = new Color(1f, .73f, .43f, 1f);
-            coreLight.intensity = .34f;
-            coreLight.pointLightInnerRadius = .18f;
-            coreLight.pointLightOuterRadius = 1.45f;
-            coreLight.falloffIntensity = .84f;
+            coreLight.intensity = .20f;
+            coreLight.pointLightInnerRadius = .10f;
+            coreLight.pointLightOuterRadius = .92f;
+            coreLight.falloffIntensity = .92f;
             coreLight.overlapOperation = Light2D.OverlapOperation.AlphaBlend;
-            // The outer light already receives engine shadow casters. A second large shadowed core
-            // produced doubled seams; this tiny local glow is intentionally too small to cross walls.
-            coreLight.shadowsEnabled = false;
-            UpdateFacing();
+            // Even the small cursor halo must stop at a wall when the player hugs its edge.
+            coreLight.shadowsEnabled = true;
+            coreLight.shadowIntensity = .84f;
+            coreLight.shadowSoftness = .82f;
+            BuildOccludedVisionShape();
         }
 
         private void LateUpdate()
         {
             if (player == null) return;
-            UpdateFacing();
+            if (Time.unscaledTime < nextShapeRefresh) return;
+            nextShapeRefresh = Time.unscaledTime + ShapeRefreshInterval;
+            BuildOccludedVisionShape();
         }
 
-        private void UpdateFacing()
+        private void BuildOccludedVisionShape()
         {
-            var logicalFacing = player.FacingDirection.sqrMagnitude > .001f ? player.FacingDirection.normalized : Vector2.right;
-            var facing = IsoWorld.ProjectDirection(logicalFacing).normalized;
-            transform.localRotation = Quaternion.Euler(0, 0, Mathf.Atan2(facing.y, facing.x) * Mathf.Rad2Deg);
-        }
+            if (dungeon == null || player == null) return;
+            var origin = (Vector2)player.transform.position;
+            var facing = player.FacingDirection.sqrMagnitude > .001f
+                ? player.FacingDirection.normalized
+                : Vector2.right;
 
-        private void BuildConvexVisionShape()
-        {
-            // A shifted ellipse is always convex, so URP can triangulate it deterministically.
-            // Walls and props clip it through ShadowCaster2D instead of deforming the polygon.
-            const float rear = 3.65f;
-            const float forward = 10.6f;
-            const float halfWidth = 6.15f;
-            var center = (forward - rear) * .5f;
-            var halfLength = (forward + rear) * .5f;
+            // The polygon is rebuilt from real dungeon visibility instead of being allowed to
+            // wash over an architectural sprite. Both layers share the same wall hit, then the
+            // near layer is shortened again to produce distance-dependent illumination.
             for (var ray = 0; ray < RayCount; ray++)
             {
                 var angle = ray * Mathf.PI * 2f / RayCount;
-                outerPath[ray] = new Vector3(center + Mathf.Cos(angle) * halfLength,
-                    Mathf.Sin(angle) * halfWidth, 0);
+                var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                directions[ray] = direction;
+                var maximum = DungeonLighting.PlayerVisionRadius(facing, direction, 10.1f, 3.35f);
+                var distance = DungeonLighting.TraceDistance(dungeon, origin, direction, maximum, out var blocked);
+                rawDistances[ray] = blocked ? Mathf.Max(.12f, distance - .11f) : distance;
+            }
+            // Tiny angular smoothing removes saw teeth without leaking the beam around corners.
+            DungeonLighting.SmoothCircularDistances(rawDistances, clippedDistances, .035f);
+            for (var ray = 0; ray < RayCount; ray++)
+            {
+                var direction = directions[ray];
+                var outerDistance = clippedDistances[ray];
+                var nearMaximum = DungeonLighting.PlayerVisionRadius(facing, direction, 5.45f, 2.15f);
+                var nearDistance = Mathf.Min(outerDistance, nearMaximum);
+                outerPath[ray] = IsoWorld.ProjectDirection(direction * outerDistance);
+                nearPath[ray] = IsoWorld.ProjectDirection(direction * nearDistance);
             }
             outerLight.SetShapePath(outerPath);
+            nearLight.SetShapePath(nearPath);
         }
     }
 

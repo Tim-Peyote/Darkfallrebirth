@@ -37,6 +37,8 @@ namespace Darkfall.Gameplay
         private float attackAnimationUntil;
         private float hitAnimationUntil;
         private float nextHazardTick;
+        private ActiveDebuff hazardDebuff;
+        private float hazardVfxUntil;
         private string directionalSheet;
         private float visualScale = 1f;
 
@@ -121,11 +123,79 @@ namespace Darkfall.Gameplay
         private void UpdateFloorHazard()
         {
             if (dungeon == null || Time.time < nextHazardTick) return;
-            var damagePerSecond = dungeon.HazardDamageAt(transform.position);
-            if (damagePerSecond <= 0f) return;
+            if (!dungeon.TryGetHazardAt(transform.position, out var hazard) || hazard.DamagePerSecond <= 0f) return;
             const float interval = .5f;
             nextHazardTick = Time.time + interval;
-            TakeDamage(damagePerSecond * interval);
+            TakeDamage(hazard.DamagePerSecond * interval);
+            ApplyHazardDebuff(hazard.Kind, hazard.DamagePerSecond);
+        }
+
+        private void ApplyHazardDebuff(DungeonHazardKind kind, float damagePerSecond)
+        {
+            const float lingerDuration = 2.5f;
+            var key = "hazard:" + kind;
+            if (hazardDebuff != null && hazardDebuff.key == key)
+            {
+                hazardDebuff.expiresAt = Time.time + lingerDuration;
+                if (Time.time + .6f >= hazardVfxUntil)
+                {
+                    CombatVfx.SpawnStatus(transform, HazardStatusStyle(kind), lingerDuration, 1f);
+                    hazardVfxUntil = Time.time + lingerDuration;
+                }
+                return;
+            }
+            if (hazardDebuff != null) RemoveDebuff(hazardDebuff);
+
+            var label = kind == DungeonHazardKind.Lava || kind == DungeonHazardKind.EmberSeep ? "ГОРЕНИЕ" :
+                kind == DungeonHazardKind.Brine ? "ПРОМОКАНИЕ" :
+                kind == DungeonHazardKind.Bile ? "КОРРОЗИЯ" : "СКВЕРНА БЕЗДНЫ";
+            var style = HazardStatusStyle(kind);
+            var speed = kind == DungeonHazardKind.Brine ? .82f : 1f;
+            var defense = kind == DungeonHazardKind.Bile ? .88f : 1f;
+            var damage = kind == DungeonHazardKind.VoidRift ? .88f : 1f;
+            hazardDebuff = new ActiveDebuff
+            {
+                key = key, label = label, speed = speed, defense = defense, damage = damage,
+                expiresAt = Time.time + lingerDuration
+            };
+            // Environmental danger must remain visible in the four-slot HUD even when the hero
+            // is already carrying several combat curses.
+            debuffs.Insert(0, hazardDebuff);
+            SpeedMultiplier *= speed;
+            DefenseMultiplier *= defense;
+            DamageMultiplier *= damage;
+            hazardDebuff.routine = StartCoroutine(HazardDebuffRoutine(hazardDebuff, kind, damagePerSecond));
+            CombatVfx.SpawnStatus(transform, style, lingerDuration, 1f);
+            hazardVfxUntil = Time.time + lingerDuration;
+            GameManager.Instance.NotifyStatsChanged();
+        }
+
+        public void ApplyEnvironmentalStatus(DungeonHazardKind kind, float damagePerSecond)
+        {
+            ApplyHazardDebuff(kind, damagePerSecond);
+        }
+
+        private static StatusVisualStyle HazardStatusStyle(DungeonHazardKind kind)
+        {
+            if (kind == DungeonHazardKind.Lava || kind == DungeonHazardKind.EmberSeep)
+                return StatusVisualStyle.Burning;
+            if (kind == DungeonHazardKind.Brine) return StatusVisualStyle.Drenched;
+            if (kind == DungeonHazardKind.Bile) return StatusVisualStyle.Corrosion;
+            return StatusVisualStyle.Void;
+        }
+
+        private System.Collections.IEnumerator HazardDebuffRoutine(ActiveDebuff debuff,
+            DungeonHazardKind kind, float damagePerSecond)
+        {
+            const float interval = .5f;
+            while (Time.time < debuff.expiresAt)
+            {
+                yield return new WaitForSeconds(interval);
+                if (!debuffs.Contains(debuff)) yield break;
+                if (kind != DungeonHazardKind.Brine)
+                    TakeDamage(Mathf.Max(1f, damagePerSecond * .16f));
+            }
+            RemoveDebuff(debuff);
         }
 
         private void LateUpdate()
@@ -391,6 +461,7 @@ namespace Darkfall.Gameplay
                 IsStunned = false;
                 foreach (var active in debuffs) if (active.stunned) { IsStunned = true; break; }
             }
+            if (hazardDebuff == debuff) hazardDebuff = null;
             GameManager.Instance.NotifyStatsChanged();
         }
 
@@ -487,6 +558,7 @@ namespace Darkfall.Gameplay
 
         private sealed class ActiveDebuff
         {
+            public string key;
             public float damage = 1;
             public float speed = 1;
             public float defense = 1;

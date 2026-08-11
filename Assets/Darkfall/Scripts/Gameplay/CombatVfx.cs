@@ -7,7 +7,7 @@ using UnityEngine.Rendering.Universal;
 namespace Darkfall.Gameplay
 {
     public enum ProjectileVisualStyle { Arcane, Cursed, Shard }
-    public enum StatusVisualStyle { Freeze, Stun, Fear, Poison, Ward, ArcaneCharge, Dash }
+    public enum StatusVisualStyle { Freeze, Stun, Fear, Poison, Burning, Drenched, Corrosion, Void, Ward, ArcaneCharge, Dash }
 
     public static class CombatVfx
     {
@@ -128,13 +128,17 @@ namespace Darkfall.Gameplay
 
             var root = new GameObject("Status VFX · " + status);
             root.transform.SetParent(target, false);
-            var projectileStyle = status == StatusVisualStyle.Freeze ? ProjectileVisualStyle.Shard :
+            var projectileStyle = status == StatusVisualStyle.Freeze || status == StatusVisualStyle.Drenched ? ProjectileVisualStyle.Shard :
                 status == StatusVisualStyle.Stun || status == StatusVisualStyle.Ward ? ProjectileVisualStyle.Arcane :
                 ProjectileVisualStyle.Cursed;
             var color = status == StatusVisualStyle.Freeze ? new Color(.28f, .78f, 1f) :
                 status == StatusVisualStyle.Stun ? new Color(1f, .78f, .24f) :
                 status == StatusVisualStyle.Fear ? new Color(.66f, .22f, .9f) :
                 status == StatusVisualStyle.Poison ? new Color(.28f, .78f, .24f) :
+                status == StatusVisualStyle.Burning ? new Color(1f, .24f, .035f) :
+                status == StatusVisualStyle.Drenched ? new Color(.1f, .62f, .72f) :
+                status == StatusVisualStyle.Corrosion ? new Color(.55f, .74f, .08f) :
+                status == StatusVisualStyle.Void ? new Color(.62f, .12f, .88f) :
                 status == StatusVisualStyle.Ward ? new Color(1f, .58f, .16f) :
                 status == StatusVisualStyle.Dash ? new Color(.64f, .3f, .92f) : new Color(.78f, .28f, 1f);
             var renderer = root.AddComponent<SpriteRenderer>();
@@ -160,7 +164,9 @@ namespace Darkfall.Gameplay
         public static void ClearNegativeStatuses(Transform target)
         {
             if (target == null) return;
-            var negative = new[] { StatusVisualStyle.Freeze, StatusVisualStyle.Stun, StatusVisualStyle.Fear, StatusVisualStyle.Poison };
+            var negative = new[] { StatusVisualStyle.Freeze, StatusVisualStyle.Stun, StatusVisualStyle.Fear,
+                StatusVisualStyle.Poison, StatusVisualStyle.Burning, StatusVisualStyle.Drenched,
+                StatusVisualStyle.Corrosion, StatusVisualStyle.Void };
             foreach (var status in negative)
             {
                 var effect = target.Find("Status VFX · " + status);
@@ -249,7 +255,8 @@ namespace Darkfall.Gameplay
         }
 
         private static Material LineMaterial => lineMaterial != null ? lineMaterial : lineMaterial =
-            new Material(Shader.Find("Sprites/Default")) { name = "Darkfall VFX Line", hideFlags = HideFlags.DontSave };
+            new Material(DarkfallRenderMaterials.SpriteUnlit)
+                { name = "Darkfall VFX Line", hideFlags = HideFlags.DontSave };
     }
 
     internal sealed class SheetAnimation : MonoBehaviour
