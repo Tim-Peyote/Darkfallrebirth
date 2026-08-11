@@ -140,7 +140,6 @@ namespace Darkfall.World
     {
         private const int RayCount = 192;
         private const float ShapeRefreshInterval = .033f;
-        private const float ShapeResponse = 20f;
         private PlayerController player;
         private DungeonData dungeon;
         private Light2D outerLight;
@@ -210,15 +209,16 @@ namespace Darkfall.World
             if (Time.unscaledTime >= nextShapeRefresh)
             {
                 nextShapeRefresh = Time.unscaledTime + ShapeRefreshInterval;
-                RefreshOcclusionTargets(false);
+                // Submit a new polygon only when ray hits actually changed. Calling SetShapePath
+                // every rendered frame forced URP to continuously discard and retessellate three
+                // freeform lights, producing intermittent one-frame dropouts while walking.
+                if (RefreshOcclusionTargets(false)) ApplySmoothedShape(1f);
             }
-            var blend = 1f - Mathf.Exp(-ShapeResponse * Time.unscaledDeltaTime);
-            ApplySmoothedShape(blend);
         }
 
-        private void RefreshOcclusionTargets(bool snap)
+        private bool RefreshOcclusionTargets(bool snap)
         {
-            if (dungeon == null || player == null) return;
+            if (dungeon == null || player == null) return false;
             var origin = (Vector2)player.transform.position;
             var facing = player.FacingDirection.sqrMagnitude > .001f
                 ? player.FacingDirection.normalized
@@ -227,6 +227,7 @@ namespace Darkfall.World
             // The polygon is rebuilt from real dungeon visibility instead of being allowed to
             // wash over an architectural sprite. Both layers share the same wall hit, then the
             // near layer is shortened again to produce distance-dependent illumination.
+            var changed = false;
             for (var ray = 0; ray < RayCount; ray++)
             {
                 // IsoWorld.Project has a negative determinant: it mirrors winding. Generate the
@@ -253,11 +254,15 @@ namespace Darkfall.World
                 targetOuterDistances[ray] = outerDistance;
                 targetNearDistances[ray] = nearDistance;
                 targetCoreDistances[ray] = coreDistance;
+                if (Mathf.Abs(displayedOuterDistances[ray] - outerDistance) > .012f ||
+                    Mathf.Abs(displayedNearDistances[ray] - nearDistance) > .012f ||
+                    Mathf.Abs(displayedCoreDistances[ray] - coreDistance) > .012f) changed = true;
                 if (!snap) continue;
                 displayedOuterDistances[ray] = outerDistance;
                 displayedNearDistances[ray] = nearDistance;
                 displayedCoreDistances[ray] = coreDistance;
             }
+            return changed;
         }
 
         private void ApplySmoothedShape(float blend)
@@ -434,7 +439,6 @@ namespace Darkfall.World
         private float density;
         private Vector2 drift;
         private float emissionAccumulator;
-        private bool prewarmed;
 
         public void Initialize(DungeonData data, PlayerController target, DungeonVisualProfile profile)
         {
@@ -549,11 +553,6 @@ namespace Darkfall.World
             }
             System.Array.Copy(directions, contourDirections, count);
             System.Array.Copy(distances, contourDistances, count);
-            if (!prewarmed)
-            {
-                prewarmed = true;
-                PrewarmAtmosphere();
-            }
         }
 
         private void Update()
@@ -586,11 +585,14 @@ namespace Darkfall.World
             // Corridors often give most rays less than two logical cells before a wall. The old
             // threshold therefore switched atmosphere off exactly at room-to-corridor throats.
             if (allowed < .52f) return;
-            var inner = Mathf.Min(.72f, allowed * .32f);
+            // Atmosphere occupies the unexplored volume ahead, not a halo glued to the actor.
+            var inner = Mathf.Min(1.45f, allowed * .48f);
             var outer = allowed * .86f;
             if (outer <= inner + .04f) return;
             var distance = Mathf.Lerp(inner, outer, Mathf.Sqrt(Random.value));
             var logicalOffset = contourDirections[ray] * distance;
+            var world = (Vector2)player.transform.position + logicalOffset;
+            if (IsSafeArrival(world)) return;
             var projectedOffset = (Vector2)IsoWorld.ProjectDirection(logicalOffset);
             var projectedVelocity = (Vector2)IsoWorld.ProjectDirection(drift + Random.insideUnitCircle * .018f);
             var distanceFade = Mathf.InverseLerp(.35f, 7.5f, distance);
@@ -609,21 +611,6 @@ namespace Darkfall.World
             particles.Emit(emit, 1);
         }
 
-        private void PrewarmAtmosphere()
-        {
-            // Seed the already-visible air volume instead of waiting several lifetimes for an
-            // empty ParticleSystem to fill. Randomized ages prevent a synchronized fade-in/out.
-            var targetCount = Mathf.RoundToInt(Mathf.Lerp(92f, 138f,
-                Mathf.InverseLerp(.5f, 1.7f, density)));
-            var attempts = targetCount * 8;
-            for (var i = 0; i < attempts && particles.particleCount < targetCount; i++)
-                EmitVisibleParticle();
-            var count = particles.GetParticles(buffer);
-            for (var i = 0; i < count; i++)
-                buffer[i].remainingLifetime = buffer[i].startLifetime * Random.Range(.24f, .92f);
-            particles.SetParticles(buffer, count);
-        }
-
         private void CullParticlesAgainstArchitecture()
         {
             var count = particles.GetParticles(buffer);
@@ -635,7 +622,7 @@ namespace Darkfall.World
                 var distance = logicalOffset.magnitude;
                 var allowed = ContourDistance(logicalOffset);
                 var world = playerPosition + logicalOffset;
-                if (distance > allowed * .94f || dungeon.BlocksVision(world))
+                if (distance > allowed * .94f || dungeon.BlocksVision(world) || IsSafeArrival(world))
                     buffer[i].remainingLifetime = 0f;
                 else
                 {
@@ -668,6 +655,12 @@ namespace Darkfall.World
                 }
             }
             particles.SetParticles(buffer, count);
+        }
+
+        private bool IsSafeArrival(Vector2 world)
+        {
+            if (dungeon == null || dungeon.Rooms.Count == 0) return false;
+            return dungeon.Rooms[0].bounds.Contains(Vector2Int.FloorToInt(world));
         }
 
         private static float Hash01(uint value)

@@ -702,12 +702,16 @@ namespace Darkfall.World
                 if (tangentDistance > .43f || Mathf.Abs(normalCoordinate - thresholdCoordinate) > rampHalfDepth)
                     continue;
 
+                // Sample both landings on the stair centreline. Sampling the actor's tangent cell
+                // made the detected pair of levels change near a stair edge, so the sprite and
+                // camera snapped vertically while the actor was still on the same flight.
+                var tangentCell = Mathf.FloorToInt(feature.Vertical ? feature.Position.y : feature.Position.x);
                 var negative = feature.Vertical
-                    ? ElevationLevel(Mathf.FloorToInt(feature.Position.x - .25f), Mathf.FloorToInt(point.y))
-                    : ElevationLevel(Mathf.FloorToInt(point.x), Mathf.FloorToInt(feature.Position.y - .25f));
+                    ? ElevationLevel(Mathf.FloorToInt(feature.Position.x - .25f), tangentCell)
+                    : ElevationLevel(tangentCell, Mathf.FloorToInt(feature.Position.y - .25f));
                 var positive = feature.Vertical
-                    ? ElevationLevel(Mathf.FloorToInt(feature.Position.x + .25f), Mathf.FloorToInt(point.y))
-                    : ElevationLevel(Mathf.FloorToInt(point.x), Mathf.FloorToInt(feature.Position.y + .25f));
+                    ? ElevationLevel(Mathf.FloorToInt(feature.Position.x + .25f), tangentCell)
+                    : ElevationLevel(tangentCell, Mathf.FloorToInt(feature.Position.y + .25f));
                 // The feature position is the raised platform lip, not the middle of the ramp.
                 // Interpolating symmetrically around it made an actor remain half-submerged after
                 // their feet had already reached the upper floor. Keep the slope wholly on the
@@ -716,12 +720,14 @@ namespace Darkfall.World
                 {
                     var t = Mathf.InverseLerp(thresholdCoordinate - rampHalfDepth,
                         thresholdCoordinate, normalCoordinate);
+                    t = t * t * (3f - 2f * t);
                     return Mathf.Lerp(negative, positive, t) * ElevationStepHeight;
                 }
                 if (positive < negative)
                 {
                     var t = Mathf.InverseLerp(thresholdCoordinate,
                         thresholdCoordinate + rampHalfDepth, normalCoordinate);
+                    t = t * t * (3f - 2f * t);
                     return Mathf.Lerp(negative, positive, t) * ElevationStepHeight;
                 }
                 return negative * ElevationStepHeight;

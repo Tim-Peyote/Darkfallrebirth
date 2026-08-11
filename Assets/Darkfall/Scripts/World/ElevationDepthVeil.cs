@@ -47,9 +47,9 @@ namespace Darkfall.World
                 var levelHeight = layer.Level * DungeonData.ElevationStepHeight;
                 var separation = Mathf.Clamp01((playerHeight - levelHeight) /
                                                DungeonData.ElevationStepHeight);
-                var target = separation * .46f;
+                var target = separation * .62f;
                 layer.Alpha = snap ? target : Mathf.MoveTowards(layer.Alpha, target,
-                    Time.unscaledDeltaTime * .9f);
+                    Time.unscaledDeltaTime * 1.55f);
                 var color = layer.Material.color;
                 color.a = layer.Alpha;
                 layer.Material.color = color;
@@ -102,7 +102,7 @@ namespace Darkfall.World
             {
                 name = $"Elevation Depth Fog · {level}",
                 mainTexture = fogTexture,
-                color = new Color(.055f, .052f, .048f, 0f)
+                color = new Color(.105f, .10f, .092f, 0f)
             };
             renderer.sharedMaterial = material;
             // Above all floor surfaces, below facades, actors and interaction objects.
