@@ -585,6 +585,19 @@ namespace Darkfall.Editor
                             foundElevation = true;
                             break;
                         }
+                var observerPosition = elevationFocus;
+                var highestLevel = int.MinValue;
+                for (var x = 0; x < dungeon.Width; x++)
+                for (var y = 0; y < dungeon.Height; y++)
+                    if (dungeon.IsFloor(x, y) && dungeon.ElevationLevel(x, y) > highestLevel)
+                    {
+                        highestLevel = dungeon.ElevationLevel(x, y);
+                        observerPosition = new Vector2(x + .5f, y + .5f);
+                    }
+                var elevationObserver = new GameObject("Elevation Audit Observer");
+                elevationObserver.transform.position = observerPosition;
+                var elevationVeil = new GameObject("Elevation Audit Depth Veil").AddComponent<ElevationDepthVeil>();
+                elevationVeil.Initialize(dungeon, elevationObserver.transform);
                 CaptureAuditFrame(output, depth, "elevation", elevationFocus);
                 CaptureAuditFrame(output, depth, "arrival-threshold", dungeon.CellCenter(dungeon.StartCell));
                 CaptureAuditFrame(output, depth, "exit-threshold", dungeon.CellCenter(dungeon.ExitCell));
@@ -610,6 +623,8 @@ namespace Darkfall.Editor
                     break;
                 }
                 if (firstEvent != null) CaptureAuditFrame(output, depth, "event", firstEvent.position);
+                UnityEngine.Object.DestroyImmediate(elevationVeil.gameObject);
+                UnityEngine.Object.DestroyImmediate(elevationObserver);
                 UnityEngine.Object.DestroyImmediate(ambient.gameObject);
                 UnityEngine.Object.DestroyImmediate(root);
         }

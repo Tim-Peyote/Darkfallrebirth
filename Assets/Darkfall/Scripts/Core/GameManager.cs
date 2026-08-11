@@ -167,6 +167,9 @@ namespace Darkfall.Core
             playerObject.transform.position = Dungeon.CellCenter(Dungeon.StartCell);
             Player = playerObject.AddComponent<PlayerController>();
             Player.Initialize(runHero, Dungeon, carriedHealth);
+            var elevationVeil = new GameObject("Elevation Depth Atmosphere").AddComponent<ElevationDepthVeil>();
+            elevationVeil.transform.SetParent(levelRoot, false);
+            elevationVeil.Initialize(Dungeon, Player.transform);
             DungeonDoor.SpawnRequiredKeys(Player, Dungeon);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (DeveloperGodMode) Player.SetDeveloperInvincible(true);
