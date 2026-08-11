@@ -41,7 +41,7 @@ namespace Darkfall.World
             // Unseen space must remain threatening. The player lobe and authored lamps lift the
             // primary light buffer well above this floor; the ambient only preserves a trace of
             // material and silhouette instead of revealing the entire viewport.
-            ambient.intensity = Mathf.Clamp(profile.AmbientIntensity - .085f, .165f, .235f);
+            ambient.intensity = Mathf.Clamp(profile.AmbientIntensity - .045f, .205f, .265f);
             // Ambient establishes the readable darkness floor. Occlusion belongs to the Nox-style
             // player lobe and authored point lights below; allowing a closed contour to shadow the
             // global fill turns an entire room into a black slab and creates the "floating wall" band.
@@ -56,7 +56,11 @@ namespace Darkfall.World
             var light = lightObject.AddComponent<Light2D>();
             light.lightType = Light2D.LightType.Point;
             light.blendStyleIndex = 0;
-            light.color = new Color(source.Color.r, source.Color.g, source.Color.b, 1f);
+            // Keep authored fire/magic identity without letting adjacent wall modules alternate
+            // between cold blue and hot orange. The source hue is now a restrained accent.
+            var neutralWarm = new Color(.94f, .82f, .67f, 1f);
+            light.color = Color.Lerp(neutralWarm,
+                new Color(source.Color.r, source.Color.g, source.Color.b, 1f), .38f);
             light.intensity = 1.08f * Mathf.Lerp(.82f, 1f, source.Color.a);
             light.pointLightInnerRadius = Mathf.Min(.65f, source.Radius * .14f);
             light.pointLightOuterRadius = source.Radius;
@@ -164,17 +168,23 @@ namespace Darkfall.World
         {
             player = target;
             dungeon = data;
-            outerLight = DungeonLighting.ConfigureFreeformLight(gameObject,
-                new Color(.64f, .67f, .65f, 1f), .58f, 3.45f, .72f);
+            // Direction and occlusion are expressed by the darkness curtain. Keeping the broad
+            // illumination itself as a stable, low-saturation point light avoids URP rebuilding a
+            // large Freeform Light2D while the actor moves — the source of distant flashing and
+            // hard colour bands on wall modules.
+            // The readable player aura is luminance contrast, not an orange colour wash.
+            // Keep the broad pool close to neutral white and reserve warmth for the tiny core.
+            outerLight = ConfigureLocalPointLight(gameObject, new Color(1f, .98f, .94f, 1f),
+                .78f, 1.75f, 7.15f, false);
             var nearObject = new GameObject("Near Soft Fill Light");
             nearObject.transform.SetParent(transform, false);
-            nearLight = ConfigureLocalPointLight(nearObject, new Color(.82f, .75f, .63f, 1f),
-                .48f, .55f, 3.15f, true);
+            nearLight = ConfigureLocalPointLight(nearObject, new Color(1f, .96f, .90f, 1f),
+                .76f, .82f, 3.25f, true);
 
             var coreObject = new GameObject("Warm Light Core");
             coreObject.transform.SetParent(transform, false);
-            coreLight = ConfigureLocalPointLight(coreObject, new Color(1f, .78f, .50f, 1f),
-                .72f, .18f, 1.72f, true);
+            coreLight = ConfigureLocalPointLight(coreObject, new Color(1f, .88f, .70f, 1f),
+                .80f, .24f, 1.72f, true);
 
             // Freeform geometry is rebuilt as the actor crosses visibility-cell boundaries. A
             // restrained warm point light prevents the actor's immediate pool from blinking out
@@ -185,8 +195,8 @@ namespace Darkfall.World
             stableLocalLight = stableObject.AddComponent<Light2D>();
             stableLocalLight.lightType = Light2D.LightType.Point;
             stableLocalLight.blendStyleIndex = 0;
-            stableLocalLight.color = new Color(1f, .69f, .43f, 1f);
-            stableLocalLight.intensity = .28f;
+            stableLocalLight.color = new Color(1f, .92f, .80f, 1f);
+            stableLocalLight.intensity = .34f;
             stableLocalLight.pointLightInnerRadius = .12f;
             stableLocalLight.pointLightOuterRadius = 1.65f;
             stableLocalLight.falloffIntensity = .96f;
@@ -217,11 +227,11 @@ namespace Darkfall.World
             if (Time.unscaledTime >= nextShapeRefresh)
             {
                 nextShapeRefresh = Time.unscaledTime + ShapeRefreshInterval;
-                // Submit a new polygon only when ray hits actually changed. Calling SetShapePath
-                // every rendered frame forced URP to continuously discard and retessellate three
-                // freeform lights, producing intermittent one-frame dropouts while walking.
-                if (RefreshOcclusionTargets(false)) ApplySmoothedShape(1f);
+                RefreshOcclusionTargets(false);
             }
+            // Only the inexpensive darkness mesh is animated now. Exponential interpolation
+            // prevents cell-sized jumps when a ray changes its hit wall.
+            ApplySmoothedShape(1f - Mathf.Exp(-4.8f * Time.unscaledDeltaTime));
         }
 
         private bool RefreshOcclusionTargets(bool snap)
@@ -271,7 +281,6 @@ namespace Darkfall.World
                 displayedOuterDistances[ray] = Mathf.Lerp(displayedOuterDistances[ray], targetOuterDistances[ray], blend);
                 outerPath[ray] = IsoWorld.ProjectDirection(directions[ray] * displayedOuterDistances[ray]);
             }
-            outerLight.SetShapePath(outerPath);
             visibilityCurtain?.SetContour(directions, displayedOuterDistances, blockedRays);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (debugContour != null)
@@ -382,30 +391,19 @@ namespace Darkfall.World
             {
                 var direction = directions[ray];
                 var boundary = distances[ray];
-                var blocked = blockedRays != null && ray < blockedRays.Length && blockedRays[ray];
-                if (blocked)
-                {
-                    SetCurtainVertex(ray, 0, direction, boundary - .28f, 0);
-                    SetCurtainVertex(ray, 1, direction, boundary - .08f, 6);
-                    SetCurtainVertex(ray, 2, direction, boundary + .14f, 34);
-                    SetCurtainVertex(ray, 3, direction, boundary + .38f, 82);
-                    SetCurtainVertex(ray, 4, direction, boundary + .72f, 142);
-                    SetCurtainVertex(ray, 5, direction, boundary + 1.15f, 194);
-                    SetCurtainVertex(ray, 6, direction, boundary + 1.75f, 226);
-                }
-                else
-                {
-                    SetCurtainVertex(ray, 0, direction, boundary - 1.45f, 0);
-                    SetCurtainVertex(ray, 1, direction, boundary - 1f, 2);
-                    SetCurtainVertex(ray, 2, direction, boundary - .55f, 10);
-                    SetCurtainVertex(ray, 3, direction, boundary, 30);
-                    SetCurtainVertex(ray, 4, direction, boundary + .7f, 72);
-                    SetCurtainVertex(ray, 5, direction, boundary + 1.6f, 132);
-                    SetCurtainVertex(ray, 6, direction, boundary + 3f, 202);
-                }
+                // A single continuous profile is intentional. Switching profiles whenever a
+                // sampling ray barely touches a wall made the edge flash behind the player.
+                // The broad transparent lead-in also removes the knife-sharp base at walls.
+                SetCurtainVertex(ray, 0, direction, boundary - 1.55f, 0);
+                SetCurtainVertex(ray, 1, direction, boundary - 1.05f, 1);
+                SetCurtainVertex(ray, 2, direction, boundary - .55f, 7);
+                SetCurtainVertex(ray, 3, direction, boundary + .05f, 24);
+                SetCurtainVertex(ray, 4, direction, boundary + .78f, 64);
+                SetCurtainVertex(ray, 5, direction, boundary + 1.65f, 122);
+                SetCurtainVertex(ray, 6, direction, boundary + 2.8f, 181);
                 // The far curtain is the "explored but not currently visible" state. Unknown
                 // cells receive an additional near-black layer from FogOfWarView.
-                SetCurtainVertex(ray, 7, direction, OuterDistance, 190);
+                SetCurtainVertex(ray, 7, direction, OuterDistance, 216);
             }
             curtainMesh.vertices = curtainVertices;
             curtainMesh.colors32 = curtainColors;
@@ -781,26 +779,29 @@ namespace Darkfall.World
         {
             light2D = target;
             baseIntensity = target.intensity;
-            amount = Mathf.Clamp(flickerAmount, 0, .22f);
+            amount = Mathf.Clamp(flickerAmount, 0, .10f);
             dungeon = data;
             sourcePosition = position;
             seed = Mathf.Abs(transform.position.x * 9.31f + transform.position.y * 5.77f + GetInstanceID());
             var x = Mathf.FloorToInt(sourcePosition.x);
             var y = Mathf.FloorToInt(sourcePosition.y);
-            visibility = dungeon != null && dungeon.IsVisible(x, y) ? 1f : 0f;
+            visibility = dungeon != null && dungeon.IsExplored(x, y) ? 1f : 0f;
             light2D.intensity = baseIntensity * visibility;
         }
 
         private void Update()
         {
             if (light2D == null) return;
-            var slow = Mathf.PerlinNoise(seed, Time.time * 6.4f) * 2f - 1f;
-            var fast = Mathf.PerlinNoise(seed + 17.3f, Time.time * 13.7f) * 2f - 1f;
-            var noise = slow * .72f + fast * .28f;
+            var slow = Mathf.PerlinNoise(seed, Time.time * 3.2f) * 2f - 1f;
+            var fast = Mathf.PerlinNoise(seed + 17.3f, Time.time * 7.1f) * 2f - 1f;
+            var noise = slow * .82f + fast * .18f;
             var x = Mathf.FloorToInt(sourcePosition.x);
             var y = Mathf.FloorToInt(sourcePosition.y);
-            var targetVisibility = dungeon != null && dungeon.IsVisible(x, y) ? 1f : 0f;
-            visibility = Mathf.MoveTowards(visibility, targetVisibility, Time.deltaTime * 5.5f);
+            // Once discovered, an authored lamp belongs to the remembered world. Toggling it on
+            // current line-of-sight made distant rooms pulse whenever a single visibility ray
+            // crossed a cell boundary; the unknown-state overlay already hides undiscovered light.
+            var targetVisibility = dungeon != null && dungeon.IsExplored(x, y) ? 1f : 0f;
+            visibility = Mathf.MoveTowards(visibility, targetVisibility, Time.deltaTime * 2.2f);
             light2D.intensity = baseIntensity * (1f + noise * amount) * visibility;
         }
     }

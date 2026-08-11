@@ -102,19 +102,46 @@ namespace Darkfall.World
                 var cell = stateCells[cellIndex];
                 // The directional curtain supplies the soft dimming for explored space outside
                 // current vision. This layer only makes genuinely unknown cells unmistakable.
-                var alpha = dungeon.IsVisible(cell.x, cell.y) || dungeon.IsExplored(cell.x, cell.y)
-                    ? (byte)0 : byte.MaxValue;
-                // Unknown geometry is absence of information, not blue ambient fog. Any colour
-                // component here becomes visible as rectangular isometric tiles over the black
-                // void, especially on lower elevations.
-                var color = new Color32(0, 0, 0, alpha);
                 var vertex = cellIndex * 4;
-                stateColors[vertex] = color;
-                stateColors[vertex + 1] = color;
-                stateColors[vertex + 2] = color;
-                stateColors[vertex + 3] = color;
+                if (dungeon.IsVisible(cell.x, cell.y) || dungeon.IsExplored(cell.x, cell.y))
+                {
+                    var clear = new Color32(0, 0, 0, 0);
+                    stateColors[vertex] = clear;
+                    stateColors[vertex + 1] = clear;
+                    stateColors[vertex + 2] = clear;
+                    stateColors[vertex + 3] = clear;
+                    continue;
+                }
+                // Each cell owns four duplicate vertices, so calculate alpha from the logical
+                // vertex rather than assigning one value to the whole diamond. Adjacent unknown
+                // tiles then share the same values and form a continuous fade into black.
+                stateColors[vertex] = UnknownVertexColor(cell.x, cell.y);
+                stateColors[vertex + 1] = UnknownVertexColor(cell.x + 1, cell.y);
+                stateColors[vertex + 2] = UnknownVertexColor(cell.x + 1, cell.y + 1);
+                stateColors[vertex + 3] = UnknownVertexColor(cell.x, cell.y + 1);
             }
             stateMesh.colors32 = stateColors;
+        }
+
+        private Color32 UnknownVertexColor(int vertexX, int vertexY)
+        {
+            // Unknown geometry is absence of information, not coloured ambient fog. Pure black
+            // also prevents lower floors from acquiring blue rectangular bands.
+            if (HasExploredCell(vertexX, vertexY, 0)) return new Color32(0, 0, 0, 28);
+            if (HasExploredCell(vertexX, vertexY, 1)) return new Color32(0, 0, 0, 154);
+            if (HasExploredCell(vertexX, vertexY, 2)) return new Color32(0, 0, 0, 226);
+            return new Color32(0, 0, 0, byte.MaxValue);
+        }
+
+        private bool HasExploredCell(int vertexX, int vertexY, int extraRadius)
+        {
+            for (var x = vertexX - 1 - extraRadius; x <= vertexX + extraRadius; x++)
+            for (var y = vertexY - 1 - extraRadius; y <= vertexY + extraRadius; y++)
+            {
+                if (x < 0 || y < 0 || x >= dungeon.Width || y >= dungeon.Height) continue;
+                if (dungeon.IsVisible(x, y) || dungeon.IsExplored(x, y)) return true;
+            }
+            return false;
         }
 
         private bool IsInsideVision(Vector2Int origin, Vector2Int cell)
