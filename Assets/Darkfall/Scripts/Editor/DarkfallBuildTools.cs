@@ -586,6 +586,8 @@ namespace Darkfall.Editor
                             break;
                         }
                 CaptureAuditFrame(output, depth, "elevation", elevationFocus);
+                CaptureAuditFrame(output, depth, "arrival-threshold", dungeon.CellCenter(dungeon.StartCell));
+                CaptureAuditFrame(output, depth, "exit-threshold", dungeon.CellCenter(dungeon.ExitCell));
                 foreach (var feature in dungeon.Architecture)
                     if (feature.Kind == DungeonArchitectureKind.ElevationStairs)
                     {

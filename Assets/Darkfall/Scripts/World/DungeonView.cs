@@ -893,10 +893,11 @@ namespace Darkfall.World
         {
             foreach (var feature in data.Architecture)
             {
-                // Floor-to-floor thresholds are already open in the contour. Removing nearby
-                // side-wall modules again widens them into accidental rectangular holes.
-                if (feature.Kind == DungeonArchitectureKind.OpenGate) continue;
-                var radius = feature.Kind == DungeonArchitectureKind.ElevationStairs ? 1.05f : 1.35f;
+                // Floor-to-floor thresholds (including closed doors) are already open in the
+                // contour. Removing their neighbouring contour modules cuts false side passages
+                // beside the jambs. Only an elevation stair replaces its platform guardrail.
+                if (feature.Kind != DungeonArchitectureKind.ElevationStairs) continue;
+                const float radius = 1.05f;
                 if (Vector2.Distance(point, feature.Position) < radius) return true;
             }
             return false;
@@ -962,7 +963,9 @@ namespace Darkfall.World
             if (level > 0)
                 return Color.Lerp(source, new Color(.76f, .60f, .38f, source.a), .34f) * 1.10f;
             if (level < 0)
-                return Color.Lerp(source, new Color(.08f, .17f, .20f, source.a), .48f) * .66f;
+                // Height must read before biome hue. A neutral value shift keeps the lower floor
+                // recognisably made from the same catacomb stone instead of looking flooded.
+                return Color.Lerp(source, new Color(.10f, .10f, .10f, source.a), .38f) * .62f;
             return source;
         }
 

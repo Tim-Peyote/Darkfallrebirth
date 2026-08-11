@@ -51,13 +51,9 @@ namespace Darkfall.Gameplay
             door.closedScale = door.closedVisual.localScale;
             door.ApplyLockedTint();
 
-            // A door is a threshold miniset, not a loose prop. Short wall wings overlap both the
-            // authored frame and the nearest contour modules, closing the half-module seams that
-            // otherwise appear on each side of a doorway.
-            var tangent = feature.Vertical ? Vector2.up : Vector2.right;
-            var wingDistance = Mathf.Max(.82f, feature.Width * .5f);
-            door.CreateWing(biome, feature, feature.Position - tangent * wingDistance, parent, 0);
-            door.CreateWing(biome, feature, feature.Position + tangent * wingDistance, parent, 1);
+            // The contour owns both wall cheeks and the authored door owns its complete frame.
+            // Extra jamb wings duplicated the cheeks and, once the leaf opened, read as two false
+            // passages beside the real threshold.
 
             var width = Mathf.Max(1.5f, feature.Width);
             var blocker = feature.Vertical
@@ -65,27 +61,6 @@ namespace Darkfall.Gameplay
                 : new Rect(feature.Position.x - width * .5f, feature.Position.y - .14f, width, .28f);
             door.obstacleId = data.AddDynamicObstacle(blocker);
             Active.Add(door);
-        }
-
-        private void CreateWing(string biome, DungeonArchitectureFeature feature, Vector2 position,
-            Transform parent, int side)
-        {
-            var owner = new GameObject($"Door Jamb Wing · {side}");
-            owner.transform.SetParent(parent, false);
-            owner.transform.position = position;
-            var visual = new GameObject("Projected Jamb");
-            visual.transform.SetParent(owner.transform, false);
-            var renderer = visual.AddComponent<SpriteRenderer>();
-            var role = feature.Vertical ? "wall-right" : "wall-left";
-            renderer.sprite = ArchitectureSpriteLibrary.Module(biome, role);
-            ArchitectureSpriteLibrary.Placement(biome, role, renderer.sprite, out var moduleScale,
-                out var moduleOffset);
-            visual.transform.localPosition = moduleOffset * .82f;
-            visual.transform.localScale = new Vector3(.82f * moduleScale.x, .82f * moduleScale.y, 1f);
-            renderer.flipX = ArchitectureSpriteLibrary.FlipForAxis(biome, role, feature.Vertical);
-            renderer.color = Color.white;
-            DarkfallRenderMaterials.MakeLit(renderer);
-            visual.AddComponent<IsoVisual>().Initialize(owner.transform, 0f, 1002, false);
         }
 
         private SpriteRenderer CreateVisual(string objectName, string biome, string role, bool flipX, float scale)

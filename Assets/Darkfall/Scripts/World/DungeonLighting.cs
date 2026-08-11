@@ -139,13 +139,14 @@ namespace Darkfall.World
     internal sealed class NoxPlayerFreeformLight : MonoBehaviour
     {
         private const int RayCount = 192;
-        private const float ShapeRefreshInterval = .06f;
-        private const float ShapeResponse = 11f;
+        private const float ShapeRefreshInterval = .033f;
+        private const float ShapeResponse = 20f;
         private PlayerController player;
         private DungeonData dungeon;
         private Light2D outerLight;
         private Light2D nearLight;
         private Light2D coreLight;
+        private Light2D stableLocalLight;
         private NoxVisibilityCurtain visibilityCurtain;
         private readonly Vector3[] outerPath = new Vector3[RayCount];
         private readonly Vector3[] nearPath = new Vector3[RayCount];
@@ -177,6 +178,23 @@ namespace Darkfall.World
             coreObject.transform.SetParent(transform, false);
             coreLight = DungeonLighting.ConfigureFreeformLight(coreObject,
                 new Color(1f, .78f, .50f, 1f), 1.04f, 1.55f, .88f);
+
+            // Freeform geometry is rebuilt as the actor crosses visibility-cell boundaries. A
+            // restrained warm point light prevents the actor's immediate pool from blinking out
+            // for a frame while URP retessellates the clipped contour; it is deliberately weak and
+            // soft, so the directional wall-clipped lobe still defines exploration.
+            var stableObject = new GameObject("Stable Local Light Floor");
+            stableObject.transform.SetParent(transform, false);
+            stableLocalLight = stableObject.AddComponent<Light2D>();
+            stableLocalLight.lightType = Light2D.LightType.Point;
+            stableLocalLight.blendStyleIndex = 0;
+            stableLocalLight.color = new Color(1f, .69f, .43f, 1f);
+            stableLocalLight.intensity = .28f;
+            stableLocalLight.pointLightInnerRadius = .12f;
+            stableLocalLight.pointLightOuterRadius = 1.65f;
+            stableLocalLight.falloffIntensity = .96f;
+            stableLocalLight.overlapOperation = Light2D.OverlapOperation.AlphaBlend;
+            stableLocalLight.shadowsEnabled = false;
 
             var curtainObject = new GameObject("Nox Visibility Darkness");
             curtainObject.transform.SetParent(transform, false);
