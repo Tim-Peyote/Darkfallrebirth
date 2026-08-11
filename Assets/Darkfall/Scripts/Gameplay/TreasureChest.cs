@@ -122,16 +122,17 @@ namespace Darkfall.Gameplay
         public bool TakeTo(int index, int backpackIndex)
         {
             if (index < 0 || index >= Items.Length || Items[index] == null) return false;
-            if (Items[index].kind == ItemKind.Gold)
+            var item = Items[index];
+            if (item.kind == ItemKind.Gold)
             {
-                GameManager.Instance.AddGold(Items[index].quantity);
+                GameManager.Instance.AddGold(item.quantity);
                 Items[index] = null;
-                Darkfall.UI.InventoryUI.Instance?.Refresh();
                 return true;
             }
-            if (!GameManager.Instance.Inventory.AddAt(Items[index], backpackIndex)) return false;
+            // Transaction order matters: the chest retains ownership until the destination has
+            // accepted the exact item. InventoryUI performs one refresh after this returns.
+            if (!GameManager.Instance.Inventory.AddAt(item, backpackIndex)) return false;
             Items[index] = null;
-            Darkfall.UI.InventoryUI.Instance?.Refresh();
             return true;
         }
     }

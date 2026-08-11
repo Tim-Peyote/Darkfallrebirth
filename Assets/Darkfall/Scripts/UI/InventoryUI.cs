@@ -709,7 +709,14 @@ namespace Darkfall.UI
 
         private static void Clear(Transform root)
         {
-            for (var i = root.childCount - 1; i >= 0; i--) Destroy(root.GetChild(i).gameObject);
+            for (var i = root.childCount - 1; i >= 0; i--)
+            {
+                var child = root.GetChild(i).gameObject;
+                // Destroy is deferred in a player. Disable first so GridLayoutGroup does not
+                // position freshly rebuilt slots after a full set of soon-to-be-destroyed ones.
+                child.SetActive(false);
+                Destroy(child);
+            }
         }
 
         private static string Glyph(ItemKind kind) => kind switch
