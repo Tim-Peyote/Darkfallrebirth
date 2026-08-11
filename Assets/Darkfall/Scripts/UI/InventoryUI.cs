@@ -95,6 +95,9 @@ namespace Darkfall.UI
                 if (value) Refresh();
                 return;
             }
+            // A player can close the inventory while the pointer is still held. Standalone
+            // builds do not always dispatch OnEndDrag when the whole panel is disabled.
+            if (!value) InventorySlotInteraction.CancelActiveDrag();
             visible = value;
             root.SetActive(value);
             if (!value && contextLayer != null) contextLayer.SetActive(false);
@@ -106,6 +109,9 @@ namespace Darkfall.UI
         public void Refresh()
         {
             if (!visible) return;
+            // Rebuilding grids destroys the source slot. Remove its canvas-level preview first,
+            // otherwise the preview survives and is rendered over the game forever.
+            InventorySlotInteraction.CancelActiveDrag();
             RebuildBackpack();
             RebuildEquipment();
             RebuildQuickSlots();
@@ -770,6 +776,15 @@ namespace Darkfall.UI
         private Color defaultOutline;
         private bool dragging;
 
+        public static void CancelActiveDrag()
+        {
+            if (activeDrag == null) return;
+            var source = activeDrag;
+            activeDrag = null;
+            source.CleanupDragVisuals();
+            source.dragging = false;
+        }
+
         public void Configure(InventoryDragArea slotArea, int slotIndex, ItemInstance slotItem,
             Action onClick, Action onDoubleClick, Action<Vector2> onContextClick,
             Action<InventoryDragArea, int, InventoryDragArea, int> onDrop)
@@ -797,13 +812,20 @@ namespace Darkfall.UI
         public void OnBeginDrag(PointerEventData eventData)
         {
             if (item == null || eventData.button != PointerEventData.InputButton.Left) return;
+            // Pointer cancellation/focus loss can omit OnEndDrag in a standalone player.
+            // Never allow a previous canvas-level preview to survive into the next operation.
+            CancelActiveDrag();
             if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
             dragging = true;
             activeDrag = this;
             canvasGroup.alpha = .45f;
             canvasGroup.blocksRaycasts = false;
             var canvas = GetComponentInParent<Canvas>();
-            if (canvas == null) return;
+            if (canvas == null)
+            {
+                CancelActiveDrag();
+                return;
+            }
             dragGhost = new GameObject("Dragged Item", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
             dragGhost.transform.SetParent(canvas.transform, false);
             var image = dragGhost.GetComponent<Image>();
@@ -826,15 +848,8 @@ namespace Darkfall.UI
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
-            if (canvasGroup != null)
-            {
-                canvasGroup.alpha = 1f;
-                canvasGroup.blocksRaycasts = true;
-            }
-            if (dragGhost != null) Destroy(dragGhost);
-            dragGhost = null;
-            activeDrag = null;
+            if (activeDrag == this) activeDrag = null;
+            CleanupDragVisuals();
             // Suppress the click Unity can emit immediately after ending a drag.
             StartCoroutine(ResetDragging());
         }
@@ -842,7 +857,41 @@ namespace Darkfall.UI
         public void OnDrop(PointerEventData eventData)
         {
             if (activeDrag == null || activeDrag == this) return;
-            drop?.Invoke(activeDrag.area, activeDrag.index, area, index);
+            // HandleDrop refreshes every inventory grid and destroys the dragged source slot.
+            // Capture the operation and remove the ghost before that rebuild occurs.
+            var sourceArea = activeDrag.area;
+            var sourceIndex = activeDrag.index;
+            CancelActiveDrag();
+            drop?.Invoke(sourceArea, sourceIndex, area, index);
+        }
+
+        private void OnDisable()
+        {
+            if (activeDrag == this) CancelActiveDrag();
+            else CleanupDragVisuals();
+        }
+
+        private void OnDestroy()
+        {
+            if (activeDrag == this) activeDrag = null;
+            CleanupDragVisuals();
+        }
+
+        private void CleanupDragVisuals()
+        {
+            if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.blocksRaycasts = true;
+            }
+            if (dragGhost != null)
+            {
+                // Hide immediately; Destroy is deferred until the end of the frame.
+                dragGhost.SetActive(false);
+                Destroy(dragGhost);
+            }
+            dragGhost = null;
         }
 
         public void OnPointerEnter(PointerEventData eventData)
