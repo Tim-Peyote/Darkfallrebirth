@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Darkfall.Gameplay;
 using Darkfall.UI;
 using Darkfall.World;
@@ -81,7 +82,9 @@ namespace Darkfall.Core
             runtimeUI = gameObject.AddComponent<RuntimeUI>();
             runtimeUI.Initialize(this);
             Audio.PlayMusic("Main");
-            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-darkfall-smoke") >= 0)
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-darkfall-lighting-audit") >= 0)
+                StartCoroutine(RunLightingVisualAudit());
+            else if (Array.IndexOf(Environment.GetCommandLineArgs(), "-darkfall-smoke") >= 0)
                 BeginReleaseSmoke();
         }
 
@@ -762,6 +765,96 @@ namespace Darkfall.Core
             Application.Quit(failures.Count == 0 ? 0 : 2);
 #endif
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private System.Collections.IEnumerator RunLightingVisualAudit()
+        {
+            yield return null;
+            StartRun();
+            Player.SetDeveloperInvincible(true);
+            var output = Path.GetFullPath("work/lighting-audit");
+            var arguments = Environment.GetCommandLineArgs();
+            var outputIndex = Array.IndexOf(arguments, "-darkfall-lighting-output");
+            if (outputIndex >= 0 && outputIndex + 1 < arguments.Length)
+                output = Path.GetFullPath(arguments[outputIndex + 1]);
+            Directory.CreateDirectory(output);
+            Screen.SetResolution(1920, 1080, false);
+
+            var scenarios = new List<(string name, Vector2 position, Vector2 facing)>();
+            scenarios.Add(("01-start-room", Dungeon.CellCenter(Dungeon.StartCell), Vector2.right));
+            foreach (var feature in Dungeon.Architecture)
+            {
+                if (feature.Kind == DungeonArchitectureKind.ClosedDoor &&
+                    !scenarios.Exists(item => item.name == "02-closed-door"))
+                    scenarios.Add(("02-closed-door", feature.Position - Vector2.right * 1.15f, Vector2.right));
+                if (feature.Kind == DungeonArchitectureKind.ElevationStairs &&
+                    !scenarios.Exists(item => item.name == "06-stairs-lower"))
+                {
+                    var axis = feature.Vertical ? Vector2.up : Vector2.right;
+                    scenarios.Add(("06-stairs-lower", feature.Position - axis * 1.25f, axis));
+                    scenarios.Add(("07-stairs-upper", feature.Position + axis * 1.25f, -axis));
+                }
+            }
+            if (Dungeon.Rooms.Count > 1)
+            {
+                var room = Dungeon.Rooms[1];
+                scenarios.Add(("03-room-corner", Dungeon.CellCenter(new Vector2Int(room.bounds.xMin + 1, room.bounds.yMin + 1)),
+                    new Vector2(-1f, -1f)));
+                scenarios.Add(("04-long-wall", Dungeon.CellCenter(new Vector2Int(room.Center.x, room.bounds.yMin + 1)),
+                    Vector2.down));
+            }
+            if (Dungeon.LightSources.Count > 0)
+                scenarios.Add(("05-authored-light", Dungeon.LightSources[0].Position + Vector2.left * 1.4f,
+                    Vector2.right));
+
+            foreach (var scenario in scenarios)
+            {
+                Player.transform.position = ClosestWalkableAuditPoint(scenario.position);
+                Player.SetFacingForVisualAudit(scenario.facing);
+                for (var settle = 0; settle < 50; settle++) yield return null;
+                CaptureLightingFrame(Path.Combine(output, scenario.name + ".png"));
+                yield return null;
+            }
+            Debug.Log($"DARKFALL_LIGHTING_AUDIT_PASS: {scenarios.Count} frames at {output}");
+            RestoreReleaseSmokeSave();
+#if UNITY_EDITOR
+            if (Application.isBatchMode) UnityEditor.EditorApplication.Exit(0);
+            else UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit(0);
+#endif
+        }
+
+        private Vector2 ClosestWalkableAuditPoint(Vector2 requested)
+        {
+            var cell = Vector2Int.FloorToInt(requested);
+            if (Dungeon.IsFloor(cell.x, cell.y)) return Dungeon.CellCenter(cell);
+            for (var radius = 1; radius <= 4; radius++)
+                for (var x = cell.x - radius; x <= cell.x + radius; x++)
+                for (var y = cell.y - radius; y <= cell.y + radius; y++)
+                    if (Dungeon.IsFloor(x, y)) return Dungeon.CellCenter(new Vector2Int(x, y));
+            return Dungeon.CellCenter(Dungeon.StartCell);
+        }
+
+        private static void CaptureLightingFrame(string path)
+        {
+            var camera = Camera.main;
+            var target = new RenderTexture(1920, 1080, 24, RenderTextureFormat.ARGB32);
+            var previousTarget = camera.targetTexture;
+            var previousActive = RenderTexture.active;
+            camera.targetTexture = target;
+            camera.Render();
+            RenderTexture.active = target;
+            var image = new Texture2D(1920, 1080, TextureFormat.RGBA32, false);
+            image.ReadPixels(new Rect(0, 0, 1920, 1080), 0, 0);
+            image.Apply();
+            File.WriteAllBytes(path, image.EncodeToPNG());
+            camera.targetTexture = previousTarget;
+            RenderTexture.active = previousActive;
+            Destroy(image);
+            Destroy(target);
+        }
+#endif
 
         public void BeginReleaseSmoke()
         {

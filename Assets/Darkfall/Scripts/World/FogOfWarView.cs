@@ -1,4 +1,5 @@
 using Darkfall.Gameplay;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Darkfall.World
@@ -8,11 +9,16 @@ namespace Darkfall.World
         private DungeonData dungeon;
         private PlayerController player;
         private float nextUpdate;
+        private Mesh stateMesh;
+        private Color32[] stateColors;
+        private readonly List<Vector2Int> stateCells = new List<Vector2Int>();
+        private Material stateMaterial;
 
         public void Initialize(DungeonData data, PlayerController target)
         {
             dungeon = data;
             player = target;
+            BuildStateOverlay();
             RefreshVisibilityData();
         }
 
@@ -35,6 +41,80 @@ namespace Darkfall.World
                 var cell = new Vector2Int(x, y);
                 if (IsInsideVision(origin, cell) && HasLineOfSight(origin, cell)) dungeon.Reveal(x, y);
             }
+            RefreshStateOverlay();
+        }
+
+        private void BuildStateOverlay()
+        {
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            var uvs = new List<Vector2>();
+            stateCells.Clear();
+            for (var x = 0; x < dungeon.Width; x++)
+            for (var y = 0; y < dungeon.Height; y++)
+            {
+                if (!dungeon.IsFloor(x, y)) continue;
+                var index = vertices.Count;
+                var height = dungeon.SurfaceHeight(new Vector2(x + .5f, y + .5f)) + .04f;
+                var logical = new[]
+                {
+                    new Vector2(x, y), new Vector2(x + 1, y),
+                    new Vector2(x + 1, y + 1), new Vector2(x, y + 1)
+                };
+                foreach (var point in logical)
+                {
+                    var projected = IsoWorld.Project(point);
+                    projected.y += height;
+                    vertices.Add(projected);
+                    uvs.Add(Vector2.one * .5f);
+                }
+                triangles.Add(index); triangles.Add(index + 1); triangles.Add(index + 2);
+                triangles.Add(index); triangles.Add(index + 2); triangles.Add(index + 3);
+                stateCells.Add(new Vector2Int(x, y));
+            }
+            stateColors = new Color32[vertices.Count];
+            stateMesh = new Mesh { name = "Fog Of War Cell States", hideFlags = HideFlags.DontSave };
+            stateMesh.SetVertices(vertices);
+            stateMesh.SetTriangles(triangles, 0);
+            stateMesh.SetUVs(0, uvs);
+            stateMesh.colors32 = stateColors;
+            stateMesh.RecalculateBounds();
+            gameObject.AddComponent<MeshFilter>().sharedMesh = stateMesh;
+            var renderer = gameObject.AddComponent<MeshRenderer>();
+            var shader = Shader.Find("Sprites/Default") ??
+                         Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default");
+            stateMaterial = new Material(shader)
+            {
+                name = "Fog Of War Cell State Material",
+                hideFlags = HideFlags.DontSave,
+                mainTexture = Texture2D.whiteTexture,
+                color = Color.white
+            };
+            renderer.sharedMaterial = stateMaterial;
+            renderer.sortingOrder = 30002;
+        }
+
+        private void RefreshStateOverlay()
+        {
+            if (stateMesh == null || stateColors == null) return;
+            for (var cellIndex = 0; cellIndex < stateCells.Count; cellIndex++)
+            {
+                var cell = stateCells[cellIndex];
+                // The directional curtain supplies the soft dimming for explored space outside
+                // current vision. This layer only makes genuinely unknown cells unmistakable.
+                var alpha = dungeon.IsVisible(cell.x, cell.y) || dungeon.IsExplored(cell.x, cell.y)
+                    ? (byte)0 : byte.MaxValue;
+                // Unknown geometry is absence of information, not blue ambient fog. Any colour
+                // component here becomes visible as rectangular isometric tiles over the black
+                // void, especially on lower elevations.
+                var color = new Color32(0, 0, 0, alpha);
+                var vertex = cellIndex * 4;
+                stateColors[vertex] = color;
+                stateColors[vertex + 1] = color;
+                stateColors[vertex + 2] = color;
+                stateColors[vertex + 3] = color;
+            }
+            stateMesh.colors32 = stateColors;
         }
 
         private bool IsInsideVision(Vector2Int origin, Vector2Int cell)
@@ -64,6 +144,12 @@ namespace Darkfall.World
                 if ((x != to.x || y != to.y) && dungeon.BlocksVision(x, y)) return false;
             }
             return true;
+        }
+
+        private void OnDestroy()
+        {
+            if (stateMesh != null) Destroy(stateMesh);
+            if (stateMaterial != null) Destroy(stateMaterial);
         }
     }
 }

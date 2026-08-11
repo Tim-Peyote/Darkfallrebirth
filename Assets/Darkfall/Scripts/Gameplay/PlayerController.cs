@@ -586,6 +586,16 @@ namespace Darkfall.Gameplay
             transform.position = GameManager.Instance.Dungeon.CellCenter(room.Center);
         }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        public void SetFacingForVisualAudit(Vector2 direction)
+        {
+            if (direction.sqrMagnitude < .001f) return;
+            facingDirection = direction.normalized;
+            lastMoveDirection = facingDirection;
+            spriteFacingDirection = facingDirection;
+        }
+#endif
+
         private static float EquipmentStat(System.Func<ItemInstance, float> selector)
         {
             var inventory = GameManager.Instance?.Inventory;

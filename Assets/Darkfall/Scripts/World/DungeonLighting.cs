@@ -104,7 +104,7 @@ namespace Darkfall.World
             }
         }
 
-        internal static float TraceDistance(DungeonData dungeon, Vector2 origin, Vector2 direction,
+        public static float TraceDistance(DungeonData dungeon, Vector2 origin, Vector2 direction,
             float maximum, out bool blocked)
         {
             var originX = Mathf.FloorToInt(origin.x);
@@ -125,7 +125,7 @@ namespace Darkfall.World
             return maximum;
         }
 
-        internal static float PlayerVisionRadius(Vector2 facing, Vector2 direction,
+        public static float PlayerVisionRadius(Vector2 facing, Vector2 direction,
             float forwardRadius = 10.6f, float rearRadius = 3.65f)
         {
             var dot = Mathf.Clamp(Vector2.Dot(facing.normalized, direction.normalized), -1f, 1f);
@@ -148,19 +148,17 @@ namespace Darkfall.World
         private Light2D stableLocalLight;
         private NoxVisibilityCurtain visibilityCurtain;
         private readonly Vector3[] outerPath = new Vector3[RayCount];
-        private readonly Vector3[] nearPath = new Vector3[RayCount];
-        private readonly Vector3[] corePath = new Vector3[RayCount];
         private readonly float[] rawDistances = new float[RayCount];
         private readonly float[] clippedDistances = new float[RayCount];
         private readonly float[] targetOuterDistances = new float[RayCount];
-        private readonly float[] targetNearDistances = new float[RayCount];
-        private readonly float[] targetCoreDistances = new float[RayCount];
         private readonly float[] displayedOuterDistances = new float[RayCount];
-        private readonly float[] displayedNearDistances = new float[RayCount];
-        private readonly float[] displayedCoreDistances = new float[RayCount];
         private readonly Vector2[] directions = new Vector2[RayCount];
         private readonly bool[] blockedRays = new bool[RayCount];
         private float nextShapeRefresh;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private LineRenderer debugContour;
+        private Material debugMaterial;
+#endif
 
         public void Initialize(DungeonData data, PlayerController target, DungeonVisualProfile profile)
         {
@@ -168,15 +166,15 @@ namespace Darkfall.World
             dungeon = data;
             outerLight = DungeonLighting.ConfigureFreeformLight(gameObject,
                 new Color(.64f, .67f, .65f, 1f), .58f, 3.45f, .72f);
-            var nearObject = new GameObject("Near Directional Light");
+            var nearObject = new GameObject("Near Soft Fill Light");
             nearObject.transform.SetParent(transform, false);
-            nearLight = DungeonLighting.ConfigureFreeformLight(nearObject,
-                new Color(.82f, .75f, .63f, 1f), .78f, 2.35f, .79f);
+            nearLight = ConfigureLocalPointLight(nearObject, new Color(.82f, .75f, .63f, 1f),
+                .48f, .55f, 3.15f, true);
 
             var coreObject = new GameObject("Warm Light Core");
             coreObject.transform.SetParent(transform, false);
-            coreLight = DungeonLighting.ConfigureFreeformLight(coreObject,
-                new Color(1f, .78f, .50f, 1f), 1.04f, 1.55f, .88f);
+            coreLight = ConfigureLocalPointLight(coreObject, new Color(1f, .78f, .50f, 1f),
+                .72f, .18f, 1.72f, true);
 
             // Freeform geometry is rebuilt as the actor crosses visibility-cell boundaries. A
             // restrained warm point light prevents the actor's immediate pool from blinking out
@@ -199,6 +197,9 @@ namespace Darkfall.World
             curtainObject.transform.SetParent(transform, false);
             visibilityCurtain = curtainObject.AddComponent<NoxVisibilityCurtain>();
             visibilityCurtain.Initialize(dungeon, player, profile);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            BuildDebugContour();
+#endif
             RefreshOcclusionTargets(true);
             ApplySmoothedShape(1f);
         }
@@ -206,6 +207,13 @@ namespace Darkfall.World
         private void LateUpdate()
         {
             if (player == null) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (Input.GetKeyDown(KeyCode.F9))
+            {
+                debugContour.enabled = !debugContour.enabled;
+                Debug.Log("Darkfall lighting debug: " + (debugContour.enabled ? "ON" : "OFF"));
+            }
+#endif
             if (Time.unscaledTime >= nextShapeRefresh)
             {
                 nextShapeRefresh = Time.unscaledTime + ShapeRefreshInterval;
@@ -248,19 +256,10 @@ namespace Darkfall.World
             {
                 var direction = directions[ray];
                 var outerDistance = clippedDistances[ray];
-                var nearMaximum = DungeonLighting.PlayerVisionRadius(facing, direction, 5.45f, 2.15f);
-                var nearDistance = Mathf.Min(outerDistance, nearMaximum);
-                var coreDistance = Mathf.Min(outerDistance, 2.55f);
                 targetOuterDistances[ray] = outerDistance;
-                targetNearDistances[ray] = nearDistance;
-                targetCoreDistances[ray] = coreDistance;
-                if (Mathf.Abs(displayedOuterDistances[ray] - outerDistance) > .012f ||
-                    Mathf.Abs(displayedNearDistances[ray] - nearDistance) > .012f ||
-                    Mathf.Abs(displayedCoreDistances[ray] - coreDistance) > .012f) changed = true;
+                if (Mathf.Abs(displayedOuterDistances[ray] - outerDistance) > .012f) changed = true;
                 if (!snap) continue;
                 displayedOuterDistances[ray] = outerDistance;
-                displayedNearDistances[ray] = nearDistance;
-                displayedCoreDistances[ray] = coreDistance;
             }
             return changed;
         }
@@ -270,17 +269,62 @@ namespace Darkfall.World
             for (var ray = 0; ray < RayCount; ray++)
             {
                 displayedOuterDistances[ray] = Mathf.Lerp(displayedOuterDistances[ray], targetOuterDistances[ray], blend);
-                displayedNearDistances[ray] = Mathf.Lerp(displayedNearDistances[ray], targetNearDistances[ray], blend);
-                displayedCoreDistances[ray] = Mathf.Lerp(displayedCoreDistances[ray], targetCoreDistances[ray], blend);
                 outerPath[ray] = IsoWorld.ProjectDirection(directions[ray] * displayedOuterDistances[ray]);
-                nearPath[ray] = IsoWorld.ProjectDirection(directions[ray] * displayedNearDistances[ray]);
-                corePath[ray] = IsoWorld.ProjectDirection(directions[ray] * displayedCoreDistances[ray]);
             }
             outerLight.SetShapePath(outerPath);
-            nearLight.SetShapePath(nearPath);
-            coreLight.SetShapePath(corePath);
             visibilityCurtain?.SetContour(directions, displayedOuterDistances, blockedRays);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (debugContour != null)
+            {
+                debugContour.positionCount = RayCount;
+                debugContour.SetPositions(outerPath);
+            }
+#endif
         }
+
+        private static Light2D ConfigureLocalPointLight(GameObject target, Color color, float intensity,
+            float innerRadius, float outerRadius, bool castShadows)
+        {
+            var light = target.AddComponent<Light2D>();
+            light.lightType = Light2D.LightType.Point;
+            light.blendStyleIndex = 0;
+            light.color = color;
+            light.intensity = intensity;
+            light.pointLightInnerRadius = innerRadius;
+            light.pointLightOuterRadius = outerRadius;
+            light.falloffIntensity = .92f;
+            light.overlapOperation = Light2D.OverlapOperation.AlphaBlend;
+            light.shadowsEnabled = castShadows;
+            light.shadowIntensity = .38f;
+            light.shadowSoftness = 1f;
+            return light;
+        }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private void BuildDebugContour()
+        {
+            var debugObject = new GameObject("Lighting Debug · F9");
+            debugObject.transform.SetParent(transform, false);
+            debugContour = debugObject.AddComponent<LineRenderer>();
+            debugContour.useWorldSpace = false;
+            debugContour.loop = true;
+            debugContour.widthMultiplier = .028f;
+            debugContour.numCornerVertices = 2;
+            debugContour.startColor = new Color(.25f, 1f, .55f, .92f);
+            debugContour.endColor = new Color(1f, .72f, .18f, .92f);
+            debugContour.sortingOrder = 31000;
+            var shader = Shader.Find("Sprites/Default") ??
+                         Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default");
+            debugMaterial = new Material(shader) { color = Color.white };
+            debugContour.sharedMaterial = debugMaterial;
+            debugContour.enabled = false;
+        }
+
+        private void OnDestroy()
+        {
+            if (debugMaterial != null) Destroy(debugMaterial);
+        }
+#endif
     }
 
     /// <summary>
@@ -359,7 +403,9 @@ namespace Darkfall.World
                     SetCurtainVertex(ray, 5, direction, boundary + 1.6f, 132);
                     SetCurtainVertex(ray, 6, direction, boundary + 3f, 202);
                 }
-                SetCurtainVertex(ray, 7, direction, OuterDistance, 252);
+                // The far curtain is the "explored but not currently visible" state. Unknown
+                // cells receive an additional near-black layer from FogOfWarView.
+                SetCurtainVertex(ray, 7, direction, OuterDistance, 190);
             }
             curtainMesh.vertices = curtainVertices;
             curtainMesh.colors32 = curtainColors;

@@ -7,6 +7,7 @@ using Darkfall.Gameplay;
 using Darkfall.World;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -308,6 +309,23 @@ namespace Darkfall.Editor
                         $"Seed {seed}: hazard cell is not reserved from decor");
                 failures += Require(dungeon.IsFloor(dungeon.StartCell.x, dungeon.StartCell.y), $"Seed {seed}: invalid start");
                 failures += Require(dungeon.IsFloor(dungeon.ExitCell.x, dungeon.ExitCell.y), $"Seed {seed}: invalid exit");
+                var lightingOrigins = new List<Vector2> { dungeon.CellCenter(dungeon.StartCell) };
+                for (var roomIndex = 1; roomIndex < Mathf.Min(dungeon.Rooms.Count, 5); roomIndex++)
+                    lightingOrigins.Add(dungeon.Rooms[roomIndex].Center + Vector2.one * .5f);
+                foreach (var lightingOrigin in lightingOrigins)
+                    for (var rayIndex = 0; rayIndex < 32; rayIndex++)
+                    {
+                        var angle = rayIndex * Mathf.PI * 2f / 32f;
+                        var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                        var maximum = DungeonLighting.PlayerVisionRadius(Vector2.right, direction);
+                        var distance = DungeonLighting.TraceDistance(dungeon, lightingOrigin, direction,
+                            maximum, out var blocked);
+                        failures += Require(!float.IsNaN(distance) && !float.IsInfinity(distance) &&
+                                            distance >= .06f && distance <= maximum + .07f,
+                            $"Seed {seed}: invalid lighting ray distance at {lightingOrigin}");
+                        failures += Require(!blocked || distance < maximum,
+                            $"Seed {seed}: blocked lighting ray was not clipped");
+                    }
                 var internalStairs = 0;
                 var doors = 0;
                 var startDoors = 0;
@@ -491,6 +509,16 @@ namespace Darkfall.Editor
 
             if (failures > 0) throw new InvalidOperationException($"Darkfall validation failed: {failures} error(s)");
             Debug.Log("Darkfall validation passed: structure, resources and 100 dungeon seeds are valid.");
+        }
+
+        [MenuItem("Darkfall/Run Release Smoke")]
+        public static void RunReleaseSmoke()
+        {
+            // The runtime harness owns shutdown and the exit code. Keeping this as a real Play
+            // Mode pass catches renderer lifetime, input and coroutine defects that edit-time
+            // validation cannot observe. Batch callers must also pass -darkfall-smoke.
+            EditorSceneManager.OpenScene(MainScene, OpenSceneMode.Single);
+            EditorApplication.isPlaying = true;
         }
 
         private static int CountFloorCells(DungeonData dungeon)
