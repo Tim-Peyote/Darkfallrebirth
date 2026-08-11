@@ -352,6 +352,18 @@ namespace Darkfall.Editor
                             $"Seed {seed}: raised platform is not visually distinct");
                         failures += Require(dungeon.CanTraverse(lowSide, highSide, .18f),
                             $"Seed {seed}: stair ramp does not connect its platform");
+                        var previousHeight = dungeon.SurfaceHeight(lowSide);
+                        for (var sampleIndex = 1; sampleIndex <= 12; sampleIndex++)
+                        {
+                            var samplePoint = Vector2.Lerp(lowSide, highSide, sampleIndex / 12f);
+                            var sampleHeight = dungeon.SurfaceHeight(samplePoint);
+                            failures += Require(sampleHeight + .001f >= previousHeight,
+                                $"Seed {seed}: stair surface is not monotonic at sample {sampleIndex}");
+                            failures += Require(sampleHeight - previousHeight <=
+                                                DungeonData.ElevationStepHeight * .24f,
+                                $"Seed {seed}: stair surface contains a vertical snap at sample {sampleIndex}");
+                            previousHeight = sampleHeight;
+                        }
                         var outsideLane = lowSide + tangent * .75f;
                         var outsideHigh = highSide + tangent * .75f;
                         failures += Require(!dungeon.CanTraverse(outsideLane, outsideHigh, .18f),

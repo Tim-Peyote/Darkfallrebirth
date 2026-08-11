@@ -492,7 +492,8 @@ namespace Darkfall.World
                     tile.Kind == DungeonFloorTileKind.InnerCorner ? .93f : .84f;
                 if (tile.Damaged) edgeFactor *= .82f;
                 var tint = ElevationFloorTint(profile.FloorTint *
-                    RandomTint(x + tile.Variant * 7, y + tile.Variant * 11), data.ElevationLevel(x, y)) * edgeFactor;
+                    RandomTint(x + tile.Variant * 7, y + tile.Variant * 11), data.ElevationLevel(x, y));
+                tint = RoomMaterialTint(data, x, y, tint) * edgeFactor;
                 // Each variant samples another stable portion of the repeatable source texture.
                 // A future authored atlas can replace this UV policy without touching generation.
                 var uvOffset = new Vector2(tile.Variant * .271f, tile.Variant * .163f);
@@ -822,7 +823,7 @@ namespace Darkfall.World
                     ArchitectureSpriteLibrary.WallRoleForAxis(profile.Id, module.Vertical);
                 var flip = ArchitectureSpriteLibrary.FlipForAxis(profile.Id, role, module.Vertical);
                 CreateArchitectureModule(role, module.Anchor, flip, .985f, moduleIndex++,
-                    data.BoundaryHeight(module.Anchor));
+                    data.BoundaryHeight(module.Anchor), visualVariant: module.Variant);
             }
             // The authored corner sprites contain two complete wall shoulders. Layering them over
             // the already continuous unit walls doubles both facades and creates the turret-like
@@ -970,7 +971,7 @@ namespace Darkfall.World
         }
 
         private void CreateArchitectureModule(string role, Vector2 anchor, bool flipX, float scale, int index,
-            float elevation = 0f, float horizontalScale = -1f)
+            float elevation = 0f, float horizontalScale = -1f, int visualVariant = 0)
         {
             var sprite = ArchitectureSpriteLibrary.Module(profile.Id, role);
             if (sprite == null) return;
@@ -994,7 +995,9 @@ namespace Darkfall.World
             var readability = visual.AddComponent<SpriteRenderer>();
             readability.sprite = sprite;
             readability.flipX = flipX;
-            readability.color = new Color(.72f, .72f, .72f, .30f);
+            var variantTint = ArchitectureVariantTint(visualVariant);
+            readability.color = new Color(.72f * variantTint.r, .72f * variantTint.g,
+                .72f * variantTint.b, .30f);
             readability.sortingOrder = 0;
             DarkfallRenderMaterials.MakeEmissive(readability);
 
@@ -1003,13 +1006,46 @@ namespace Darkfall.World
             var lit = litObject.AddComponent<SpriteRenderer>();
             lit.sprite = sprite;
             lit.flipX = flipX;
-            lit.color = Color.white;
+            lit.color = variantTint;
             lit.sortingOrder = 1;
             DarkfallRenderMaterials.MakeLit(lit);
 
             // Architecture stays on one depth system so the stair remains joined to both platform
             // lips. Traversing actors receive their temporary stair-depth boost in IsoVisual.
             visual.AddComponent<IsoVisual>().Initialize(owner.transform, elevation, 1002, false);
+            visual.AddComponent<ArchitectureOcclusionFade>().Initialize(elevation);
+        }
+
+        private static Color ArchitectureVariantTint(int variant)
+        {
+            return (variant % 3) switch
+            {
+                1 => new Color(.91f, .86f, .78f, 1f),
+                2 => new Color(.78f, .83f, .87f, 1f),
+                _ => Color.white
+            };
+        }
+
+        private static Color RoomMaterialTint(DungeonData data, int x, int y, Color source)
+        {
+            DungeonRoomTheme theme = DungeonRoomTheme.None;
+            foreach (var room in data.Rooms)
+                if (room.bounds.Contains(new Vector2Int(x, y)))
+                {
+                    theme = room.theme;
+                    break;
+                }
+            var accent = theme switch
+            {
+                DungeonRoomTheme.Shrine => new Color(.72f, .60f, .42f, source.a),
+                DungeonRoomTheme.Reliquary => new Color(.55f, .49f, .39f, source.a),
+                DungeonRoomTheme.Ossuary => new Color(.48f, .50f, .47f, source.a),
+                DungeonRoomTheme.Ritual => new Color(.50f, .38f, .36f, source.a),
+                DungeonRoomTheme.Arrival => new Color(.52f, .47f, .39f, source.a),
+                DungeonRoomTheme.Exit => new Color(.43f, .44f, .47f, source.a),
+                _ => source
+            };
+            return theme == DungeonRoomTheme.None ? source : Color.Lerp(source, accent, .115f);
         }
 
         private Material CreateTexturedMaterial(string path)
