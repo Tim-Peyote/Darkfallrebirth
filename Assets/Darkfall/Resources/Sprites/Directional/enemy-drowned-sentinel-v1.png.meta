@@ -985,7 +985,41 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      enemy-drowned-sentinel-v1_0: 3950580516625086436
+      enemy-drowned-sentinel-v1_1: -6240566727494916404
+      enemy-drowned-sentinel-v1_10: -5599167128250050883
+      enemy-drowned-sentinel-v1_11: 760563019717744039
+      enemy-drowned-sentinel-v1_12: -1696227846966510000
+      enemy-drowned-sentinel-v1_13: -5694462737868577159
+      enemy-drowned-sentinel-v1_14: -2541601178149823995
+      enemy-drowned-sentinel-v1_15: -531036192578205027
+      enemy-drowned-sentinel-v1_16: 8670209816991793111
+      enemy-drowned-sentinel-v1_17: -3062241062096066257
+      enemy-drowned-sentinel-v1_18: -8492362274850259886
+      enemy-drowned-sentinel-v1_19: 6367419133069862094
+      enemy-drowned-sentinel-v1_2: 3704278894092103582
+      enemy-drowned-sentinel-v1_20: 4973128923743518982
+      enemy-drowned-sentinel-v1_21: -6416933991972401943
+      enemy-drowned-sentinel-v1_22: 5073212610142868357
+      enemy-drowned-sentinel-v1_23: 8549477266697589572
+      enemy-drowned-sentinel-v1_24: -6035285749393348348
+      enemy-drowned-sentinel-v1_25: -4539999517665576754
+      enemy-drowned-sentinel-v1_26: 8249549937474568931
+      enemy-drowned-sentinel-v1_27: 6210651160106431628
+      enemy-drowned-sentinel-v1_28: 5022284875890927627
+      enemy-drowned-sentinel-v1_29: 5016082005592823160
+      enemy-drowned-sentinel-v1_3: 5667004169960836342
+      enemy-drowned-sentinel-v1_30: -2106174574666871422
+      enemy-drowned-sentinel-v1_31: 4657798074033838564
+      enemy-drowned-sentinel-v1_32: -648388428514074795
+      enemy-drowned-sentinel-v1_33: 2805707994144907186
+      enemy-drowned-sentinel-v1_4: -6972074171541129480
+      enemy-drowned-sentinel-v1_5: 7991811923566357069
+      enemy-drowned-sentinel-v1_6: 8947147590899782237
+      enemy-drowned-sentinel-v1_7: -4571664985964075049
+      enemy-drowned-sentinel-v1_8: -2604840737241942901
+      enemy-drowned-sentinel-v1_9: -3063407852291089511
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

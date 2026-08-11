@@ -435,7 +435,19 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      obsidian-decor_0: 8445410142922144164
+      obsidian-decor_1: 3617763427490999690
+      obsidian-decor_10: 8996948058569192240
+      obsidian-decor_11: -6459709236123986449
+      obsidian-decor_2: -7222188841023097326
+      obsidian-decor_3: 1518090144176943868
+      obsidian-decor_4: -1775326848660579019
+      obsidian-decor_5: -2762275991883811269
+      obsidian-decor_6: 4223851640388120847
+      obsidian-decor_7: 4847540568938254578
+      obsidian-decor_8: -1762394562986891170
+      obsidian-decor_9: 6213819514461213519
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -535,7 +535,23 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      ember-decor_0: -5997069613715206448
+      ember-decor_1: 2227211949857674067
+      ember-decor_10: 7079278952642911363
+      ember-decor_11: -6939848393034186760
+      ember-decor_12: 7892248521802015567
+      ember-decor_13: 5858928020076178263
+      ember-decor_14: 6489477682572785453
+      ember-decor_15: -8111782748742265742
+      ember-decor_2: 5952573287859655737
+      ember-decor_3: 92669641302688927
+      ember-decor_4: 1636808221569278231
+      ember-decor_5: 4894423572844585403
+      ember-decor_6: 565934763483862090
+      ember-decor_7: -8676137358697910813
+      ember-decor_8: -6369990110250962707
+      ember-decor_9: 1358018556710603418
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

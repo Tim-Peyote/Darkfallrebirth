@@ -21,6 +21,7 @@ namespace Darkfall.World
         public string StrategyId;
         public int LoopConnections;
         public int RepairOperations;
+        public int ContextRepairOperations;
         public int ExtraConnectionBudget = -1;
 
         public DungeonLayoutPlan(int depth, int seed, int biomeStyle, Random random,

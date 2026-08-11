@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      obsidian-sanctum-sheet_0: 6479834207794061325
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

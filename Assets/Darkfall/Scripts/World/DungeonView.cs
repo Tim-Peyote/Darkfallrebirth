@@ -23,9 +23,13 @@ namespace Darkfall.World
             Clear();
             profile = DungeonVisualProfile.ForDepth(depth);
             gameObject.name = "Dungeon · " + profile.Id;
+            DungeonFloorTileResolver.Resolve(data, data.GenerationInfo != null ? data.GenerationInfo.seed : depth);
+            DungeonWallTileResolver.Resolve(data, data.GenerationInfo != null ? data.GenerationInfo.seed : depth);
             var contour = DungeonContour.Build(data);
             architectureDecor = CreateGroup(transform, "Architecture · " + profile.Id);
             BuildContourFloor(contour, data);
+            BuildContextFloorTiles(data);
+            BuildWallFoundationApron(contour, data);
             BuildHazardSurfaces(data);
             BuildContourWalls(contour, data);
             BuildContourShadows(contour);
@@ -34,9 +38,58 @@ namespace Darkfall.World
             structuralDecor = CreateGroup(decorRoot, "Structural");
             lightDecor = CreateGroup(decorRoot, "Light Sources");
             clutterDecor = CreateGroup(decorRoot, "Clutter");
+            BuildSetPieces(data);
+            BuildMiniSets(data);
             BuildDecor(data);
             BuildBiomeEvents(data);
             data.CompleteGenerationStage(DungeonGenerationStage.TileResolution);
+        }
+
+        private void BuildMiniSets(DungeonData data)
+        {
+            foreach (var miniSet in data.MiniSets)
+            {
+                if (miniSet.Kind == DungeonMiniSetKind.HazardBridge) continue;
+                var index = miniSet.Kind == DungeonMiniSetKind.StatueNiche ? 6 :
+                    miniSet.Kind == DungeonMiniSetKind.RuinedCorner ? 7 :
+                    miniSet.Kind == DungeonMiniSetKind.Colonnade ? 6 :
+                    miniSet.Kind == DungeonMiniSetKind.RubbleBlock ? 7 :
+                    miniSet.Kind == DungeonMiniSetKind.Campfire ? 2 :
+                    miniSet.Kind == DungeonMiniSetKind.Altar ? 8 :
+                    miniSet.Kind == DungeonMiniSetKind.SideChapel ? 1 : 5;
+                if (miniSet.Kind == DungeonMiniSetKind.Colonnade)
+                {
+                    CreateProp(data, index, miniSet.Anchor + Vector2.left * 1.35f, .68f,
+                        "Mini Set · Colonnade", true, structuralDecor);
+                    CreateProp(data, index, miniSet.Anchor + Vector2.right * 1.35f, .68f,
+                        "Mini Set · Colonnade", true, structuralDecor);
+                }
+                else CreateProp(data, index, miniSet.Anchor, miniSet.Mask.width >= 5 ? .78f : .62f,
+                    "Mini Set · " + miniSet.Kind, miniSet.Kind != DungeonMiniSetKind.Campfire, structuralDecor);
+            }
+        }
+
+        private void BuildSetPieces(DungeonData data)
+        {
+            foreach (var setPiece in data.SetPieces)
+            {
+                if (setPiece.Kind == DungeonSetPieceKind.Entrance ||
+                    setPiece.Kind == DungeonSetPieceKind.Portal ||
+                    setPiece.Kind == DungeonSetPieceKind.TreasureVault ||
+                    setPiece.Kind == DungeonSetPieceKind.MimicLair) continue;
+                var index = setPiece.Kind == DungeonSetPieceKind.Shrine ? 1 :
+                    setPiece.Kind == DungeonSetPieceKind.EliteArena ? 11 :
+                    setPiece.Kind == DungeonSetPieceKind.EventRoom ? 8 : 6;
+                CreateProp(data, index, setPiece.Anchor, setPiece.Mask.width >= 5 ? .92f : .78f,
+                    "Set Piece · " + setPiece.Kind, true, structuralDecor);
+                if (setPiece.Mask.width >= 5)
+                {
+                    CreateProp(data, 5, setPiece.Anchor + Vector2.left * 1.55f, .48f,
+                        "Set Piece · " + setPiece.Kind + " Satellite", false, clutterDecor);
+                    CreateProp(data, 5, setPiece.Anchor + Vector2.right * 1.55f, .48f,
+                        "Set Piece · " + setPiece.Kind + " Satellite", false, clutterDecor);
+                }
+            }
         }
 
         private void BuildHazardSurfaces(DungeonData data)
@@ -395,7 +448,9 @@ namespace Darkfall.World
                 for (var i = 0; i < polygon.Length; i++) center += polygon[i];
                 center /= polygon.Length;
                 var elevation = data.SurfaceHeight(center);
-                var tint = profile.FloorTint * RandomTint(Mathf.FloorToInt(center.x), Mathf.FloorToInt(center.y));
+                var level = data.ElevationLevel(Mathf.FloorToInt(center.x), Mathf.FloorToInt(center.y));
+                var tint = ElevationFloorTint(profile.FloorTint *
+                    RandomTint(Mathf.FloorToInt(center.x), Mathf.FloorToInt(center.y)), level);
                 for (var i = 0; i < polygon.Length; i++)
                 {
                     var point = IsoWorld.Project(polygon[i]);
@@ -419,6 +474,75 @@ namespace Darkfall.World
             BuildElevationGuardrails(data);
         }
 
+        private void BuildContextFloorTiles(DungeonData data)
+        {
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            var colors = new List<Color>();
+            var uvs = new List<Vector2>();
+            foreach (var tile in data.ResolvedFloorTiles)
+            {
+                var index = vertices.Count;
+                var x = tile.Cell.x;
+                var y = tile.Cell.y;
+                var height = data.SurfaceHeight(new Vector2(x + .5f, y + .5f));
+                var logical = new[] { new Vector2(x, y), new Vector2(x + 1, y),
+                    new Vector2(x + 1, y + 1), new Vector2(x, y + 1) };
+                var edgeFactor = tile.Kind == DungeonFloorTileKind.Center ? 1f :
+                    tile.Kind == DungeonFloorTileKind.InnerCorner ? .93f : .84f;
+                if (tile.Damaged) edgeFactor *= .82f;
+                var tint = ElevationFloorTint(profile.FloorTint *
+                    RandomTint(x + tile.Variant * 7, y + tile.Variant * 11), data.ElevationLevel(x, y)) * edgeFactor;
+                // Each variant samples another stable portion of the repeatable source texture.
+                // A future authored atlas can replace this UV policy without touching generation.
+                var uvOffset = new Vector2(tile.Variant * .271f, tile.Variant * .163f);
+                for (var i = 0; i < logical.Length; i++)
+                {
+                    var point = IsoWorld.Project(logical[i]);
+                    point.y += height;
+                    vertices.Add(point);
+                    colors.Add(tint);
+                    uvs.Add(logical[i] * .08f + uvOffset);
+                }
+                triangles.Add(index); triangles.Add(index + 1); triangles.Add(index + 2);
+                triangles.Add(index); triangles.Add(index + 2); triangles.Add(index + 3);
+            }
+            if (vertices.Count == 0) return;
+            var mesh = MakeMesh("Context Resolved Floor Tiles", vertices, triangles, colors, uvs);
+            CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.FloorTexture), -19);
+        }
+
+        private void BuildWallFoundationApron(DungeonContour contour, DungeonData data)
+        {
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            var colors = new List<Color>();
+            var uvs = new List<Vector2>();
+            foreach (var segment in contour.Segments)
+            {
+                var outward = segment.Mask == 1 ? Vector2.down : segment.Mask == 2 ? Vector2.right :
+                    segment.Mask == 4 ? Vector2.up : Vector2.left;
+                const float foundationDepth = .22f;
+                var logical = new[] { segment.From, segment.To,
+                    segment.To + outward * foundationDepth, segment.From + outward * foundationDepth };
+                var index = vertices.Count;
+                var elevation = data.BoundaryHeight((segment.From + segment.To) * .5f);
+                for (var i = 0; i < logical.Length; i++)
+                {
+                    var projected = IsoWorld.Project(logical[i]);
+                    projected.y += elevation;
+                    vertices.Add(projected);
+                    colors.Add(profile.FloorTint * .58f);
+                    uvs.Add(logical[i] * .08f);
+                }
+                triangles.Add(index); triangles.Add(index + 1); triangles.Add(index + 2);
+                triangles.Add(index); triangles.Add(index + 2); triangles.Add(index + 3);
+            }
+            if (vertices.Count == 0) return;
+            var mesh = MakeMesh("Wall Stone Foundation Apron", vertices, triangles, colors, uvs);
+            CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.FloorTexture), -18);
+        }
+
         private void BuildElevationGuardrails(DungeonData data)
         {
             if (!ArchitectureSpriteLibrary.HasBiome(profile.Id)) return;
@@ -427,7 +551,6 @@ namespace Darkfall.World
             for (var y = 0; y < data.Height; y++)
             {
                 var level = data.ElevationLevel(x, y);
-                if (level <= 0) continue;
                 var top = level * DungeonData.ElevationStepHeight;
                 AddElevationGuardrail(data, x, y, x - 1, y,
                     new Vector2(x, y + .5f), true, top, ref moduleIndex);
@@ -482,7 +605,7 @@ namespace Darkfall.World
                     projected.y += height;
                     vertices.Add(projected);
                     uvs.Add(point * uvScale);
-                    colors.Add(profile.FloorTint * RandomTint(x, y));
+                    colors.Add(ElevationFloorTint(profile.FloorTint * RandomTint(x, y), level));
                 }
                 // Project() reverses the apparent Y axis. These must be clockwise in projected
                 // space or the 2D renderer culls the entire upper plane as a back face.
@@ -541,17 +664,24 @@ namespace Darkfall.World
             for (var y = 0; y < data.Height; y++)
             {
                 var level = data.ElevationLevel(x, y);
-                if (level <= 0) continue;
-                var height = data.SurfaceHeight(new Vector2(x + .5f, y + .5f));
+                if (!data.IsFloor(x, y)) continue;
                 // Only screen-facing (+X/+Y) platform faces are visible in this projection. The
                 // -X/-Y faces are behind the upper floor; rendering them in a 2D pipeline makes
                 // them appear through that floor as interior walls.
                 if (data.ElevationLevel(x + 1, y) < level &&
                     !IsStairRiserOpening(data, new Vector2(x + 1, y + .5f), true))
-                    AddRiser(vertices, triangles, colors, uvs, new Vector2(x + 1, y), new Vector2(x + 1, y + 1), height, color * .84f);
+                {
+                    var lower = data.ElevationLevel(x + 1, y) * DungeonData.ElevationStepHeight;
+                    AddRiser(vertices, triangles, colors, uvs, new Vector2(x + 1, y), new Vector2(x + 1, y + 1),
+                        lower, (level - data.ElevationLevel(x + 1, y)) * DungeonData.ElevationStepHeight, color * .84f);
+                }
                 if (data.ElevationLevel(x, y + 1) < level &&
                     !IsStairRiserOpening(data, new Vector2(x + .5f, y + 1), false))
-                    AddRiser(vertices, triangles, colors, uvs, new Vector2(x + 1, y + 1), new Vector2(x, y + 1), height, color);
+                {
+                    var lower = data.ElevationLevel(x, y + 1) * DungeonData.ElevationStepHeight;
+                    AddRiser(vertices, triangles, colors, uvs, new Vector2(x + 1, y + 1), new Vector2(x, y + 1),
+                        lower, (level - data.ElevationLevel(x, y + 1)) * DungeonData.ElevationStepHeight, color);
+                }
             }
             if (vertices.Count == 0) return;
             var mesh = MakeMesh("Raised Platform Fascias", vertices, triangles, colors, uvs);
@@ -585,10 +715,10 @@ namespace Darkfall.World
         }
 
         private static void AddRiser(List<Vector3> vertices, List<int> triangles, List<Color> colors,
-            List<Vector2> uvs, Vector2 from, Vector2 to, float height, Color color)
+            List<Vector2> uvs, Vector2 from, Vector2 to, float baseElevation, float height, Color color)
         {
-            var lowerFrom = IsoWorld.Project(from);
-            var lowerTo = IsoWorld.Project(to);
+            var lowerFrom = IsoWorld.Project(from) + Vector2.up * baseElevation;
+            var lowerTo = IsoWorld.Project(to) + Vector2.up * baseElevation;
             var plinth = height * .18f;
             var frieze = height * .78f;
 
@@ -683,39 +813,31 @@ namespace Darkfall.World
         private void BuildArchitectureModules(DungeonContour contour, DungeonData data)
         {
             var moduleIndex = 0;
-            foreach (var span in BuildBoundarySpans(contour.Segments))
+            foreach (var module in data.ResolvedWallModules)
             {
-                var length = Mathf.RoundToInt(span.End - span.Start);
-                var from = span.Vertical
-                    ? new Vector2(span.Fixed, span.Start)
-                    : new Vector2(span.Start, span.Fixed);
-                var to = span.Vertical
-                    ? new Vector2(span.Fixed, span.End)
-                    : new Vector2(span.End, span.Fixed);
-                var edgeHash = EdgeHash(from, to, length);
-                for (var section = 0; section < length; section++)
-                {
-                    var coordinate = span.Start + section + .5f;
-                    var anchor = span.Vertical
-                        ? new Vector2(span.Fixed, coordinate)
-                        : new Vector2(coordinate, span.Fixed);
-                    if (FeatureReplacesWallModule(data, anchor)) continue;
-                    var role = ArchitectureSpriteLibrary.WallRoleForAxis(profile.Id, span.Vertical);
-                    // Accent files are authored as front-facing facade minisets. They may replace
-                    // only a compatible horizontal wall slot; using them on both axes produced
-                    // the transverse panels seen in the biome audit.
-                    if (!span.Vertical && length >= 8 && section >= 2 && section <= length - 3 &&
-                        (section + edgeHash) % 8 == 3)
-                    {
-                        var accent = (edgeHash + section) % 3;
-                        role = accent == 0 ? "wall-broken" : accent == 1 ? "wall-niche" : "arcade";
-                    }
-                    var flip = ArchitectureSpriteLibrary.FlipForAxis(profile.Id, role, span.Vertical);
-                    CreateArchitectureModule(role, anchor, flip, .985f, moduleIndex++,
-                        data.BoundaryHeight(anchor));
-                }
+                if (FeatureReplacesWallModule(data, module.Anchor)) continue;
+                var role = module.Kind == DungeonWallModuleKind.Broken ? "wall-broken" :
+                    module.Kind == DungeonWallModuleKind.Niche ? "wall-niche" :
+                    module.Kind == DungeonWallModuleKind.Arcade ? "arcade" :
+                    ArchitectureSpriteLibrary.WallRoleForAxis(profile.Id, module.Vertical);
+                var flip = ArchitectureSpriteLibrary.FlipForAxis(profile.Id, role, module.Vertical);
+                CreateArchitectureModule(role, module.Anchor, flip, .985f, moduleIndex++,
+                    data.BoundaryHeight(module.Anchor));
             }
+            // The authored corner sprites contain two complete wall shoulders. Layering them over
+            // the already continuous unit walls doubles both facades and creates the turret-like
+            // knots visible at concave room corners. Unit walls now own the joint; corner artwork
+            // remains available for future authored set pieces, where it can replace (not overlap)
+            // the adjacent modules as a single composition.
+        }
 
+        private static void CornerOrientation(DungeonResolvedWallCorner corner, out bool flipX)
+        {
+            // Corner art is canonical for the south-west floor quadrant. An outer corner follows
+            // its sole floor quadrant; an inner corner follows its sole missing quadrant.
+            var orientation = corner.Kind == DungeonWallCornerKind.Outer
+                ? corner.FloorQuadrants : (byte)(15 ^ corner.FloorQuadrants);
+            flipX = (orientation & (2 | 8)) != 0;
         }
 
         private static void AddWallWindowObstacle(DungeonData data, Vector2 anchor, bool vertical)
@@ -829,9 +951,19 @@ namespace Darkfall.World
                 // Width 2/3 thresholds share the same art. Stretch only screen X to close the
                 // side voids while retaining the authored vertical rise and landing height.
                 var stairHorizontalScale = feature.Width == 2 ? 1.28f : 1.48f;
+                var lowerElevation = Mathf.Min(negativeLevel, positiveLevel) * DungeonData.ElevationStepHeight;
                 CreateArchitectureModule("stairs", stairAnchor, feature.Vertical, 1.03f,
-                    featureIndex++, 0f, stairHorizontalScale);
+                    featureIndex++, lowerElevation, stairHorizontalScale);
             }
+        }
+
+        private static Color ElevationFloorTint(Color source, int level)
+        {
+            if (level > 0)
+                return Color.Lerp(source, new Color(.76f, .60f, .38f, source.a), .34f) * 1.10f;
+            if (level < 0)
+                return Color.Lerp(source, new Color(.08f, .17f, .20f, source.a), .48f) * .66f;
+            return source;
         }
 
         private void CreateArchitectureModule(string role, Vector2 anchor, bool flipX, float scale, int index,
@@ -1404,7 +1536,9 @@ namespace Darkfall.World
                                    objectName.StartsWith("Central Theme", System.StringComparison.Ordinal) ||
                                    objectName.StartsWith("Theme Detail", System.StringComparison.Ordinal) ||
                                    objectName.StartsWith("Biome Event", System.StringComparison.Ordinal) ||
-                                   objectName.StartsWith("Event Satellite", System.StringComparison.Ordinal);
+                                   objectName.StartsWith("Event Satellite", System.StringComparison.Ordinal) ||
+                                   objectName.StartsWith("Set Piece", System.StringComparison.Ordinal) ||
+                                   objectName.StartsWith("Mini Set", System.StringComparison.Ordinal);
             if (data.HasSemantic(cell, DungeonCellSemantic.EventReserved) && !authoredSetPiece) return false;
             foreach (var feature in data.Architecture)
                 if (Vector2.Distance(position, feature.Position) < 1.6f) return false;

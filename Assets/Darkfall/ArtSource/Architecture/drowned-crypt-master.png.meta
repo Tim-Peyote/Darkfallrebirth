@@ -435,7 +435,19 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      drowned-crypt-master_0: 180465431609100832
+      drowned-crypt-master_1: 3195766994252225175
+      drowned-crypt-master_10: -5079093486394628291
+      drowned-crypt-master_11: 310049431440635387
+      drowned-crypt-master_2: -6625330058263199494
+      drowned-crypt-master_3: -3538159567776297650
+      drowned-crypt-master_4: 6302826679778748168
+      drowned-crypt-master_5: 7459476596823867783
+      drowned-crypt-master_6: 6350187517831919378
+      drowned-crypt-master_7: 1996932321479451906
+      drowned-crypt-master_8: 1962169559507230200
+      drowned-crypt-master_9: -5918868161259906467
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

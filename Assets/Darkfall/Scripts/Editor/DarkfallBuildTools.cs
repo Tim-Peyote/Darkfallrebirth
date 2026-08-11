@@ -224,12 +224,76 @@ namespace Darkfall.Editor
                         if (dungeon.Rooms[roomIndex].theme == DungeonRoomTheme.Shrine) shrineCount++;
                     failures += Require(shrineCount > 0,
                         $"Seed {seed}: Ashen Catacombs have no authored chapel room");
+                    failures += Require(dungeon.TryGetSetPiece(DungeonSetPieceKind.Entrance, out _) &&
+                                        dungeon.TryGetSetPiece(DungeonSetPieceKind.Portal, out _) &&
+                                        dungeon.TryGetSetPiece(DungeonSetPieceKind.Shrine, out _),
+                        $"Seed {seed}: required Ashen set pieces are missing");
+                    for (var first = 0; first < dungeon.SetPieces.Count; first++)
+                    for (var second = first + 1; second < dungeon.SetPieces.Count; second++)
+                        failures += Require(!dungeon.SetPieces[first].Mask.Overlaps(dungeon.SetPieces[second].Mask),
+                            $"Seed {seed}: set-piece masks overlap");
+                    foreach (var hazard in dungeon.Hazards)
+                        failures += Require(!dungeon.HasSemantic(hazard.Cell, DungeonCellSemantic.EventReserved),
+                            $"Seed {seed}: hazard overlaps a reserved set piece");
+                    failures += Require(dungeon.MiniSets.Count > 0,
+                        $"Seed {seed}: Ashen Catacombs have no matched mini-sets");
+                    for (var first = 0; first < dungeon.MiniSets.Count; first++)
+                    {
+                        failures += Require(dungeon.MiniSets[first].Mask.width == 3 ||
+                                            dungeon.MiniSets[first].Mask.width == 5,
+                            $"Seed {seed}: mini-set mask is not 3x3/5x5");
+                        for (var second = first + 1; second < dungeon.MiniSets.Count; second++)
+                            failures += Require(!dungeon.MiniSets[first].Mask.Overlaps(dungeon.MiniSets[second].Mask),
+                                $"Seed {seed}: mini-set masks overlap");
+                    }
                 }
                 failures += Require(dungeon.HasCompletedStage(DungeonGenerationStage.Layout) &&
                                     dungeon.HasCompletedStage(DungeonGenerationStage.Repair) &&
                                     dungeon.HasCompletedStage(DungeonGenerationStage.SetPieces) &&
                                     dungeon.NextGenerationStage == DungeonGenerationStage.TileResolution,
                     $"Seed {seed}: logical generation stages are incomplete or out of order");
+                if (generatedDepth % 10 != 0)
+                    failures += Require(DungeonLayoutRepairPass.CountUnresolvedNotches(
+                                            SnapshotFloor(dungeon), dungeon.Rooms) == 0,
+                        $"Seed {seed}: unresolved 3x3 corridor notch remains after repair");
+                DungeonFloorTileResolver.Resolve(dungeon, seed);
+                failures += Require(dungeon.ResolvedFloorTiles.Count == CountFloorCells(dungeon),
+                    $"Seed {seed}: context tile resolver did not cover every floor cell");
+                foreach (var tile in dungeon.ResolvedFloorTiles)
+                {
+                    failures += Require(DungeonFloorTileResolver.Classify(tile.Neighbours) == tile.Kind,
+                        $"Seed {seed}: context tile {tile.Cell} has an invalid classification");
+                    failures += Require(tile.Variant < DungeonFloorTileResolver.VariantCount,
+                        $"Seed {seed}: context tile {tile.Cell} has an invalid variant");
+                    if (dungeon.TryGetResolvedFloorTile(tile.Cell.x - 1, tile.Cell.y, out var west))
+                        failures += Require(west.Variant != tile.Variant,
+                            $"Seed {seed}: adjacent floor modules repeat at {west.Cell}/{tile.Cell}");
+                    if (dungeon.TryGetResolvedFloorTile(tile.Cell.x, tile.Cell.y - 1, out var south))
+                        failures += Require(south.Variant != tile.Variant,
+                            $"Seed {seed}: adjacent floor modules repeat at {south.Cell}/{tile.Cell}");
+                }
+                DungeonWallTileResolver.Resolve(dungeon, seed);
+                failures += Require(dungeon.ResolvedWallModules.Count == CountBoundaryUnits(dungeon),
+                    $"Seed {seed}: wall resolver did not cover every boundary unit");
+                for (var wallIndex = 0; wallIndex < dungeon.ResolvedWallModules.Count; wallIndex++)
+                {
+                    var wall = dungeon.ResolvedWallModules[wallIndex];
+                    failures += Require(IsBoundaryWall(dungeon, wall),
+                        $"Seed {seed}: resolved wall at {wall.Anchor} is not on the floor boundary");
+                    for (var previousIndex = 0; previousIndex < wallIndex; previousIndex++)
+                    {
+                        var previousWall = dungeon.ResolvedWallModules[previousIndex];
+                        if (previousWall.Vertical != wall.Vertical) continue;
+                        var sameRun = wall.Vertical
+                            ? Mathf.Abs(previousWall.Anchor.x - wall.Anchor.x) < .01f &&
+                              Mathf.Abs(previousWall.Anchor.y - wall.Anchor.y) < 1.01f
+                            : Mathf.Abs(previousWall.Anchor.y - wall.Anchor.y) < .01f &&
+                              Mathf.Abs(previousWall.Anchor.x - wall.Anchor.x) < 1.01f;
+                        if (sameRun)
+                            failures += Require(previousWall.Variant != wall.Variant,
+                                $"Seed {seed}: adjacent wall modules repeat at {previousWall.Anchor}/{wall.Anchor}");
+                    }
+                }
                 failures += Require(dungeon.HasSemantic(dungeon.StartCell,
                         DungeonCellSemantic.Floor | DungeonCellSemantic.Room |
                         DungeonCellSemantic.Arrival | DungeonCellSemantic.NoDecor),
@@ -417,13 +481,77 @@ namespace Darkfall.Editor
             Debug.Log("Darkfall validation passed: structure, resources and 100 dungeon seeds are valid.");
         }
 
+        private static int CountFloorCells(DungeonData dungeon)
+        {
+            var count = 0;
+            for (var x = 0; x < dungeon.Width; x++)
+            for (var y = 0; y < dungeon.Height; y++)
+                if (dungeon.IsFloor(x, y)) count++;
+            return count;
+        }
+
+        private static bool[,] SnapshotFloor(DungeonData dungeon)
+        {
+            var floor = new bool[dungeon.Width, dungeon.Height];
+            for (var x = 0; x < dungeon.Width; x++)
+            for (var y = 0; y < dungeon.Height; y++)
+                floor[x, y] = dungeon.IsFloor(x, y);
+            return floor;
+        }
+
+        private static int CountBoundaryUnits(DungeonData dungeon)
+        {
+            var count = 0;
+            for (var x = 0; x < dungeon.Width; x++)
+            for (var y = 0; y < dungeon.Height; y++)
+            {
+                if (!dungeon.IsFloor(x, y)) continue;
+                if (!dungeon.IsFloor(x - 1, y)) count++;
+                if (!dungeon.IsFloor(x + 1, y)) count++;
+                if (!dungeon.IsFloor(x, y - 1)) count++;
+                if (!dungeon.IsFloor(x, y + 1)) count++;
+            }
+            return count;
+        }
+
+        private static bool IsBoundaryWall(DungeonData dungeon, DungeonResolvedWallModule wall)
+        {
+            if (wall.Vertical)
+            {
+                var x = Mathf.RoundToInt(wall.Anchor.x);
+                var y = Mathf.FloorToInt(wall.Anchor.y);
+                return dungeon.IsFloor(x - 1, y) != dungeon.IsFloor(x, y);
+            }
+            else
+            {
+                var x = Mathf.FloorToInt(wall.Anchor.x);
+                var y = Mathf.RoundToInt(wall.Anchor.y);
+                return dungeon.IsFloor(x, y - 1) != dungeon.IsFloor(x, y);
+            }
+        }
+
+
         [MenuItem("Darkfall/Capture Biome Visual Audit")]
         public static void CaptureBiomeVisualAudit()
         {
             var output = Path.GetFullPath("work/visual-audit");
             Directory.CreateDirectory(output);
             foreach (var depth in new[] { 1, 11, 21, 31, 41 })
-            {
+                CaptureBiomeDepth(output, depth);
+            Debug.Log("Darkfall visual audit captured: " + output);
+        }
+
+        [MenuItem("Darkfall/Capture Ashen Catacombs Audit")]
+        public static void CaptureAshenCatacombsAudit()
+        {
+            var output = Path.GetFullPath("work/visual-audit");
+            Directory.CreateDirectory(output);
+            CaptureBiomeDepth(output, 1);
+            Debug.Log("Darkfall Ashen Catacombs audit captured: " + output);
+        }
+
+        private static void CaptureBiomeDepth(string output, int depth)
+        {
                 var dungeon = DungeonGenerator.Generate(GameBalance.RuntimeDefault(), depth, 73000 + depth);
                 var root = new GameObject("Visual Audit Root");
                 root.AddComponent<DungeonView>().Build(dungeon, depth);
@@ -441,7 +569,7 @@ namespace Darkfall.Editor
                 foreach (var room in dungeon.Rooms)
                 {
                     var cell = Vector2Int.FloorToInt(room.Center);
-                    if (dungeon.IsFloor(cell.x, cell.y) && dungeon.ElevationLevel(cell.x, cell.y) > 0)
+                    if (dungeon.IsFloor(cell.x, cell.y) && dungeon.ElevationLevel(cell.x, cell.y) != 0)
                     {
                         elevationFocus = room.Center;
                         foundElevation = true;
@@ -451,13 +579,19 @@ namespace Darkfall.Editor
                 if (!foundElevation)
                     for (var x = 0; x < dungeon.Width && !foundElevation; x++)
                     for (var y = 0; y < dungeon.Height; y++)
-                        if (dungeon.IsFloor(x, y) && dungeon.ElevationLevel(x, y) > 0)
+                        if (dungeon.IsFloor(x, y) && dungeon.ElevationLevel(x, y) != 0)
                         {
                             elevationFocus = new Vector2(x + .5f, y + .5f);
                             foundElevation = true;
                             break;
                         }
                 CaptureAuditFrame(output, depth, "elevation", elevationFocus);
+                foreach (var feature in dungeon.Architecture)
+                    if (feature.Kind == DungeonArchitectureKind.ElevationStairs)
+                    {
+                        CaptureAuditFrame(output, depth, "elevation-transition", feature.Position);
+                        break;
+                    }
 
                 if (dungeon.Hazards.Count > 0)
                     CaptureAuditFrame(output, depth, "hazard", dungeon.Hazards[0].Cell + Vector2.one * .5f);
@@ -476,8 +610,6 @@ namespace Darkfall.Editor
                 if (firstEvent != null) CaptureAuditFrame(output, depth, "event", firstEvent.position);
                 UnityEngine.Object.DestroyImmediate(ambient.gameObject);
                 UnityEngine.Object.DestroyImmediate(root);
-            }
-            Debug.Log("Darkfall visual audit captured: " + output);
         }
 
         private static void CaptureAuditFrame(string output, int depth, string subject, Vector2 logicalFocus)

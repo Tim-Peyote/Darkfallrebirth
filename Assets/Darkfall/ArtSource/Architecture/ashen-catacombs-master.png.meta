@@ -435,7 +435,19 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      ashen-catacombs-master_0: 6167763063413149053
+      ashen-catacombs-master_1: -8589720014977507850
+      ashen-catacombs-master_10: 6369713163184901579
+      ashen-catacombs-master_11: -2488190203807031646
+      ashen-catacombs-master_2: 4661660111230590101
+      ashen-catacombs-master_3: -1856645933014112942
+      ashen-catacombs-master_4: 3680437172219775670
+      ashen-catacombs-master_5: 5672996747380891487
+      ashen-catacombs-master_6: 5771430519593777327
+      ashen-catacombs-master_7: -3084395996726766414
+      ashen-catacombs-master_8: 5468194269581274720
+      ashen-catacombs-master_9: 3127523227086567276
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

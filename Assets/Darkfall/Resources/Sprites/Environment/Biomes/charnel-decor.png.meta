@@ -435,7 +435,19 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      charnel-decor_0: 8222984767342049430
+      charnel-decor_1: -1540175844711713606
+      charnel-decor_10: -6972125262137282997
+      charnel-decor_11: -6432027997637994597
+      charnel-decor_2: -1023981901950962544
+      charnel-decor_3: -3749750793447172981
+      charnel-decor_4: 8154680133791869019
+      charnel-decor_5: -3535783967825876642
+      charnel-decor_6: 1946749923544039267
+      charnel-decor_7: 5144417157535888264
+      charnel-decor_8: -802526926802067085
+      charnel-decor_9: 3758217112174168284
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

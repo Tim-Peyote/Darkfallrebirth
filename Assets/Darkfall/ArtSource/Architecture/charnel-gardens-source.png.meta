@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      charnel-gardens-source_0: -5802622073408476909
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

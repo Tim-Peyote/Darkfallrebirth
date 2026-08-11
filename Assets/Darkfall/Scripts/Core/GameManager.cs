@@ -189,15 +189,33 @@ namespace Darkfall.Core
             else
             {
                 var enemyBudget = EnemyBudgetForDepth(Balance, Depth);
+                if (Dungeon.TryGetSetPiece(DungeonSetPieceKind.EliteArena, out var eliteArena) && enemyBudget > 0)
+                {
+                    SpawnEnemy(Vector2Int.FloorToInt(eliteArena.Anchor), false);
+                    enemyBudget--;
+                }
                 for (var i = 0; i < enemyBudget; i++)
                 {
                     SpawnEnemy(PickSpawnCell(i), false);
                 }
                 var chestCount = Mathf.Clamp(1 + Depth / 4, 1, 4);
+                if (Dungeon.TryGetSetPiece(DungeonSetPieceKind.TreasureVault, out var treasureVault))
+                {
+                    TreasureChest.Spawn(treasureVault.Anchor, Player);
+                    chestCount--;
+                }
+                if (Dungeon.TryGetSetPiece(DungeonSetPieceKind.MimicLair, out var mimicLair) && chestCount > 0)
+                {
+                    TreasureChest.Spawn(mimicLair.Anchor, Player);
+                    chestCount--;
+                }
                 for (var i = 0; i < chestCount; i++)
                     TreasureChest.Spawn(Dungeon.CellCenter(PickSpawnCell(enemyBudget + i + 3)), Player);
             }
-            var portal = ExitPortal.Spawn(Dungeon.CellCenter(Dungeon.ExitCell), Player);
+            var portalPosition = Dungeon.TryGetSetPiece(DungeonSetPieceKind.Portal, out var portalSetPiece)
+                ? portalSetPiece.Anchor
+                : Dungeon.CellCenter(Dungeon.ExitCell);
+            var portal = ExitPortal.Spawn(portalPosition, Player);
             if (EnemyController.Count == 0) portal.Empower();
             Dungeon.CompleteGenerationStage(DungeonGenerationStage.Population);
             DungeonGenerationValidator.ValidateAndComplete(Dungeon);
@@ -213,7 +231,8 @@ namespace Darkfall.Core
                 var x = UnityEngine.Random.Range(room.bounds.xMin + 1, room.bounds.xMax - 1);
                 var y = UnityEngine.Random.Range(room.bounds.yMin + 1, room.bounds.yMax - 1);
                 var cell = new Vector2Int(x, y);
-                if (Dungeon.CanOccupy(Dungeon.CellCenter(cell), .22f)) return cell;
+                if (!Dungeon.HasSemantic(cell, DungeonCellSemantic.EventReserved) &&
+                    Dungeon.CanOccupy(Dungeon.CellCenter(cell), .22f)) return cell;
             }
             return room.Center;
         }

@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      charnel-wall_0: 4067357601930302816
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1385,7 +1385,57 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      enemy-obsidian-acolyte-v1_0: -6826451384114892975
+      enemy-obsidian-acolyte-v1_1: 6988135019283435586
+      enemy-obsidian-acolyte-v1_10: -3769840848318807407
+      enemy-obsidian-acolyte-v1_11: -3488795263854264526
+      enemy-obsidian-acolyte-v1_12: 2249642231017942358
+      enemy-obsidian-acolyte-v1_13: -5050384854531396481
+      enemy-obsidian-acolyte-v1_14: 5392929766740484474
+      enemy-obsidian-acolyte-v1_15: 8443682480442013051
+      enemy-obsidian-acolyte-v1_16: -8390122409464801382
+      enemy-obsidian-acolyte-v1_17: 5258519694733297205
+      enemy-obsidian-acolyte-v1_18: 8999072708073992157
+      enemy-obsidian-acolyte-v1_19: -2403989151435280341
+      enemy-obsidian-acolyte-v1_2: 2798718031303487972
+      enemy-obsidian-acolyte-v1_20: -3155103734120698111
+      enemy-obsidian-acolyte-v1_21: 7093443428568818399
+      enemy-obsidian-acolyte-v1_22: -5221484569748327818
+      enemy-obsidian-acolyte-v1_23: -3032562654314189888
+      enemy-obsidian-acolyte-v1_24: 4152614121469403571
+      enemy-obsidian-acolyte-v1_25: -1256675981589882371
+      enemy-obsidian-acolyte-v1_26: -8911098509371958887
+      enemy-obsidian-acolyte-v1_27: -5820353898263577818
+      enemy-obsidian-acolyte-v1_28: 3534343184445667131
+      enemy-obsidian-acolyte-v1_29: 2689447670878589201
+      enemy-obsidian-acolyte-v1_3: -908597183841221937
+      enemy-obsidian-acolyte-v1_30: 8987737036252327799
+      enemy-obsidian-acolyte-v1_31: 10145772238968158
+      enemy-obsidian-acolyte-v1_32: -3170784684772815287
+      enemy-obsidian-acolyte-v1_33: 3949376738162562955
+      enemy-obsidian-acolyte-v1_34: -4069089291858513761
+      enemy-obsidian-acolyte-v1_35: -4121531351523717108
+      enemy-obsidian-acolyte-v1_36: -8782981926517427633
+      enemy-obsidian-acolyte-v1_37: 3117091420416233718
+      enemy-obsidian-acolyte-v1_38: -5104602065834313496
+      enemy-obsidian-acolyte-v1_39: -2853650522740660238
+      enemy-obsidian-acolyte-v1_4: -5936090836066331615
+      enemy-obsidian-acolyte-v1_40: 926601490988131560
+      enemy-obsidian-acolyte-v1_41: 8617717256032996500
+      enemy-obsidian-acolyte-v1_42: 1220487218503290088
+      enemy-obsidian-acolyte-v1_43: -8706742454713208752
+      enemy-obsidian-acolyte-v1_44: 5014000395605561528
+      enemy-obsidian-acolyte-v1_45: -3549014914410422091
+      enemy-obsidian-acolyte-v1_46: 1278203259923795095
+      enemy-obsidian-acolyte-v1_47: 7447183990113729292
+      enemy-obsidian-acolyte-v1_48: 1243353393329097115
+      enemy-obsidian-acolyte-v1_49: 3090967235985765825
+      enemy-obsidian-acolyte-v1_5: 5256134525639634422
+      enemy-obsidian-acolyte-v1_6: -5484057236061011601
+      enemy-obsidian-acolyte-v1_7: -7762411967149932374
+      enemy-obsidian-acolyte-v1_8: -3448523049064210819
+      enemy-obsidian-acolyte-v1_9: -7283516139190421862
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

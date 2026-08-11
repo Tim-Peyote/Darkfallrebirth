@@ -935,7 +935,39 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      enemy-ash-warden-v1_0: 5559386112372326772
+      enemy-ash-warden-v1_1: -5940521525429100146
+      enemy-ash-warden-v1_10: 7738759656373612888
+      enemy-ash-warden-v1_11: 1696332464145251514
+      enemy-ash-warden-v1_12: 4749489307981013086
+      enemy-ash-warden-v1_13: -4700569262816602551
+      enemy-ash-warden-v1_14: -62168025599115189
+      enemy-ash-warden-v1_15: 7908721894388796230
+      enemy-ash-warden-v1_16: -6505135087184063729
+      enemy-ash-warden-v1_17: 3661700615419030477
+      enemy-ash-warden-v1_18: -7175112461070785910
+      enemy-ash-warden-v1_19: -9029132609599710681
+      enemy-ash-warden-v1_2: -3262869519673198624
+      enemy-ash-warden-v1_20: -6194728645222369903
+      enemy-ash-warden-v1_21: -7913068538426390728
+      enemy-ash-warden-v1_22: 5739048774159164253
+      enemy-ash-warden-v1_23: 8023747665458804119
+      enemy-ash-warden-v1_24: -7570952704233601888
+      enemy-ash-warden-v1_25: -6178589302785674779
+      enemy-ash-warden-v1_26: -8890012479300657499
+      enemy-ash-warden-v1_27: 3741956199262536747
+      enemy-ash-warden-v1_28: -5293704727446574250
+      enemy-ash-warden-v1_29: -4177194831844512506
+      enemy-ash-warden-v1_3: -7221614365280972367
+      enemy-ash-warden-v1_30: 535587367966914304
+      enemy-ash-warden-v1_31: -4576128414158881521
+      enemy-ash-warden-v1_4: -5880737203169140327
+      enemy-ash-warden-v1_5: -7033427901873449161
+      enemy-ash-warden-v1_6: -7386754083143819221
+      enemy-ash-warden-v1_7: 9154667481477491591
+      enemy-ash-warden-v1_8: -1011144251439160324
+      enemy-ash-warden-v1_9: 8029466030001681660
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

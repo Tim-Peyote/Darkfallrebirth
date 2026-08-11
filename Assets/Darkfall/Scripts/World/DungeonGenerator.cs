@@ -33,7 +33,8 @@ namespace Darkfall.World
                 seed = seed,
                 strategy = draft.StrategyId,
                 loopConnections = draft.LoopConnections,
-                repairOperations = draft.RepairOperations
+                repairOperations = draft.RepairOperations,
+                contextRepairOperations = draft.ContextRepairOperations
             });
             dungeon.CompleteGenerationStage(DungeonGenerationStage.SetPieces);
             return dungeon;
@@ -207,6 +208,8 @@ namespace Darkfall.World
             draft.RepairOperations++;
             draft.RepairOperations += EnsureNonArrivalConnectivity(
                 draft.Floor, draft.Rooms, draft.Rooms[0].bounds);
+            draft.ContextRepairOperations = DungeonLayoutRepairPass.Apply(draft.Floor, draft.Rooms);
+            draft.RepairOperations += draft.ContextRepairOperations;
             return arrivalThreshold;
         }
 
@@ -215,9 +218,13 @@ namespace Darkfall.World
         {
             if (draft.StrategyId == "ashen-catacombs") AssignAshenRoomThemes(draft);
             else AssignRoomThemes(draft.Rooms, draft.BiomeStyle, draft.Seed);
+            if (draft.StrategyId == "ashen-catacombs")
+                DungeonSetPieceFitter.FitAshenCatacombs(dungeon, draft.Seed);
             ReserveThemedSetPieces(dungeon);
             BuildArchitectureGrammar(dungeon, draft.Depth, draft.Seed, arrivalThreshold);
             BuildHazardGrammar(dungeon, draft.BiomeStyle, draft.Depth, draft.Seed);
+            if (draft.StrategyId == "ashen-catacombs")
+                DungeonMiniSetMatcher.MatchAshenCatacombs(dungeon, draft.Seed);
         }
 
         private static void AssignAshenRoomThemes(DungeonLayoutPlan draft)
@@ -372,6 +379,14 @@ namespace Darkfall.World
                 var path = BuildDirectedHazardPath(bounds, random);
                 var cells = new HashSet<Vector2Int>(path);
                 if (path.Count < 3) continue;
+                var overlapsSetPiece = false;
+                foreach (var cell in cells)
+                    if (data.HasSemantic(cell, DungeonCellSemantic.EventReserved))
+                    {
+                        overlapsSetPiece = true;
+                        break;
+                    }
+                if (overlapsSetPiece) continue;
 
                 var kind = (DungeonHazardKind)Mathf.Clamp(biomeStyle, 0, 4);
                 var damage = kind == DungeonHazardKind.Lava ? 16f :
@@ -742,44 +757,43 @@ namespace Darkfall.World
                 }
             if (!hasArrival) thresholds.Add(arrivalThreshold);
 
-            // Elevation belongs to a room/platform, not to a freestanding stair sprite. Select a
-            // few complete rooms, raise their floor, then turn every valid entrance of those rooms
-            // into a stair transition. The level exit remains the independent ExitPortal entity.
+            // Elevation is an authored platform inside a room, never an elevation flag applied to
+            // the complete room. Keeping a lower floor apron around the platform prevents room
+            // doors and corridors from becoming accidental, unmodelled height transitions.
             var platformBudget = Mathf.Clamp(1 + depth / 15 + data.Rooms.Count / 22, 1, 3);
-            var platformRooms = new List<int>();
+            var platformTransitions = new List<ArchitectureThreshold>();
             var roomCandidates = new List<int>();
-            // The exit room must stay flat so the same-floor stair never overlaps the independent
-            // ExitPortal. The start room is allowed only when its complete threshold set can be
-            // represented; spawn height is sampled from the surface and does not alter HP/state.
             for (var roomIndex = 1; roomIndex < data.Rooms.Count - 1; roomIndex++)
             {
-                var validEntrances = 0;
-                var allEntrancesRenderable = true;
-                foreach (var threshold in thresholds)
-                    if (threshold.RoomIndex == roomIndex)
-                    {
-                        validEntrances++;
-                        allEntrancesRenderable &= threshold.SupportsRaisedPlatform;
-                    }
-                // A raised room is only legal when every stair ascends toward screen-back. The
-                // current stair kit has that projection plus its horizontal mirror; rotating it
-                // toward screen-front creates a freestanding stair on an unchanged plane.
-                if (validEntrances > 0 && allEntrancesRenderable) roomCandidates.Add(roomIndex);
+                var bounds = data.Rooms[roomIndex].bounds;
+                if (bounds.width < 8 || bounds.height < 8) continue;
+                roomCandidates.Add(roomIndex);
             }
             roomCandidates.Sort((a, b) => ArchitectureRoomScore(a, seed).CompareTo(ArchitectureRoomScore(b, seed)));
             foreach (var roomIndex in roomCandidates)
             {
-                if (platformRooms.Count >= platformBudget) break;
+                if (platformTransitions.Count >= platformBudget) break;
                 var separated = true;
-                foreach (var previous in platformRooms)
-                    if (Vector2.Distance(data.Rooms[previous].Center, data.Rooms[roomIndex].Center) < 12f)
+                foreach (var previous in platformTransitions)
+                    if (Vector2.Distance(data.Rooms[previous.RoomIndex].Center, data.Rooms[roomIndex].Center) < 12f)
                     {
                         separated = false;
                         break;
                     }
                 if (!separated) continue;
-                platformRooms.Add(roomIndex);
-                data.SetElevation(data.Rooms[roomIndex].bounds, 1);
+                var room = data.Rooms[roomIndex].bounds;
+                var platform = new RectInt(room.xMin + 2, room.yMin + 2, room.width - 4, room.height - 4);
+                var level = ArchitectureRoomScore(roomIndex, seed ^ 0x5EED71) % 4 == 0
+                    ? (sbyte)-1 : (sbyte)1;
+                data.SetElevation(platform, level);
+                var vertical = ArchitectureRoomScore(roomIndex, seed ^ 0x71A17) % 2 == 0;
+                var transition = vertical
+                    ? new ArchitectureThreshold(roomIndex,
+                        new Vector2(platform.xMax, platform.yMin + platform.height / 2f), true, true, 2, true)
+                    : new ArchitectureThreshold(roomIndex,
+                        new Vector2(platform.xMin + platform.width / 2f, platform.yMax), false, true, 2, true);
+                platformTransitions.Add(transition);
+                thresholds.Add(transition);
             }
 
             thresholds.Sort((a, b) => ArchitectureScore(a, seed).CompareTo(ArchitectureScore(b, seed)));
@@ -789,9 +803,8 @@ namespace Darkfall.World
             {
                 if (threshold.RoomIndex == 0 &&
                     Vector2.Distance(threshold.Position, arrivalThreshold.Position) > .2f) continue;
-                var kind = platformRooms.Contains(threshold.RoomIndex)
-                    ? DungeonArchitectureKind.ElevationStairs
-                    : DungeonArchitectureKind.OpenGate;
+                var kind = IsPlatformTransition(platformTransitions, threshold)
+                    ? DungeonArchitectureKind.ElevationStairs : DungeonArchitectureKind.OpenGate;
                 var doorLock = DungeonDoorLockKind.None;
                 // Arrival room thresholds are always real unlocked doors. Their blockers also
                 // occlude enemy perception/projectiles until the player chooses to leave safety.
@@ -815,6 +828,29 @@ namespace Darkfall.World
                 data.AddArchitecture(feature);
                 if (kind == DungeonArchitectureKind.ElevationStairs) data.AddStairTraversal(feature);
             }
+        }
+
+        private static bool IsPlatformTransition(IReadOnlyList<ArchitectureThreshold> transitions,
+            ArchitectureThreshold candidate)
+        {
+            foreach (var transition in transitions)
+                if (transition.Vertical == candidate.Vertical &&
+                    Vector2.Distance(transition.Position, candidate.Position) < .05f) return true;
+            return false;
+        }
+
+        private static int CountRoomEntrances(DungeonData data, RectInt bounds)
+        {
+            var entrances = 0;
+            entrances += CountThresholdRuns(bounds.xMin, bounds.xMax,
+                x => data.IsFloor(x, bounds.yMin) && data.IsFloor(x, bounds.yMin - 1));
+            entrances += CountThresholdRuns(bounds.xMin, bounds.xMax,
+                x => data.IsFloor(x, bounds.yMax - 1) && data.IsFloor(x, bounds.yMax));
+            entrances += CountThresholdRuns(bounds.yMin, bounds.yMax,
+                y => data.IsFloor(bounds.xMin, y) && data.IsFloor(bounds.xMin - 1, y));
+            entrances += CountThresholdRuns(bounds.yMin, bounds.yMax,
+                y => data.IsFloor(bounds.xMax - 1, y) && data.IsFloor(bounds.xMax, y));
+            return entrances;
         }
 
         private static int ArchitectureRoomScore(int roomIndex, int seed)

@@ -96,7 +96,8 @@ namespace Darkfall.Editor
                         mainPathLength = mainPathLength,
                         loopConnections = dungeon.GenerationInfo?.loopConnections ?? 0,
                         deadEnds = deadEnds,
-                        repairOperations = dungeon.GenerationInfo?.repairOperations ?? 0
+                        repairOperations = dungeon.GenerationInfo?.repairOperations ?? 0,
+                        contextRepairOperations = dungeon.GenerationInfo?.contextRepairOperations ?? 0
                     });
 
                     if (failures.Count == 0)
@@ -419,6 +420,7 @@ namespace Darkfall.Editor
         public int loopConnections;
         public int deadEnds;
         public int repairOperations;
+        public int contextRepairOperations;
     }
 
     [Serializable]

@@ -1260,7 +1260,52 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      enemy-ember-revenant-v1_0: 4901091858531634146
+      enemy-ember-revenant-v1_1: -1856365065333523675
+      enemy-ember-revenant-v1_10: 4473157832668152561
+      enemy-ember-revenant-v1_11: -1221928842130606081
+      enemy-ember-revenant-v1_12: -7136267860051846046
+      enemy-ember-revenant-v1_13: 8356270413379631019
+      enemy-ember-revenant-v1_14: 6186801985721611484
+      enemy-ember-revenant-v1_15: 8809412385101795063
+      enemy-ember-revenant-v1_16: -1709744541297021332
+      enemy-ember-revenant-v1_17: -6509665748280398277
+      enemy-ember-revenant-v1_18: 259587054324878641
+      enemy-ember-revenant-v1_19: -8724989251844831353
+      enemy-ember-revenant-v1_2: -5608046492344950835
+      enemy-ember-revenant-v1_20: -987180450446619171
+      enemy-ember-revenant-v1_21: 7902484040593755890
+      enemy-ember-revenant-v1_22: -1375835790534669017
+      enemy-ember-revenant-v1_23: -2950189846886815617
+      enemy-ember-revenant-v1_24: 2242908271347578906
+      enemy-ember-revenant-v1_25: -8660501238361383687
+      enemy-ember-revenant-v1_26: 1010332113608227689
+      enemy-ember-revenant-v1_27: -6242224126421334299
+      enemy-ember-revenant-v1_28: -3621521567652595542
+      enemy-ember-revenant-v1_29: 1123332923449387812
+      enemy-ember-revenant-v1_3: 2146371266614713595
+      enemy-ember-revenant-v1_30: 8680299228126906678
+      enemy-ember-revenant-v1_31: 3413171692564034760
+      enemy-ember-revenant-v1_32: 1104829200635304742
+      enemy-ember-revenant-v1_33: -2466296314683232145
+      enemy-ember-revenant-v1_34: -2053613952019076585
+      enemy-ember-revenant-v1_35: -5953927326556170438
+      enemy-ember-revenant-v1_36: 7079291639843816772
+      enemy-ember-revenant-v1_37: -2747353283464632513
+      enemy-ember-revenant-v1_38: 3636348251949171240
+      enemy-ember-revenant-v1_39: -4766070268154141893
+      enemy-ember-revenant-v1_4: -6009700432102850764
+      enemy-ember-revenant-v1_40: -1882270432578501082
+      enemy-ember-revenant-v1_41: -1248650553804629255
+      enemy-ember-revenant-v1_42: 1267167060932136040
+      enemy-ember-revenant-v1_43: 1779605202448084627
+      enemy-ember-revenant-v1_44: 7450558599192261608
+      enemy-ember-revenant-v1_5: -9061396010313973822
+      enemy-ember-revenant-v1_6: -735831088872810926
+      enemy-ember-revenant-v1_7: 494021720804369437
+      enemy-ember-revenant-v1_8: -8425160186322975289
+      enemy-ember-revenant-v1_9: -7219510815737315932
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

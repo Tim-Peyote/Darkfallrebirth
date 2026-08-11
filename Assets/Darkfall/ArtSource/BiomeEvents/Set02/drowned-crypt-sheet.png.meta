@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      drowned-crypt-sheet_0: -1688307715240470732
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

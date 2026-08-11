@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      ember-floor_0: 1330978142578877237
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

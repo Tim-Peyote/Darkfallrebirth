@@ -485,7 +485,21 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      drowned-decor_0: 3027310051388981573
+      drowned-decor_1: -2888053215153727133
+      drowned-decor_10: 6159280224990981498
+      drowned-decor_11: -6897406505667371983
+      drowned-decor_12: 6741998047723416109
+      drowned-decor_13: -6506798494649205691
+      drowned-decor_2: 5960489944023491741
+      drowned-decor_3: -5557325559397478413
+      drowned-decor_4: -2665268241708700597
+      drowned-decor_5: -3523502781086261320
+      drowned-decor_6: 1044735685357403239
+      drowned-decor_7: 5091941744333437276
+      drowned-decor_8: 5669013926020020418
+      drowned-decor_9: -2157742996326645310
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

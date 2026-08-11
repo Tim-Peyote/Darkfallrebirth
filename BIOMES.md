@@ -26,7 +26,19 @@ After depth 50 the five visual chapters repeat while gameplay scaling continues.
 
 ## Extension contract
 
-Biome selection lives in `DungeonVisualProfile.ForDepth`. Each profile owns its floor and wall resource paths, palette, contact shadow, fire colour, decor tint, decor pools, light spacing and decor density. `DungeonView` consumes the profile without biome-specific branches.
+Biome selection for layout lives in `DungeonLayoutStrategies.ForDepth`; visual selection lives in
+`DungeonVisualProfile.ForDepth`. A layout strategy emits the logical plan before shared repair,
+set-piece, tile, population and validation passes. Ashen Catacombs already use their own branching
+crypt strategy; later chapters remain on the compatible room/corridor strategy until their roadmap
+stage is reached.
+
+Each visual profile owns its floor and wall resource paths, palette, contact shadow, fire colour,
+decor tint, decor pools, light spacing and decor density. `DungeonView` consumes the profile without
+owning macro layout decisions.
+
+Authored room-scale content is emitted by `DungeonSetPieceFitter`; local 3×3/5×5 substitutions are
+emitted by `DungeonMiniSetMatcher`. Both reserve semantic masks before population. Runtime portal,
+chests and elite placement consume those records instead of reconstructing intent from decor indices.
 
 New floor and wall textures belong under `Assets/Darkfall/Resources/Textures/Biomes`. Keep them square, tileable, neutral-lit and free of props or baked directional shadows. New standalone decor belongs under `Assets/Darkfall/Resources/Sprites/Environment/Props`; add its index to the corresponding profile pools. Blocking props must remain away from start and exit cells.
 

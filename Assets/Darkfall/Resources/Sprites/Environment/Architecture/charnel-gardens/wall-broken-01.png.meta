@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      wall-broken-01_0: 1388753721122679513
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

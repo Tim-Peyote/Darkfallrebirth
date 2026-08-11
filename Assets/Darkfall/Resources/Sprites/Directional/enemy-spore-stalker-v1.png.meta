@@ -935,7 +935,39 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      enemy-spore-stalker-v1_0: -2151742342480308052
+      enemy-spore-stalker-v1_1: 7150180481816361304
+      enemy-spore-stalker-v1_10: 328698793527000361
+      enemy-spore-stalker-v1_11: 6156022611658115875
+      enemy-spore-stalker-v1_12: -6667811259876023804
+      enemy-spore-stalker-v1_13: 6642464074198129771
+      enemy-spore-stalker-v1_14: 2851383691573457648
+      enemy-spore-stalker-v1_15: 5990883037307054657
+      enemy-spore-stalker-v1_16: 1195215690232535062
+      enemy-spore-stalker-v1_17: -1952893320495309741
+      enemy-spore-stalker-v1_18: 7264695761280269551
+      enemy-spore-stalker-v1_19: 4303197961993086617
+      enemy-spore-stalker-v1_2: 1210845158398987382
+      enemy-spore-stalker-v1_20: 5750741843010367727
+      enemy-spore-stalker-v1_21: 7499557648021340620
+      enemy-spore-stalker-v1_22: 3889289053960167545
+      enemy-spore-stalker-v1_23: 4375191621044248328
+      enemy-spore-stalker-v1_24: -3154492371090997451
+      enemy-spore-stalker-v1_25: -5728394702675877803
+      enemy-spore-stalker-v1_26: 8296854443092806769
+      enemy-spore-stalker-v1_27: -715545156571514279
+      enemy-spore-stalker-v1_28: 608804263503160552
+      enemy-spore-stalker-v1_29: 4280367318747620921
+      enemy-spore-stalker-v1_3: 3509570612010502391
+      enemy-spore-stalker-v1_30: 1541499854695046754
+      enemy-spore-stalker-v1_31: 425446704636099882
+      enemy-spore-stalker-v1_4: 4074604083951881566
+      enemy-spore-stalker-v1_5: -8887854633127561645
+      enemy-spore-stalker-v1_6: 7278486392135303028
+      enemy-spore-stalker-v1_7: 1325989815645385603
+      enemy-spore-stalker-v1_8: -4067640159343603895
+      enemy-spore-stalker-v1_9: 6077160040893078419
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

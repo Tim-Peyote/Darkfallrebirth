@@ -14,6 +14,151 @@ namespace Darkfall.World
         Validation
     }
 
+    public enum DungeonSetPieceKind : byte
+    {
+        Entrance,
+        Portal,
+        Shrine,
+        TreasureVault,
+        EliteArena,
+        EventRoom,
+        MimicLair,
+        BiomeLandmark
+    }
+
+    public readonly struct DungeonSetPiece
+    {
+        public readonly DungeonSetPieceKind Kind;
+        public readonly int RoomIndex;
+        public readonly RectInt Mask;
+        public readonly Vector2 Anchor;
+
+        public DungeonSetPiece(DungeonSetPieceKind kind, int roomIndex, RectInt mask, Vector2 anchor)
+        {
+            Kind = kind;
+            RoomIndex = roomIndex;
+            Mask = mask;
+            Anchor = anchor;
+        }
+    }
+
+    public enum DungeonMiniSetKind : byte
+    {
+        StatueNiche,
+        RuinedCorner,
+        Colonnade,
+        RubbleBlock,
+        Campfire,
+        Altar,
+        SideChapel,
+        CollapsedWall,
+        HazardBridge
+    }
+
+    public enum DungeonFloorTileKind : byte
+    {
+        Center,
+        Edge,
+        OuterCorner,
+        InnerCorner,
+        Straight,
+        End,
+        Isolated
+    }
+
+    [Flags]
+    public enum DungeonFloorNeighbours : byte
+    {
+        None = 0,
+        West = 1,
+        East = 2,
+        South = 4,
+        North = 8,
+        SouthWest = 16,
+        SouthEast = 32,
+        NorthWest = 64,
+        NorthEast = 128
+    }
+
+    public readonly struct DungeonResolvedFloorTile
+    {
+        public readonly Vector2Int Cell;
+        public readonly DungeonFloorTileKind Kind;
+        public readonly DungeonFloorNeighbours Neighbours;
+        public readonly byte Variant;
+        public readonly bool Damaged;
+
+        public DungeonResolvedFloorTile(Vector2Int cell, DungeonFloorTileKind kind,
+            DungeonFloorNeighbours neighbours, byte variant, bool damaged)
+        {
+            Cell = cell;
+            Kind = kind;
+            Neighbours = neighbours;
+            Variant = variant;
+            Damaged = damaged;
+        }
+    }
+
+    public enum DungeonWallModuleKind : byte
+    {
+        Face,
+        Broken,
+        Niche,
+        Arcade
+    }
+
+    public enum DungeonWallCornerKind : byte
+    {
+        Inner,
+        Outer
+    }
+
+    public readonly struct DungeonResolvedWallModule
+    {
+        public readonly Vector2 Anchor;
+        public readonly bool Vertical;
+        public readonly DungeonWallModuleKind Kind;
+        public readonly byte Variant;
+
+        public DungeonResolvedWallModule(Vector2 anchor, bool vertical, DungeonWallModuleKind kind, byte variant)
+        {
+            Anchor = anchor;
+            Vertical = vertical;
+            Kind = kind;
+            Variant = variant;
+        }
+    }
+
+    public readonly struct DungeonResolvedWallCorner
+    {
+        public readonly Vector2 Anchor;
+        public readonly DungeonWallCornerKind Kind;
+        public readonly byte FloorQuadrants;
+
+        public DungeonResolvedWallCorner(Vector2 anchor, DungeonWallCornerKind kind, byte floorQuadrants)
+        {
+            Anchor = anchor;
+            Kind = kind;
+            FloorQuadrants = floorQuadrants;
+        }
+    }
+
+    public readonly struct DungeonMiniSet
+    {
+        public readonly DungeonMiniSetKind Kind;
+        public readonly int RoomIndex;
+        public readonly RectInt Mask;
+        public readonly Vector2 Anchor;
+
+        public DungeonMiniSet(DungeonMiniSetKind kind, int roomIndex, RectInt mask, Vector2 anchor)
+        {
+            Kind = kind;
+            RoomIndex = roomIndex;
+            Mask = mask;
+            Anchor = anchor;
+        }
+    }
+
     [Serializable]
     public sealed class DungeonGenerationInfo
     {
@@ -22,6 +167,7 @@ namespace Darkfall.World
         public string strategy;
         public int loopConnections;
         public int repairOperations;
+        public int contextRepairOperations;
     }
 
     [Flags]
@@ -187,7 +333,7 @@ namespace Darkfall.World
         private readonly bool[,] explored;
         private readonly bool[,] visible;
         private readonly bool[,] obstacles;
-        private readonly byte[,] elevation;
+        private readonly sbyte[,] elevation;
         private readonly DungeonCellSemantic[,] semantics;
         private readonly Dictionary<int, Rect> dynamicObstacles = new Dictionary<int, Rect>();
         private readonly List<Rect> architectureObstacles = new List<Rect>();
@@ -195,6 +341,13 @@ namespace Darkfall.World
         private readonly List<DungeonLightSource> lightSources = new List<DungeonLightSource>();
         private readonly List<DungeonArchitectureFeature> architecture = new List<DungeonArchitectureFeature>();
         private readonly List<DungeonHazardCell> hazards = new List<DungeonHazardCell>();
+        private readonly List<DungeonSetPiece> setPieces = new List<DungeonSetPiece>();
+        private readonly List<DungeonMiniSet> miniSets = new List<DungeonMiniSet>();
+        private readonly List<DungeonResolvedFloorTile> resolvedFloorTiles = new List<DungeonResolvedFloorTile>();
+        private readonly Dictionary<int, DungeonResolvedFloorTile> resolvedFloorTileLookup =
+            new Dictionary<int, DungeonResolvedFloorTile>();
+        private readonly List<DungeonResolvedWallModule> resolvedWallModules = new List<DungeonResolvedWallModule>();
+        private readonly List<DungeonResolvedWallCorner> resolvedWallCorners = new List<DungeonResolvedWallCorner>();
         private readonly bool[] completedStages = new bool[Enum.GetValues(typeof(DungeonGenerationStage)).Length];
         public int Width { get; }
         public int Height { get; }
@@ -202,6 +355,11 @@ namespace Darkfall.World
         public IReadOnlyList<DungeonLightSource> LightSources => lightSources;
         public IReadOnlyList<DungeonArchitectureFeature> Architecture => architecture;
         public IReadOnlyList<DungeonHazardCell> Hazards => hazards;
+        public IReadOnlyList<DungeonSetPiece> SetPieces => setPieces;
+        public IReadOnlyList<DungeonMiniSet> MiniSets => miniSets;
+        public IReadOnlyList<DungeonResolvedFloorTile> ResolvedFloorTiles => resolvedFloorTiles;
+        public IReadOnlyList<DungeonResolvedWallModule> ResolvedWallModules => resolvedWallModules;
+        public IReadOnlyList<DungeonResolvedWallCorner> ResolvedWallCorners => resolvedWallCorners;
         public Vector2Int StartCell => Rooms[0].Center;
         public Vector2Int ExitCell => Rooms[Rooms.Count - 1].Center;
         public DungeonGenerationInfo GenerationInfo { get; private set; }
@@ -223,7 +381,7 @@ namespace Darkfall.World
             explored = new bool[Width, Height];
             visible = new bool[Width, Height];
             obstacles = new bool[Width, Height];
-            elevation = new byte[Width, Height];
+            elevation = new sbyte[Width, Height];
             semantics = new DungeonCellSemantic[Width, Height];
             Rooms = rooms;
             InitializeSemantics(rooms);
@@ -285,6 +443,29 @@ namespace Darkfall.World
 
         internal void SetGenerationInfo(DungeonGenerationInfo info) => GenerationInfo = info;
 
+        internal void SetResolvedFloorTiles(IEnumerable<DungeonResolvedFloorTile> tiles)
+        {
+            resolvedFloorTiles.Clear();
+            resolvedFloorTileLookup.Clear();
+            foreach (var tile in tiles)
+            {
+                resolvedFloorTiles.Add(tile);
+                resolvedFloorTileLookup[tile.Cell.x + tile.Cell.y * Width] = tile;
+            }
+        }
+
+        public bool TryGetResolvedFloorTile(int x, int y, out DungeonResolvedFloorTile tile) =>
+            resolvedFloorTileLookup.TryGetValue(x + y * Width, out tile);
+
+        internal void SetResolvedWalls(IEnumerable<DungeonResolvedWallModule> modules,
+            IEnumerable<DungeonResolvedWallCorner> corners)
+        {
+            resolvedWallModules.Clear();
+            resolvedWallModules.AddRange(modules);
+            resolvedWallCorners.Clear();
+            resolvedWallCorners.AddRange(corners);
+        }
+
         internal void MarkSemantic(Vector2Int cell, DungeonCellSemantic value)
         {
             if (cell.x < 0 || cell.y < 0 || cell.x >= Width || cell.y >= Height) return;
@@ -296,6 +477,59 @@ namespace Darkfall.World
             for (var x = Mathf.Max(0, area.xMin); x < Mathf.Min(Width, area.xMax); x++)
             for (var y = Mathf.Max(0, area.yMin); y < Mathf.Min(Height, area.yMax); y++)
                 if (IsFloor(x, y)) semantics[x, y] |= reservation;
+        }
+
+        internal bool TryReserveSetPiece(DungeonSetPieceKind kind, int roomIndex, RectInt mask,
+            Vector2 anchor, bool allowProtected = false)
+        {
+            if (roomIndex < 0 || roomIndex >= Rooms.Count || mask.width <= 0 || mask.height <= 0) return false;
+            var room = Rooms[roomIndex].bounds;
+            if (mask.xMin < room.xMin || mask.yMin < room.yMin || mask.xMax > room.xMax || mask.yMax > room.yMax)
+                return false;
+            foreach (var existing in setPieces)
+                if (existing.Mask.Overlaps(mask)) return false;
+            for (var x = mask.xMin; x < mask.xMax; x++)
+            for (var y = mask.yMin; y < mask.yMax; y++)
+            {
+                if (!IsFloor(x, y)) return false;
+                if (!allowProtected && (SemanticsAt(x, y) &
+                    (DungeonCellSemantic.NoDecor | DungeonCellSemantic.Hazard |
+                     DungeonCellSemantic.Door | DungeonCellSemantic.Stair | DungeonCellSemantic.Portal)) != 0)
+                    return false;
+            }
+            setPieces.Add(new DungeonSetPiece(kind, roomIndex, mask, anchor));
+            ReserveArea(mask, DungeonCellSemantic.EventReserved | DungeonCellSemantic.NoDecor);
+            return true;
+        }
+
+        public bool TryGetSetPiece(DungeonSetPieceKind kind, out DungeonSetPiece result)
+        {
+            foreach (var setPiece in setPieces)
+                if (setPiece.Kind == kind) { result = setPiece; return true; }
+            result = default;
+            return false;
+        }
+
+        internal bool TryReserveMiniSet(DungeonMiniSetKind kind, int roomIndex, RectInt mask,
+            Vector2 anchor, bool allowHazard = false)
+        {
+            if (roomIndex < 0 || roomIndex >= Rooms.Count || mask.width <= 0 || mask.height <= 0) return false;
+            for (var x = mask.xMin; x < mask.xMax; x++)
+            for (var y = mask.yMin; y < mask.yMax; y++)
+            {
+                if (!IsFloor(x, y)) return false;
+                var blocked = DungeonCellSemantic.EventReserved | DungeonCellSemantic.Door |
+                              DungeonCellSemantic.Stair | DungeonCellSemantic.Portal;
+                if (!allowHazard) blocked |= DungeonCellSemantic.Hazard;
+                if ((SemanticsAt(x, y) & blocked) != 0) return false;
+            }
+            foreach (var setPiece in setPieces)
+                if (setPiece.Mask.Overlaps(mask)) return false;
+            foreach (var miniSet in miniSets)
+                if (miniSet.Mask.Overlaps(mask)) return false;
+            miniSets.Add(new DungeonMiniSet(kind, roomIndex, mask, anchor));
+            ReserveArea(mask, DungeonCellSemantic.EventReserved | DungeonCellSemantic.NoDecor);
+            return true;
         }
 
         public bool IsExplored(int x, int y) =>
@@ -445,7 +679,7 @@ namespace Darkfall.World
 
         public void RemoveDynamicObstacle(int id) => dynamicObstacles.Remove(id);
 
-        internal void SetElevation(RectInt area, byte level)
+        internal void SetElevation(RectInt area, sbyte level)
         {
             for (var x = area.xMin; x < area.xMax; x++)
             for (var y = area.yMin; y < area.yMax; y++)
