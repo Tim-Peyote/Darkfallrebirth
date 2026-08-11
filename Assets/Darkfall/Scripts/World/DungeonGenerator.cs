@@ -9,9 +9,40 @@ namespace Darkfall.World
     {
         public static DungeonData Generate(GameBalance balance, int depth, int seed)
         {
-            if (depth % 10 == 0) return GenerateBossArena();
+            if (depth % 10 == 0)
+            {
+                var bossArena = GenerateBossArena();
+                bossArena.SetGenerationInfo(new DungeonGenerationInfo
+                {
+                    depth = depth, seed = seed, strategy = "boss-arena"
+                });
+                CompleteLogicalPipeline(bossArena);
+                return bossArena;
+            }
+
+            var strategy = DungeonLayoutStrategies.ForDepth(depth);
+            var draft = strategy.Generate(balance, depth, seed);
+            var arrivalThreshold = RepairLayout(draft);
+            var dungeon = new DungeonData(draft.Floor, draft.Rooms);
+            dungeon.CompleteGenerationStage(DungeonGenerationStage.Layout);
+            dungeon.CompleteGenerationStage(DungeonGenerationStage.Repair);
+            ApplySetPieces(dungeon, draft, arrivalThreshold);
+            dungeon.SetGenerationInfo(new DungeonGenerationInfo
+            {
+                depth = depth,
+                seed = seed,
+                strategy = draft.StrategyId,
+                loopConnections = draft.LoopConnections,
+                repairOperations = draft.RepairOperations
+            });
+            dungeon.CompleteGenerationStage(DungeonGenerationStage.SetPieces);
+            return dungeon;
+        }
+
+        internal static DungeonLayoutPlan BuildRoomCorridorLayout(GameBalance balance, int depth, int seed,
+            int biomeStyle)
+        {
             var random = new System.Random(seed);
-            var biomeStyle = Mathf.Max(0, (depth - 1) / 10) % 5;
             var size = Mathf.Clamp(balance.mapSize + Mathf.FloorToInt(depth * 1.5f), 30, 120);
             var floor = new bool[size, size];
             var rooms = new List<DungeonRoom>();
@@ -73,27 +104,210 @@ namespace Darkfall.World
                 CarveConnection(floor, first.Center, second.Center, random);
             }
 
-            MakeFarthestRoomLast(rooms);
-            AssignRoomThemes(rooms, biomeStyle, seed);
-            var extraConnections = Mathf.Min(5, Mathf.Max(1, rooms.Count / 4));
+            return new DungeonLayoutPlan(depth, seed, biomeStyle, random, floor, rooms);
+        }
+
+        internal static DungeonLayoutPlan BuildAshenCatacombsLayout(GameBalance balance, int depth, int seed)
+        {
+            var random = new System.Random(seed);
+            var size = Mathf.Clamp(balance.mapSize + Mathf.FloorToInt(depth * 1.5f), 30, 72);
+            var floor = new bool[size, size];
+            var rooms = new List<DungeonRoom>();
+            var targetRooms = random.Next(12 + depth / 3, 17 + depth / 2);
+
+            // Catacombs grow from one burial chamber into short neighbouring branches. This is
+            // intentionally different from scattering rectangles across the whole map and then
+            // joining them with long L corridors.
+            var arrivalSize = random.Next(5, 7);
+            var arrival = new RectInt(random.Next(4, Mathf.Max(5, size / 3)),
+                random.Next(4, Mathf.Max(5, size / 3)), arrivalSize, arrivalSize);
+            rooms.Add(new DungeonRoom { bounds = arrival });
+            CarveRoom(floor, arrival, random, 0);
+
+            var attempts = targetRooms * 45;
+            for (var attempt = 0; attempt < attempts && rooms.Count < targetRooms; attempt++)
+            {
+                // Most new crypts continue a recent branch; occasional older anchors create a
+                // readable fork. The result has reward dead ends without becoming a linear snake.
+                var recentWindow = Mathf.Min(5, rooms.Count);
+                var anchorIndex = random.Next(100) < 72
+                    ? rooms.Count - 1 - random.Next(recentWindow)
+                    : random.Next(rooms.Count);
+                var anchor = rooms[anchorIndex].bounds;
+                var chapel = rooms.Count % 6 == 4;
+                var width = chapel ? random.Next(8, 11) : random.Next(5, 8);
+                var height = chapel ? random.Next(7, 10) : random.Next(5, 8);
+                var direction = random.Next(4);
+                var gap = random.Next(2, 5);
+                var jitter = random.Next(-2, 3);
+                int x;
+                int y;
+                if (direction == 0)
+                {
+                    x = anchor.xMax + gap;
+                    y = anchor.y + anchor.height / 2 - height / 2 + jitter;
+                }
+                else if (direction == 1)
+                {
+                    x = anchor.xMin - width - gap;
+                    y = anchor.y + anchor.height / 2 - height / 2 + jitter;
+                }
+                else if (direction == 2)
+                {
+                    x = anchor.x + anchor.width / 2 - width / 2 + jitter;
+                    y = anchor.yMax + gap;
+                }
+                else
+                {
+                    x = anchor.x + anchor.width / 2 - width / 2 + jitter;
+                    y = anchor.yMin - height - gap;
+                }
+                var candidate = new RectInt(x, y, width, height);
+                if (candidate.xMin < 2 || candidate.yMin < 2 || candidate.xMax >= size - 2 ||
+                    candidate.yMax >= size - 2 || OverlapsAny(candidate, rooms)) continue;
+
+                var room = new DungeonRoom { bounds = candidate };
+                CarveRoom(floor, candidate, random, 0);
+                CarveConnection(floor, rooms[anchorIndex].Center, room.Center, random);
+                rooms.Add(room);
+            }
+
+            if (rooms.Count < 8)
+                return BuildRoomCorridorLayout(balance, depth, seed, 0);
+
+            var result = new DungeonLayoutPlan(depth, seed, 0, random, floor, rooms)
+            {
+                // Catacombs favour forks and reward dead ends. Repair may add one safety loop,
+                // while the generic grammar adds up to five and erases their identity.
+                ExtraConnectionBudget = 1
+            };
+            return result;
+        }
+
+        private static ArchitectureThreshold RepairLayout(DungeonLayoutPlan draft)
+        {
+            MakeFarthestRoomLast(draft.Rooms);
+            var extraConnections = draft.ExtraConnectionBudget >= 0
+                ? draft.ExtraConnectionBudget
+                : Mathf.Min(5, Mathf.Max(1, draft.Rooms.Count / 4));
             for (var i = 0; i < extraConnections; i++)
             {
                 // Room zero is a protected arrival miniset. It keeps its original single route
                 // into the dungeon instead of receiving late shortcut corridors.
-                var first = random.Next(1, rooms.Count);
-                var second = random.Next(1, rooms.Count);
+                var first = draft.Random.Next(1, draft.Rooms.Count);
+                var second = draft.Random.Next(1, draft.Rooms.Count);
                 if (first == second) continue;
-                CarveConnection(floor, rooms[first].Center, rooms[second].Center, random);
+                CarveConnection(draft.Floor, draft.Rooms[first].Center, draft.Rooms[second].Center, draft.Random);
+                draft.LoopConnections++;
             }
 
-            EnsureRoomConnectivity(floor, rooms, random);
-            var arrivalThreshold = BuildSafeArrival(floor, rooms[0].bounds, rooms[1].Center);
-            EnsureNonArrivalConnectivity(floor, rooms, rooms[0].bounds);
+            draft.RepairOperations += EnsureRoomConnectivity(draft.Floor, draft.Rooms, draft.Random);
+            var arrivalThreshold = BuildSafeArrival(
+                draft.Floor, draft.Rooms[0].bounds, draft.Rooms[1].Center);
+            draft.RepairOperations++;
+            draft.RepairOperations += EnsureNonArrivalConnectivity(
+                draft.Floor, draft.Rooms, draft.Rooms[0].bounds);
+            return arrivalThreshold;
+        }
 
-            var dungeon = new DungeonData(floor, rooms);
-            BuildArchitectureGrammar(dungeon, depth, seed, arrivalThreshold);
-            BuildHazardGrammar(dungeon, biomeStyle, depth, seed);
-            return dungeon;
+        private static void ApplySetPieces(DungeonData dungeon, DungeonLayoutPlan draft,
+            ArchitectureThreshold arrivalThreshold)
+        {
+            if (draft.StrategyId == "ashen-catacombs") AssignAshenRoomThemes(draft);
+            else AssignRoomThemes(draft.Rooms, draft.BiomeStyle, draft.Seed);
+            ReserveThemedSetPieces(dungeon);
+            BuildArchitectureGrammar(dungeon, draft.Depth, draft.Seed, arrivalThreshold);
+            BuildHazardGrammar(dungeon, draft.BiomeStyle, draft.Depth, draft.Seed);
+        }
+
+        private static void AssignAshenRoomThemes(DungeonLayoutPlan draft)
+        {
+            var shrineRoom = -1;
+            var largestArea = -1;
+            for (var i = 0; i < draft.Rooms.Count; i++)
+            {
+                var room = draft.Rooms[i];
+                if (i == 0) room.theme = DungeonRoomTheme.Arrival;
+                else if (i == draft.Rooms.Count - 1) room.theme = DungeonRoomTheme.Exit;
+                else
+                {
+                    var entrances = CountRoomEntrances(draft.Floor, room.bounds);
+                    var area = room.bounds.width * room.bounds.height;
+                    if (area > largestArea) { largestArea = area; shrineRoom = i; }
+                    if (area >= 68) room.theme = DungeonRoomTheme.Shrine;
+                    else if (entrances <= 1) room.theme = DungeonRoomTheme.Reliquary;
+                    else
+                    {
+                        var score = ArchitectureRoomScore(i, draft.Seed);
+                        room.theme = score % 5 == 0 ? DungeonRoomTheme.Ritual : DungeonRoomTheme.Ossuary;
+                    }
+                }
+                draft.Rooms[i] = room;
+            }
+            // Placement can occasionally reject every large authored chapel. The largest internal
+            // chamber still becomes one, keeping the biome readable on every valid seed.
+            if (shrineRoom > 0 && shrineRoom < draft.Rooms.Count - 1)
+            {
+                var hasShrine = false;
+                for (var i = 1; i < draft.Rooms.Count - 1; i++)
+                    hasShrine |= draft.Rooms[i].theme == DungeonRoomTheme.Shrine;
+                if (!hasShrine)
+                {
+                    var room = draft.Rooms[shrineRoom];
+                    room.theme = DungeonRoomTheme.Shrine;
+                    draft.Rooms[shrineRoom] = room;
+                }
+            }
+        }
+
+        private static int CountRoomEntrances(bool[,] floor, RectInt bounds)
+        {
+            var entrances = 0;
+            entrances += CountThresholdRuns(bounds.xMin, bounds.xMax,
+                x => floor[x, bounds.yMin] && floor[x, bounds.yMin - 1]);
+            entrances += CountThresholdRuns(bounds.xMin, bounds.xMax,
+                x => floor[x, bounds.yMax - 1] && floor[x, bounds.yMax]);
+            entrances += CountThresholdRuns(bounds.yMin, bounds.yMax,
+                y => floor[bounds.xMin, y] && floor[bounds.xMin - 1, y]);
+            entrances += CountThresholdRuns(bounds.yMin, bounds.yMax,
+                y => floor[bounds.xMax - 1, y] && floor[bounds.xMax, y]);
+            return entrances;
+        }
+
+        private static int CountThresholdRuns(int minimum, int maximum, Func<int, bool> crossing)
+        {
+            var runs = 0;
+            var inside = false;
+            for (var value = minimum; value < maximum; value++)
+            {
+                var next = crossing(value);
+                if (next && !inside) runs++;
+                inside = next;
+            }
+            return runs;
+        }
+
+        private static void ReserveThemedSetPieces(DungeonData dungeon)
+        {
+            for (var i = 1; i < dungeon.Rooms.Count - 1; i++)
+            {
+                var room = dungeon.Rooms[i];
+                if (room.theme != DungeonRoomTheme.Shrine && room.theme != DungeonRoomTheme.Reliquary &&
+                    room.theme != DungeonRoomTheme.Ritual) continue;
+                var center = room.Center;
+                dungeon.ReserveArea(new RectInt(center.x - 2, center.y - 2, 5, 5),
+                    DungeonCellSemantic.EventReserved);
+            }
+        }
+
+        private static void CompleteLogicalPipeline(DungeonData dungeon)
+        {
+            // These checkpoints deliberately live on the data product rather than in the view.
+            // Later biome strategies can replace layout/repair/set-piece implementations while
+            // tile resolution and population keep consuming the same ordered contract.
+            dungeon.CompleteGenerationStage(DungeonGenerationStage.Layout);
+            dungeon.CompleteGenerationStage(DungeonGenerationStage.Repair);
+            dungeon.CompleteGenerationStage(DungeonGenerationStage.SetPieces);
         }
 
         private static void AssignRoomThemes(List<DungeonRoom> rooms, int biomeStyle, int seed)
@@ -230,27 +444,35 @@ namespace Darkfall.World
             }
         }
 
-        private static void EnsureRoomConnectivity(bool[,] floor, List<DungeonRoom> rooms, System.Random random)
+        private static int EnsureRoomConnectivity(bool[,] floor, List<DungeonRoom> rooms, System.Random random)
         {
+            var repairs = 0;
             for (var room = 1; room < rooms.Count; room++)
             {
                 var previous = rooms[room - 1].Center;
                 var current = rooms[room].Center;
                 if (HasFloorRoute(floor, previous, current)) continue;
                 CarveConnection(floor, previous, current, random);
+                repairs++;
             }
+            return repairs;
         }
 
-        private static void EnsureNonArrivalConnectivity(bool[,] floor, List<DungeonRoom> rooms,
+        private static int EnsureNonArrivalConnectivity(bool[,] floor, List<DungeonRoom> rooms,
             RectInt arrivalRoom)
         {
+            var repairs = 0;
             for (var room = 2; room < rooms.Count; room++)
             {
                 var previous = rooms[room - 1].Center;
                 var current = rooms[room].Center;
                 if (!HasFloorRoute(floor, previous, current))
+                {
                     CarveConnectionAvoidingArrival(floor, previous, current, arrivalRoom);
+                    repairs++;
+                }
             }
+            return repairs;
         }
 
         private static void CarveConnectionAvoidingArrival(bool[,] floor, Vector2Int from, Vector2Int to,

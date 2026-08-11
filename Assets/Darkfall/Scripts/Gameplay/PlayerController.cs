@@ -41,6 +41,9 @@ namespace Darkfall.Gameplay
         private float hazardVfxUntil;
         private string directionalSheet;
         private float visualScale = 1f;
+        private Vector2 cameraMotionOffset;
+        private float cameraStepPhase;
+        private float cameraBaseOrthographicSize;
 
         public float Health { get; private set; }
         public float MaxHealth => hero.maxHealth + EquipmentStat(item => item.maxHp);
@@ -75,6 +78,7 @@ namespace Darkfall.Gameplay
             dungeon = data;
             Health = carriedHealth.HasValue ? Mathf.Clamp(carriedHealth.Value, 0f, MaxHealth) : MaxHealth;
             gameplayCamera = Camera.main;
+            if (gameplayCamera != null) cameraBaseOrthographicSize = gameplayCamera.orthographicSize;
             visual = new GameObject("Animated Visual").transform;
             visual.SetParent(transform, false);
             spriteRenderer = visual.gameObject.AddComponent<SpriteRenderer>();
@@ -203,8 +207,42 @@ namespace Darkfall.Gameplay
             if (gameplayCamera == null) return;
             var target = IsoWorld.Project((Vector2)transform.position) +
                          Vector2.up * (dungeon != null ? dungeon.SurfaceHeight(transform.position) : 0f);
+            var deltaTime = Time.unscaledDeltaTime;
+            var cameraCanMove = GameManager.Instance == null || (!GameManager.Instance.IsPaused && !IsStunned);
+            var movementAmount = cameraCanMove
+                ? Mathf.Clamp01(actualVelocity.magnitude / Mathf.Max(.01f, hero.speed))
+                : 0f;
+            cameraStepPhase += deltaTime * Mathf.Lerp(1.05f, 8.2f, movementAmount);
+
+            // A restrained aim lead gives the player a little more space to read danger. The
+            // low-frequency idle motion and velocity-aligned footfall sway keep the view alive
+            // without turning navigation or cursor aiming into handheld-camera noise.
+            var aimLead = IsoWorld.ProjectDirection(facingDirection.normalized) * .18f;
+            var breathWave = Mathf.Sin(Time.unscaledTime * 1.18f);
+            var breath = Vector2.up * (breathWave * .024f);
+            var projectedMotion = actualVelocity.sqrMagnitude > .001f
+                ? IsoWorld.ProjectDirection(actualVelocity.normalized).normalized
+                : Vector2.right;
+            var stepSide = new Vector2(-projectedMotion.y, projectedMotion.x) *
+                           (Mathf.Sin(cameraStepPhase) * .038f * movementAmount);
+            var stepLift = Vector2.up * (Mathf.Abs(Mathf.Cos(cameraStepPhase)) * .024f * movementAmount);
+            var desiredMotionOffset = aimLead + breath + stepSide + stepLift;
+            cameraMotionOffset = Vector2.Lerp(cameraMotionOffset, desiredMotionOffset,
+                1f - Mathf.Exp(-6.5f * deltaTime));
+            target += cameraMotionOffset;
             var current = gameplayCamera.transform.position;
-            gameplayCamera.transform.position = Vector3.Lerp(current, new Vector3(target.x, target.y, -10), 1f - Mathf.Exp(-10f * Time.unscaledDeltaTime));
+            gameplayCamera.transform.position = Vector3.Lerp(current, new Vector3(target.x, target.y, -10),
+                1f - Mathf.Exp(-9f * deltaTime));
+
+            // A tiny optical pulse is perceived as breathing rather than camera shake. Walking
+            // nudges the framing closer and adds a much smaller stride pulse; both are heavily
+            // damped so the isometric geometry remains stable and readable.
+            if (cameraBaseOrthographicSize <= 0f) cameraBaseOrthographicSize = gameplayCamera.orthographicSize;
+            var breathZoom = breathWave * .025f;
+            var strideZoom = Mathf.Sin(cameraStepPhase * 2f) * .012f * movementAmount;
+            var desiredSize = cameraBaseOrthographicSize + breathZoom - movementAmount * .045f + strideZoom;
+            gameplayCamera.orthographicSize = Mathf.Lerp(gameplayCamera.orthographicSize, desiredSize,
+                1f - Mathf.Exp(-3.5f * deltaTime));
         }
 
         private void UpdateFacing(Vector2 movement)
@@ -238,12 +276,7 @@ namespace Darkfall.Gameplay
             var step = delta / steps;
             var current = start;
             for (var i = 0; i < steps; i++)
-            {
-                var xOnly = new Vector2(current.x + step.x, current.y);
-                if (dungeon.CanTraverse(current, xOnly, .22f)) current.x = xOnly.x;
-                var yOnly = new Vector2(current.x, current.y + step.y);
-                if (dungeon.CanTraverse(current, yOnly, .22f)) current.y = yOnly.y;
-            }
+                current = DungeonMovement.ResolveStep(dungeon, current, step, .22f, i % 2 == 0);
             transform.position = current;
             if (Time.deltaTime > .0001f) actualVelocity = (current - start) / Time.deltaTime;
         }
@@ -263,7 +296,8 @@ namespace Darkfall.Gameplay
             {
                 spriteRenderer.sprite = directional;
                 spriteRenderer.flipX = flipX;
-                visual.localScale = Vector3.one * visualScale;
+                visual.localScale = Vector3.one * (visualScale *
+                    DirectionalSpriteAtlas.HeroDirectionScale(directionalSheet, spriteFacingDirection));
                 visual.localPosition = Vector3.zero;
                 visual.localRotation = Quaternion.identity;
                 return;
@@ -327,14 +361,16 @@ namespace Darkfall.Gameplay
             switch (hero.heroClass)
             {
                 case HeroClass.Rogue:
-                    var direction = GameInput.Move.sqrMagnitude > 0.01f ? GameInput.Move.normalized : Vector2.right;
+                    var direction = GameInput.Move.sqrMagnitude > 0.01f
+                        ? IsoWorld.UnprojectDirection(GameInput.Move).normalized
+                        : lastMoveDirection;
                     facingDirection = direction;
                     var destination = (Vector2)transform.position;
                     var dashOrigin = destination;
                     for (var i = 0; i < 10; i++)
                     {
                         var step = destination + direction * 0.25f;
-                        if (!dungeon.CanOccupy(step)) break;
+                        if (!dungeon.CanTraverse(destination, step, .22f)) break;
                         destination = step;
                     }
                     transform.position = destination;

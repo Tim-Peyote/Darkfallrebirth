@@ -24,5 +24,18 @@ namespace Darkfall.Core
             PlayerPrefs.SetString(Key, JsonUtility.ToJson(data));
             PlayerPrefs.Save();
         }
+
+        /// <summary>
+        /// Captures the exact persisted representation, including the distinction between an
+        /// absent save and a default save. Release smoke tests use this to remain non-destructive.
+        /// </summary>
+        public static string CaptureRaw() => PlayerPrefs.HasKey(Key) ? PlayerPrefs.GetString(Key) : null;
+
+        public static void RestoreRaw(string snapshot)
+        {
+            if (snapshot == null) PlayerPrefs.DeleteKey(Key);
+            else PlayerPrefs.SetString(Key, snapshot);
+            PlayerPrefs.Save();
+        }
     }
 }

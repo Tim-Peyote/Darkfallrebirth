@@ -98,6 +98,8 @@ namespace Darkfall.Gameplay
                     UseOrEquip(i, player);
                     return;
                 }
+            QuickSlots[quickIndex] = null;
+            Changed?.Invoke();
         }
 
         public bool AssignQuickSlot(int inventoryIndex, int quickIndex)
@@ -105,6 +107,8 @@ namespace Darkfall.Gameplay
             if (inventoryIndex < 0 || inventoryIndex >= Slots.Length || quickIndex < 0 || quickIndex >= QuickSlots.Length) return false;
             var item = Slots[inventoryIndex];
             if (item == null || (item.kind != ItemKind.Potion && item.kind != ItemKind.Scroll)) return false;
+            for (var i = 0; i < QuickSlots.Length; i++)
+                if (i != quickIndex && QuickSlots[i] == item.baseId) QuickSlots[i] = null;
             QuickSlots[quickIndex] = item.baseId;
             Changed?.Invoke();
             return true;
@@ -143,6 +147,7 @@ namespace Darkfall.Gameplay
                 amount -= taken;
                 if (item.quantity <= 0) Slots[i] = null;
             }
+            ClearQuickBindingsWithoutItems(baseId);
             Changed?.Invoke();
             return true;
         }
@@ -244,13 +249,24 @@ namespace Darkfall.Gameplay
         public void DeleteBackpack(int index)
         {
             if (index < 0 || index >= Slots.Length || Slots[index] == null) return;
+            var baseId = Slots[index].baseId;
             Slots[index] = null;
+            ClearQuickBindingsWithoutItems(baseId);
             Changed?.Invoke();
         }
 
         private void Consume(int index)
         {
+            var baseId = Slots[index].baseId;
             if (--Slots[index].quantity <= 0) Slots[index] = null;
+            ClearQuickBindingsWithoutItems(baseId);
+        }
+
+        private void ClearQuickBindingsWithoutItems(string baseId)
+        {
+            if (string.IsNullOrEmpty(baseId) || Count(baseId) > 0) return;
+            for (var i = 0; i < QuickSlots.Length; i++)
+                if (QuickSlots[i] == baseId) QuickSlots[i] = null;
         }
 
         private void Equip(int index, PlayerController player)

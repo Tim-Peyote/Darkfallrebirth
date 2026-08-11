@@ -14,6 +14,26 @@ namespace Darkfall.Core
         private static readonly int[] HeroIdleOrder = { 1, 2, 3, 4, 3, 2 };
         private static readonly Dictionary<string, Sprite[]> Cache = new Dictionary<string, Sprite[]>();
         private static readonly Dictionary<string, Sprite> HeroCache = new Dictionary<string, Sprite>();
+        private static readonly Dictionary<string, int> EnemyRightRows = new Dictionary<string, int>
+        {
+            { "enemy-melee-v2", 2 }, { "enemy-ranged-v2", 2 }, { "enemy-caster-v2", 1 },
+            { "enemy-mimic-v1", 1 }, { "enemy-ash-warden-v1", 2 },
+            { "enemy-ember-revenant-v1", 2 }, { "enemy-drowned-sentinel-v1", 2 },
+            { "enemy-spore-stalker-v1", 1 }, { "enemy-obsidian-acolyte-v1", 1 }
+        };
+        // Stable foot baselines per authored direction. Do not derive this from every frame's
+        // lowest alpha pixel: a staff, coat or attack flourish can extend below the actual foot
+        // and would make the whole actor jump during attack/hurt. The files all use a 256px
+        // canvas, but their directional lower gutters differ by more than 100px.
+        private static readonly Dictionary<string, float> HeroFootPivots = new Dictionary<string, float>
+        {
+            { "mage/down", 30f / 256f }, { "mage/up", 42f / 256f },
+            { "mage/left", 46f / 256f }, { "mage/right", 46f / 256f },
+            { "warrior/down", 17f / 256f }, { "warrior/up", 32f / 256f },
+            { "warrior/left", 38f / 256f }, { "warrior/right", 38f / 256f },
+            { "rogue/down", 100f / 256f }, { "rogue/up", 111f / 256f },
+            { "rogue/left", 103f / 256f }, { "rogue/right", 103f / 256f }
+        };
 
         public static Sprite Get(string sheet, Vector2 facing, CharacterMotion motion, float time)
         {
@@ -46,6 +66,28 @@ namespace Darkfall.Core
             return Get(sheet, Vector2.down, CharacterMotion.Idle, 0f) ?? GameSpriteAtlas.Hero(heroClass);
         }
 
+        public static float HeroDirectionScale(string sheet, Vector2 facing)
+        {
+            var hero = HeroName(sheet);
+            if (hero == null) return 1f;
+            var horizontal = Mathf.Abs(facing.x) > Mathf.Abs(facing.y);
+            var direction = horizontal ? facing.x < 0f ? "left" : "right" : facing.y > 0f ? "up" : "down";
+            // Normalize the median idle/walk silhouette height to the authored down-facing row.
+            // This is transform-only; pixels are never resampled and the collider is unaffected.
+            if (direction == "down") return 1f;
+            if (hero == "mage") return direction == "up" ? 1.06f : 1.08f;
+            if (hero == "warrior") return direction == "up" ? 1.07f : 1.10f;
+            return direction == "up" ? 1.08f : 1.02f;
+        }
+
+        public static bool HasCompleteHeroLayout(string hero)
+        {
+            return HeroFootPivots.ContainsKey(hero + "/down") && HeroFootPivots.ContainsKey(hero + "/up") &&
+                   HeroFootPivots.ContainsKey(hero + "/left") && HeroFootPivots.ContainsKey(hero + "/right");
+        }
+
+        public static bool HasEnemyDirectionConvention(string sheet) => EnemyRightRows.ContainsKey(sheet);
+
         public static Vector2 StabilizeFourWay(Vector2 facing, Vector2 current)
         {
             if (facing.sqrMagnitude < .001f) return current.sqrMagnitude > .001f ? current : Vector2.down;
@@ -75,10 +117,10 @@ namespace Darkfall.Core
             string direction;
             if (horizontal)
             {
-                // One canonical side keeps gait, weapon and reaction timing identical in both directions.
-                // SpriteRenderer.flipX affects rendering only, so gameplay colliders remain stable.
-                direction = "right";
-                flipX = facing.x < 0f;
+                // Heroes carry asymmetric weapons and authored left/right actions exist. Mirroring
+                // the right side moved the staff, sword and shield to the wrong hand and discarded
+                // the reviewed left gait, attack and hit frames.
+                direction = facing.x < 0f ? "left" : "right";
             }
             else direction = facing.y > 0f ? "up" : "down";
 
@@ -102,7 +144,7 @@ namespace Darkfall.Core
             texture.filterMode = FilterMode.Point;
             texture.wrapMode = TextureWrapMode.Clamp;
             sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-                new Vector2(.5f, .08f), pixelsPerUnit, 0, SpriteMeshType.FullRect);
+                new Vector2(.5f, HeroPivotY(hero, direction)), pixelsPerUnit, 0, SpriteMeshType.FullRect);
             sprite.name = $"{hero}-{direction}-{frame}";
             HeroCache[path] = sprite;
             return true;
@@ -128,6 +170,11 @@ namespace Darkfall.Core
                 case CharacterMotion.Hit: return $"hurt_{Mathf.Clamp(Mathf.FloorToInt(time * 9f) + 1, 1, 2)}";
                 default: return $"idle_{HeroIdleOrder[Mathf.FloorToInt(time * 2.4f) % HeroIdleOrder.Length]}";
             }
+        }
+
+        private static float HeroPivotY(string hero, string direction)
+        {
+            return HeroFootPivots.TryGetValue(hero + "/" + direction, out var pivot) ? pivot : .08f;
         }
 
         private static Sprite[] Load(string sheet)
@@ -164,13 +211,8 @@ namespace Darkfall.Core
             // per sheet instead of globally swapping every enemy to fix one mage.
             if (Mathf.Abs(facing.x) > Mathf.Abs(facing.y))
             {
-                var rightRowIsOne = sheet == "enemy-caster-v2" || sheet == "enemy-mimic-v1" ||
-                                    sheet == "enemy-drowned-sentinel-v1" ||
-                                    sheet == "enemy-spore-stalker-v1" ||
-                                    sheet == "enemy-obsidian-acolyte-v1";
-                return facing.x < 0f
-                    ? (rightRowIsOne ? 2 : 1)
-                    : (rightRowIsOne ? 1 : 2);
+                var rightRow = EnemyRightRows.TryGetValue(sheet, out var authoredRow) ? authoredRow : 2;
+                return facing.x < 0f ? rightRow == 1 ? 2 : 1 : rightRow;
             }
             return facing.y < 0 ? 0 : 3;
         }

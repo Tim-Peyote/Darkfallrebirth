@@ -503,8 +503,10 @@ namespace Darkfall.UI
                 new Vector2(.5f, 1), new Vector2(.5f, 1));
             var goldBadge = Panel("Gold Counter", header.transform, Color.white);
             DarkFantasySkin.Apply(goldBadge.GetComponent<Image>(), DarkFantasySkin.Slot, DarkFantasySkin.Gold);
-            SetRect(goldBadge.GetComponent<RectTransform>(), new Vector2(1, .5f), new Vector2(1, .5f),
-                new Vector2(238, 46), new Vector2(-18, 0));
+            var goldRect = goldBadge.GetComponent<RectTransform>();
+            goldRect.pivot = new Vector2(1f, .5f);
+            SetRect(goldRect, new Vector2(1, .5f), new Vector2(1, .5f),
+                new Vector2(220, 46), new Vector2(-18, 0));
             gold = AddTextAt(goldBadge.transform, "", 19, Vector2.zero, new Vector2(204, 36), TextAnchor.MiddleCenter);
             gold.font = boldFont;
             gold.color = DarkFantasySkin.Gold;
@@ -544,11 +546,11 @@ namespace Darkfall.UI
             DarkFantasySkin.Apply(actionPanel.GetComponent<Image>(), DarkFantasySkin.Tooltip);
             SetArea(actionPanel.GetComponent<RectTransform>(), new Vector2(.02f, .07f), new Vector2(.39f, .16f), Vector2.zero, Vector2.zero);
             var sort = MakeButton(actionPanel.transform, "СОРТИРОВАТЬ", () => { game.Inventory.SortBackpack(); Refresh(); });
-            SetRect(sort.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(155, 46), new Vector2(-188, 0));
+            SetRect(sort.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(155, 50), new Vector2(-188, 0));
             var activate = MakeButton(actionPanel.transform, "НАДЕТЬ / ИСПОЛЬЗОВАТЬ", () => ActivateBackpack(selectedIndex));
-            SetRect(activate.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(230, 46), new Vector2(5, 0));
+            SetRect(activate.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(230, 50), new Vector2(5, 0));
             var delete = MakeButton(actionPanel.transform, "ВЫБРОСИТЬ", () => AskDelete(selectedIndex));
-            SetRect(delete.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(145, 46), new Vector2(205, 0));
+            SetRect(delete.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(145, 50), new Vector2(205, 0));
 
             var rightPanel = Panel("Inspection Column", window.transform, Color.clear);
             SetArea(rightPanel.GetComponent<RectTransform>(), new Vector2(.705f, .18f), new Vector2(.98f, .87f), Vector2.zero, Vector2.zero);

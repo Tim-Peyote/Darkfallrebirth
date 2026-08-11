@@ -75,6 +75,9 @@ Assets/Darkfall/
 ## Проверка и сборка
 
 - `Darkfall > Validate Project` проверяет обязательные ресурсы и целостность каталога.
+- `Darkfall > Validation > Audit 5000 Dungeon Seeds` выполняет полный пакетный аудит связности, портала, архитектуры, опасностей и блокирующего декора. JSON-отчёт сохраняется в `work/validation`.
+- `Darkfall > Validation > Run Release Smoke` в Play Mode проверяет старт, сундук, портал, спуск, магазин, покупку, мимика, босса, переход биома, смерть и новый забег; исходное сохранение восстанавливается после теста.
+- `Darkfall > Visual Audit > Main Menu` рендерит 28 кадров семи UI-состояний в 1600×900, 16:9, 16:10 и 21:9 и сохраняет геометрический отчёт в `work/visual-audit/ui`; детали описаны в `Docs/UIVisualAudit.md`.
 - `Darkfall > Configure Build` настраивает сцены и параметры сборки.
 - Каталоги `Library`, `Temp`, `Obj`, `Build`, `Builds`, `Logs` и `UserSettings`
   исключены из Git.

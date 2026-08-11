@@ -14,7 +14,7 @@ namespace Darkfall.Gameplay
         private bool resolved;
         public readonly ItemInstance[] Items = new ItemInstance[12];
 
-        public static void Spawn(Vector2 position, PlayerController target)
+        public static TreasureChest Spawn(Vector2 position, PlayerController target)
         {
             var chestObject = new GameObject("Treasure Chest");
             if (GameManager.Instance?.LevelRoot != null) chestObject.transform.SetParent(GameManager.Instance.LevelRoot);
@@ -51,6 +51,7 @@ namespace Darkfall.Gameplay
                         break;
                     }
             Active.Add(chest);
+            return chest;
         }
 
         private void OnDestroy() => Active.Remove(this);
@@ -64,7 +65,7 @@ namespace Darkfall.Gameplay
                 var current = Vector2.Distance(chest.transform.position, target.transform.position);
                 if (current < distance) { distance = current; nearest = chest; }
             }
-            if (nearest != null) nearest.Open();
+            if (nearest != null) nearest.Open(true, false);
         }
 
         public static float DistanceToNearest(PlayerController target)
@@ -76,28 +77,32 @@ namespace Darkfall.Gameplay
             return best;
         }
 
-        private void Open()
+        private bool Open(bool allowMimic, bool ignoreCombat)
         {
-            if (EnemyController.FindNearest(transform.position, 150f / 32f) != null)
+            if (!ignoreCombat && EnemyController.FindNearest(transform.position, 150f / 32f) != null)
             {
                 GameManager.Instance.ShowMessage("Сундук нельзя открыть в бою");
-                return;
+                return false;
             }
             if (!resolved)
             {
                 resolved = true;
-                if (Random.value < MimicChance)
+                if (allowMimic && Random.value < MimicChance)
                 {
                     Active.Remove(this);
                     gameObject.SetActive(false);
                     GameManager.Instance.SpawnMimic(transform.position);
                     Destroy(gameObject);
-                    return;
+                    return true;
                 }
             }
             spriteRenderer.sprite = GameSpriteAtlas.Chest(true);
             Darkfall.UI.InventoryUI.Instance?.OpenChest(this);
+            return true;
         }
+
+        /// <summary>Deterministic entry point for the non-destructive release smoke.</summary>
+        internal bool OpenForValidation() => Open(false, true);
 
         public void Take(int index)
         {

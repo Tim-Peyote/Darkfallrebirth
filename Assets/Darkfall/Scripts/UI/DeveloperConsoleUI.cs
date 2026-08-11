@@ -95,7 +95,7 @@ namespace Darkfall.UI
                 new Color(.82f, .9f, .93f), TextAnchor.MiddleLeft, true);
             Text(header.transform, "` / F10 — открыть или закрыть · изменения действуют только в текущем забеге", 14,
                 new Vector2(-213, -18), new Vector2(1000, 24), DarkFantasySkin.MutedText, TextAnchor.MiddleLeft);
-            Button(header.transform, "ЗАКРЫТЬ", new Vector2(632, 0), new Vector2(176, 46), Close);
+            Button(header.transform, "ЗАКРЫТЬ", new Vector2(632, 0), new Vector2(176, 50), Close);
 
             BuildProgressColumn(card.transform);
             BuildSpawnColumn(card.transform);
@@ -128,8 +128,8 @@ namespace Darkfall.UI
             godModeLabel = god.GetComponentInChildren<Text>();
             Text(panel, "Быстрые проверки", 15, new Vector2(0, -128), new Vector2(356, 26),
                 new Color(.72f, .65f, .54f), TextAnchor.MiddleLeft, true);
-            Button(panel, "УБИТЬ ВСЕХ ВРАГОВ", new Vector2(0, -174), new Vector2(356, 46), KillAllEnemies);
-            Button(panel, "ОТКРЫТЬ ПОРТАЛ", new Vector2(0, -230), new Vector2(356, 46), () =>
+            Button(panel, "УБИТЬ ВСЕХ ВРАГОВ", new Vector2(0, -174), new Vector2(356, 50), KillAllEnemies);
+            Button(panel, "ОТКРЫТЬ ПОРТАЛ", new Vector2(0, -230), new Vector2(356, 50), () =>
             {
                 ExitPortal.Active?.Empower(); SetStatus("Портал активирован");
             });
@@ -171,7 +171,7 @@ namespace Darkfall.UI
             }
             Button(panel, "ПРИМЕНИТЬ ПОКАЗАТЕЛИ", new Vector2(0, -220), new Vector2(370, 54), ApplyStats,
                 new Color(.18f, .30f, .36f));
-            Button(panel, "СЧИТАТЬ ТЕКУЩИЕ", new Vector2(0, -282), new Vector2(370, 44), Refresh);
+            Button(panel, "СЧИТАТЬ ТЕКУЩИЕ", new Vector2(0, -282), new Vector2(370, 50), Refresh);
         }
 
         private Transform Section(Transform parent, string title, Vector2 position, Vector2 size)

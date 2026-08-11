@@ -44,6 +44,7 @@ namespace Darkfall.Editor
             failures += ValidateHeroFrames("mage");
             failures += ValidateHeroFrames("warrior");
             failures += ValidateHeroFrames("rogue");
+            failures += ValidateDirectionalRuntimeContract();
             failures += ValidateDirectionalSheet("enemy-melee-v2", "Melee enemy");
             failures += ValidateDirectionalSheet("enemy-ranged-v2", "Ranged enemy");
             failures += ValidateDirectionalSheet("enemy-caster-v2", "Caster enemy");
@@ -73,6 +74,15 @@ namespace Darkfall.Editor
                                 DungeonVisualProfile.ForDepth(21).Id != DungeonVisualProfile.ForDepth(31).Id &&
                                 DungeonVisualProfile.ForDepth(31).Id != DungeonVisualProfile.ForDepth(41).Id,
                 "Each post-boss chapter through depth 50 must use a distinct biome");
+            foreach (var depth in new[] { 1, 11, 21, 31, 41 })
+            {
+                var atmosphere = DungeonVisualProfile.ForDepth(depth);
+                failures += Require(atmosphere.AtmosphereDensity >= .5f && atmosphere.AtmosphereDensity <= 1.8f,
+                    $"Biome atmosphere density is invalid: {atmosphere.Id}");
+                failures += Require(atmosphere.AtmosphereTint.maxColorComponent > .15f &&
+                                    atmosphere.AtmosphereDrift.sqrMagnitude > .000001f,
+                    $"Biome atmosphere recipe is missing: {atmosphere.Id}");
+            }
             failures += Require(LegacyCatalog.Data.characters?.Length == 3, "Legacy parity: expected 3 heroes");
             failures += Require(LegacyCatalog.Data.enemies?.Length == 17, "Expected 12 shared and 5 biome enemy types");
             var biomeAssets = new[] { "ember", "drowned", "charnel", "obsidian" };
@@ -151,6 +161,14 @@ namespace Darkfall.Editor
                 "Inventory interaction: backpack target state is invalid");
             failures += Require(interactionInventory.AssignQuickSlot(1, 0) && interactionInventory.QuickSlots[0] == "test_potion",
                 "Inventory interaction: quick slot assignment failed");
+            failures += Require(interactionInventory.AssignQuickSlot(1, 1) &&
+                                interactionInventory.QuickSlots[0] == null &&
+                                interactionInventory.QuickSlots[1] == "test_potion",
+                "Inventory interaction: duplicate quick-slot binding was not moved to the new slot");
+            failures += Require(!interactionInventory.MoveBackpackToEquipment(1, 2, null) &&
+                                interactionInventory.Slots[1]?.id == "test_potion" &&
+                                interactionInventory.Equipment[2] == null,
+                "Inventory interaction: invalid consumable drop changed inventory state");
             interactionInventory.SwapBackpack(1, 3);
             failures += Require(interactionInventory.Slots[3]?.id == "test_potion",
                 "Inventory interaction: backpack drag swap failed");
@@ -168,6 +186,11 @@ namespace Darkfall.Editor
             failures += Require(stackingInventory.TryConsume("health_potion", 2) &&
                                 stackingInventory.Count("health_potion") == 1,
                 "Inventory lifecycle: stacked consumable could not be consumed correctly");
+            failures += Require(stackingInventory.AssignQuickSlot(0, 0) &&
+                                stackingInventory.TryConsume("health_potion") &&
+                                stackingInventory.Count("health_potion") == 0 &&
+                                stackingInventory.QuickSlots[0] == null,
+                "Inventory lifecycle: empty consumable left a stale quick-slot binding");
 
             failures += ValidateLootLifecycle();
             failures += ValidateShopCatalog();
@@ -190,6 +213,35 @@ namespace Darkfall.Editor
                 var generatedDepth = 1 + seed % 25;
                 var dungeon = DungeonGenerator.Generate(balance, generatedDepth, seed);
                 failures += Require(dungeon.Rooms.Count >= 2, $"Seed {seed}: insufficient rooms");
+                failures += Require(dungeon.GenerationInfo != null &&
+                                    !string.IsNullOrEmpty(dungeon.GenerationInfo.strategy) &&
+                                    dungeon.GenerationInfo.depth == generatedDepth,
+                    $"Seed {seed}: generation diagnostics are missing");
+                if (generatedDepth < 10)
+                {
+                    var shrineCount = 0;
+                    for (var roomIndex = 1; roomIndex < dungeon.Rooms.Count - 1; roomIndex++)
+                        if (dungeon.Rooms[roomIndex].theme == DungeonRoomTheme.Shrine) shrineCount++;
+                    failures += Require(shrineCount > 0,
+                        $"Seed {seed}: Ashen Catacombs have no authored chapel room");
+                }
+                failures += Require(dungeon.HasCompletedStage(DungeonGenerationStage.Layout) &&
+                                    dungeon.HasCompletedStage(DungeonGenerationStage.Repair) &&
+                                    dungeon.HasCompletedStage(DungeonGenerationStage.SetPieces) &&
+                                    dungeon.NextGenerationStage == DungeonGenerationStage.TileResolution,
+                    $"Seed {seed}: logical generation stages are incomplete or out of order");
+                failures += Require(dungeon.HasSemantic(dungeon.StartCell,
+                        DungeonCellSemantic.Floor | DungeonCellSemantic.Room |
+                        DungeonCellSemantic.Arrival | DungeonCellSemantic.NoDecor),
+                    $"Seed {seed}: arrival semantics or reservation are incomplete");
+                failures += Require(dungeon.HasSemantic(dungeon.ExitCell,
+                        DungeonCellSemantic.Floor | DungeonCellSemantic.Room | DungeonCellSemantic.Exit |
+                        DungeonCellSemantic.Portal | DungeonCellSemantic.NoDecor),
+                    $"Seed {seed}: exit/portal semantics or reservation are incomplete");
+                foreach (var hazard in dungeon.Hazards)
+                    failures += Require(dungeon.HasSemantic(hazard.Cell,
+                            DungeonCellSemantic.Hazard | DungeonCellSemantic.NoDecor),
+                        $"Seed {seed}: hazard cell is not reserved from decor");
                 failures += Require(dungeon.IsFloor(dungeon.StartCell.x, dungeon.StartCell.y), $"Seed {seed}: invalid start");
                 failures += Require(dungeon.IsFloor(dungeon.ExitCell.x, dungeon.ExitCell.y), $"Seed {seed}: invalid exit");
                 var internalStairs = 0;
@@ -323,6 +375,17 @@ namespace Darkfall.Editor
                 failures += Require(dungeon.CanOccupy(start + Vector2.right * .3f, .22f), $"Seed {seed}: start blocks right movement");
                 failures += Require(dungeon.CanOccupy(start + Vector2.up * .3f, .22f), $"Seed {seed}: start blocks upward movement");
                 failures += Require(dungeon.CanOccupy(start + Vector2.down * .3f, .22f), $"Seed {seed}: start blocks downward movement");
+                foreach (var screenDirection in new[]
+                         { Vector2.left, Vector2.right, Vector2.up, Vector2.down })
+                {
+                    var logicalStep = IsoWorld.UnprojectDirection(screenDirection).normalized * .15f;
+                    var resolved = DungeonMovement.ResolveStep(dungeon, start, logicalStep, .22f, true);
+                    var logicalDelta = resolved - start;
+                    var projectedDelta = IsoWorld.ProjectDirection(logicalDelta).normalized;
+                    failures += Require(logicalDelta.sqrMagnitude > .01f &&
+                                        Vector2.Dot(projectedDelta, screenDirection) > .98f,
+                        $"Seed {seed}: screen movement {screenDirection} does not preserve its intended direction");
+                }
                 // Exercise the same blocking placements used by structural decor. Rejected props
                 // are intentionally absent; accepted props must preserve every room route below.
                 foreach (var generatedRoom in dungeon.Rooms)
@@ -526,8 +589,8 @@ namespace Darkfall.Editor
         private static int ValidateHeroFrames(string hero)
         {
             var failures = 0;
-            // Horizontal animation has one canonical authored side. Runtime mirrors it with
-            // SpriteRenderer.flipX so the gait and action phases cannot drift between left/right.
+            failures += Require(DirectionalSpriteAtlas.HasCompleteHeroLayout(hero),
+                $"Hero frame grounding metadata is incomplete: {hero}");
             var directions = new[] { "down", "up", "right" };
             var frames = new[]
             {
@@ -538,8 +601,26 @@ namespace Darkfall.Editor
             foreach (var frame in frames)
             {
                 var path = $"Sprites/Characters/{hero}/{direction}/{frame}";
-                failures += Require(Resources.Load<Texture2D>(path) != null,
+                var texture = Resources.Load<Texture2D>(path);
+                failures += Require(texture != null,
                     $"Hero frame is missing: {hero}/{direction}/{frame}");
+                failures += Require(texture != null && texture.width == 256 && texture.height == 256,
+                    $"Hero frame canvas must remain 256x256: {hero}/{direction}/{frame}");
+            }
+            // Left-facing heroes use their authored asymmetric weapon/armour frames. The imported
+            // source currently provides a neutral idle plus complete walk, attack and hurt actions.
+            var leftFrames = new[]
+            {
+                "idle", "walk_1", "walk_2", "walk_3", "walk_4",
+                "attack_1", "attack_2", "attack_3", "hurt_1", "hurt_2"
+            };
+            foreach (var frame in leftFrames)
+            {
+                var path = $"Sprites/Characters/{hero}/left/{frame}";
+                var texture = Resources.Load<Texture2D>(path);
+                failures += Require(texture != null, $"Hero frame is missing: {hero}/left/{frame}");
+                failures += Require(texture != null && texture.width == 256 && texture.height == 256,
+                    $"Hero frame canvas must remain 256x256: {hero}/left/{frame}");
             }
             return failures;
         }
@@ -550,6 +631,41 @@ namespace Darkfall.Editor
             var failures = Require(sheet != null, $"{displayName} directional sheet is missing");
             failures += Require(sheet != null && sheet.width == 1774 && sheet.height == 887,
                 $"{displayName} directional sheet must match the 8x4 enemy grid dimensions");
+            failures += Require(DirectionalSpriteAtlas.HasEnemyDirectionConvention(resourceName),
+                $"{displayName} has no reviewed left/right row convention: {resourceName}");
+            return failures;
+        }
+
+        private static int ValidateDirectionalRuntimeContract()
+        {
+            var failures = 0;
+            var directions = new[] { Vector2.down, Vector2.up, Vector2.left, Vector2.right };
+            var directionNames = new[] { "down", "up", "left", "right" };
+            var motions = new[]
+            {
+                CharacterMotion.Idle, CharacterMotion.Walk, CharacterMotion.Attack, CharacterMotion.Hit
+            };
+            foreach (var sheet in new[] { "mage-v2", "warrior-v2", "rogue-v2" })
+            for (var direction = 0; direction < directions.Length; direction++)
+            foreach (var motion in motions)
+            {
+                var sprite = DirectionalSpriteAtlas.Get(sheet, directions[direction], motion, .12f, out var flipX);
+                failures += Require(sprite != null,
+                    $"Directional runtime returned no sprite: {sheet}/{directionNames[direction]}/{motion}");
+                failures += Require(sprite != null && sprite.name.Contains("-" + directionNames[direction] + "-"),
+                    $"Directional runtime selected the wrong authored side: {sheet}/{directionNames[direction]}/{motion}");
+                failures += Require(!flipX,
+                    $"Authored hero direction must not be mirrored: {sheet}/{directionNames[direction]}/{motion}");
+            }
+
+            var enemyRight = DirectionalSpriteAtlas.Get("enemy-melee-v2", Vector2.right,
+                CharacterMotion.Walk, .2f, out var enemyRightFlip);
+            var enemyLeft = DirectionalSpriteAtlas.Get("enemy-melee-v2", Vector2.left,
+                CharacterMotion.Walk, .2f, out var enemyLeftFlip);
+            failures += Require(enemyRight != null && enemyLeft != null && !enemyRightFlip && enemyLeftFlip,
+                "Canonical enemy side must face right normally and left through one stable mirror");
+            failures += Require(DirectionalSpriteAtlas.StabilizeFourWay(new Vector2(.72f, .69f), Vector2.right) == Vector2.right,
+                "Four-way facing hysteresis must keep the current axis near a diagonal");
             return failures;
         }
 

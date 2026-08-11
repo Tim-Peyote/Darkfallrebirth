@@ -262,12 +262,13 @@ namespace Darkfall.UI
 
             var pauseButton = AddButton(hud.transform, "II", Vector2.zero, new Vector2(58, 58), game.TogglePause);
             DarkFantasyHudSkin.Apply(pauseButton.GetComponent<Image>(), DarkFantasyHudSkin.PauseButton);
-            var pausePosition = Application.isMobilePlatform ? new Vector2(-226, -28) : new Vector2(-83, -251);
-            SetRect(pauseButton.GetComponent<RectTransform>(), new Vector2(1, 1), new Vector2(1, 1), new Vector2(42, 42), pausePosition);
+            var utilityButtonSize = Application.isMobilePlatform ? new Vector2(52, 52) : new Vector2(50, 50);
+            var pausePosition = Application.isMobilePlatform ? new Vector2(-226, -28) : new Vector2(-80, -251);
+            SetRect(pauseButton.GetComponent<RectTransform>(), new Vector2(1, 1), new Vector2(1, 1), utilityButtonSize, pausePosition);
             var inventoryButton = AddButton(hud.transform, "I", Vector2.zero, new Vector2(58, 58), () => InventoryUI.Instance?.Toggle());
             DarkFantasyHudSkin.Apply(inventoryButton.GetComponent<Image>(), DarkFantasyHudSkin.InventoryButton);
-            var inventoryPosition = Application.isMobilePlatform ? new Vector2(-274, -28) : new Vector2(-133, -251);
-            SetRect(inventoryButton.GetComponent<RectTransform>(), new Vector2(1, 1), new Vector2(1, 1), new Vector2(42, 42), inventoryPosition);
+            var inventoryPosition = Application.isMobilePlatform ? new Vector2(-286, -28) : new Vector2(-140, -251);
+            SetRect(inventoryButton.GetComponent<RectTransform>(), new Vector2(1, 1), new Vector2(1, 1), utilityButtonSize, inventoryPosition);
 
             var quickBar = Panel("Quick Slots", hud.transform, Color.clear);
             DarkFantasyHudSkin.Apply(quickBar.GetComponent<Image>(), DarkFantasyHudSkin.Quickbar);

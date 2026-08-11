@@ -40,6 +40,8 @@ namespace Darkfall.Core
         private bool developerConsoleOpen;
         private bool developerPreviousPause;
         private HeroDefinition runHero;
+        private bool releaseSmokeActive;
+        private string releaseSmokeSaveSnapshot;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         public bool DeveloperGodMode { get; private set; }
 #endif
@@ -80,7 +82,7 @@ namespace Darkfall.Core
             runtimeUI.Initialize(this);
             Audio.PlayMusic("Main");
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-darkfall-smoke") >= 0)
-                StartCoroutine(RunReleaseSmoke());
+                BeginReleaseSmoke();
         }
 
         private void Update()
@@ -110,7 +112,7 @@ namespace Darkfall.Core
                 cameraObject.AddComponent<AudioListener>();
             }
             camera.orthographic = true;
-            camera.orthographicSize = 6.2f;
+            camera.orthographicSize = 5.55f;
             camera.backgroundColor = new Color(0.008f, 0.01f, 0.025f);
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.transform.position = new Vector3(0, 0, -10);
@@ -169,12 +171,15 @@ namespace Darkfall.Core
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (DeveloperGodMode) Player.SetDeveloperInvincible(true);
 #endif
-            var lighting = new GameObject("Dungeon Lighting").AddComponent<DungeonLighting>();
-            lighting.transform.SetParent(levelRoot, false);
-            lighting.Build(Dungeon, Player, DungeonVisualProfile.ForDepth(Depth));
+            // Visibility must reveal the landing room before authored lights inspect it. Building
+            // lights first made them start at zero and visibly "switch on" a fraction of a second
+            // after entering every floor.
             var fog = new GameObject("Fog of War").AddComponent<FogOfWarView>();
             fog.transform.SetParent(levelRoot, false);
             fog.Initialize(Dungeon, Player);
+            var lighting = new GameObject("Dungeon Lighting").AddComponent<DungeonLighting>();
+            lighting.transform.SetParent(levelRoot, false);
+            lighting.Build(Dungeon, Player, DungeonVisualProfile.ForDepth(Depth));
 
             var isBossLevel = Depth % Balance.bossEveryLevels == 0;
             if (isBossLevel)
@@ -194,6 +199,8 @@ namespace Darkfall.Core
             }
             var portal = ExitPortal.Spawn(Dungeon.CellCenter(Dungeon.ExitCell), Player);
             if (EnemyController.Count == 0) portal.Empower();
+            Dungeon.CompleteGenerationStage(DungeonGenerationStage.Population);
+            DungeonGenerationValidator.ValidateAndComplete(Dungeon);
             NotifyStatsChanged();
         }
 
@@ -331,15 +338,16 @@ namespace Darkfall.Core
             else ContinueAfterShop();
         }
 
-        public void CompleteLevel()
+        public bool CompleteLevel()
         {
-            if (Player == null || IsPaused) return;
+            if (Player == null || IsPaused) return false;
             IsPaused = true;
             blockingModal = true;
             Time.timeScale = 0;
             Audio.SetPaused(true);
             runtimeUI.ShowLevelComplete();
             Audio.PlayMusic("Level_Complite");
+            return true;
         }
 
         private void PrepareShop()
@@ -587,10 +595,17 @@ namespace Darkfall.Core
         {
             yield return null;
             var failures = new List<string>();
+            void CaptureRuntimeFailure(string condition, string stackTrace, LogType type)
+            {
+                if (type != LogType.Error && type != LogType.Assert && type != LogType.Exception) return;
+                if (condition.StartsWith("DARKFALL_RELEASE_SMOKE_FAIL", StringComparison.Ordinal)) return;
+                failures.Add($"runtime {type}: {condition}");
+            }
             void Check(bool condition, string message)
             {
                 if (!condition) failures.Add(message);
             }
+            Application.logMessageReceived += CaptureRuntimeFailure;
 
             StartRun();
             yield return null;
@@ -598,15 +613,18 @@ namespace Darkfall.Core
                 "start/restart did not create a complete first floor");
             Check(EnemyController.Count == EnemyBudgetForDepth(Balance, 1),
                 "first floor did not spawn the expected active creep population");
-            Check(Gold == 0 && Inventory != null && Inventory.Count("health_potion") == 0,
+            Check(Gold == 0 && Inventory != null && Inventory.Count("potion") == 0,
                 "new run did not reset economy and inventory");
 
             if (Player != null && ExitPortal.Active != null)
             {
                 ExitPortal.Active.Empower();
                 Player.transform.position = ExitPortal.Active.transform.position;
-                Check(ExitPortal.InteractNearest(Player), "empowered floor exit could not be interacted with");
-                Check(IsPaused && blockingModal, "floor exit did not open the completion state");
+                var exitInteraction = ExitPortal.InteractNearest(Player);
+                Check(exitInteraction,
+                    $"empowered floor exit could not be interacted with (paused={IsPaused}, modal={blockingModal})");
+                Check(IsPaused && blockingModal,
+                    $"floor exit did not open the completion state (interaction={exitInteraction}, paused={IsPaused}, modal={blockingModal})");
                 AdvanceLevel(false);
                 yield return null;
                 Check(Depth == 2 && Player != null && Dungeon != null && !IsPaused,
@@ -621,15 +639,45 @@ namespace Darkfall.Core
             }
             Check(Depth == 4 && IsPaused && blockingModal && ShopOffers.Length > 0,
                 "sanctuary shop did not open after the third cleared floor");
+            if (ShopOffers.Length > 0)
+            {
+                var rejectedOffer = ShopOffers[0];
+                var goldBeforeRejectedPurchase = Gold;
+                var purchasesBeforeRejectedPurchase = PurchaseCount(rejectedOffer.id);
+                Check(!BuyShopOffer(0) && Gold == goldBeforeRejectedPurchase &&
+                      PurchaseCount(rejectedOffer.id) == purchasesBeforeRejectedPurchase &&
+                      !IsShopOfferSold(0),
+                    "rejected sanctuary purchase changed gold, progression or sold state");
+            }
             AddGold(100000);
             var goldBeforePurchase = Gold;
             Check(ShopOffers.Length > 0 && BuyShopOffer(0), "sanctuary shop purchase failed");
             Check(Gold < goldBeforePurchase && PurchaseCount(ShopOffers[0].id) == 1,
                 "sanctuary purchase did not update gold and purchase count");
+            if (ShopOffers.Length > 0)
+            {
+                var goldAfterPurchase = Gold;
+                Check(!BuyShopOffer(0) && Gold == goldAfterPurchase &&
+                      PurchaseCount(ShopOffers[0].id) == 1 && IsShopOfferSold(0),
+                    "sold sanctuary offer allowed a duplicate charge or upgrade");
+            }
             ContinueAfterShop();
             yield return null;
             Check(Depth == 4 && Player != null && Dungeon != null && !IsPaused,
                 "leaving sanctuary did not resume the same run");
+
+            if (Player != null)
+            {
+                var validationChest = TreasureChest.Spawn(Player.transform.position, Player);
+                validationChest.Items[0] = InventorySystem.CreateFromDefinition(
+                    LegacyCatalog.Item("potion"), Depth);
+                Check(validationChest.OpenForValidation() && InventoryUI.Instance != null && InventoryUI.Instance.IsOpen,
+                    "ordinary chest did not open the inventory transfer view");
+                Check(validationChest.TakeTo(0, 0) && Inventory.Count("potion") == 1,
+                    "ordinary chest item did not transfer to the requested backpack slot");
+                InventoryUI.Instance?.Close();
+                Check(!IsPaused, "closing the chest inventory did not resume the run");
+            }
 
             if (Dungeon != null && Dungeon.Rooms.Count > 1)
             {
@@ -639,28 +687,88 @@ namespace Darkfall.Core
                     "mimic did not enter the active enemy registry");
             }
 
-            var recordsBeforeDeath = Save.topRecords.Count;
+            // Exercise the chapter boundary rather than merely constructing early regular floors.
+            Depth = Balance.bossEveryLevels - 1;
+            CompleteLevel();
+            AdvanceLevel(false);
+            yield return null;
+            Check(Depth == Balance.bossEveryLevels && IsPaused && blockingModal && ShopOffers.Length > 0,
+                "sanctuary did not open before the first boss floor");
+            ContinueAfterShop();
+            yield return null;
+            var bossEnemies = EnemyController.Snapshot();
+            Check(Depth == Balance.bossEveryLevels && bossEnemies.Count == 1 && bossEnemies[0].IsBoss,
+                "first boss depth did not spawn exactly one boss");
+            if (bossEnemies.Count == 1 && bossEnemies[0] != null)
+            {
+                bossEnemies[0].TakeDamage(bossEnemies[0].MaxHealth + 1f);
+                yield return null;
+                Check(ExitPortal.Active != null && ExitPortal.Active.IsEmpowered,
+                    "defeating the boss did not empower the chapter exit");
+            }
+            if (Player != null && ExitPortal.Active != null)
+            {
+                Player.transform.position = ExitPortal.Active.transform.position;
+                Check(ExitPortal.InteractNearest(Player), "boss exit could not be interacted with");
+                AdvanceLevel(false);
+                yield return null;
+                Check(Depth == Balance.bossEveryLevels + 1 &&
+                      DungeonVisualProfile.ForDepth(Depth).Id != DungeonVisualProfile.ForDepth(Depth - 1).Id,
+                    "boss exit did not advance into the next biome");
+            }
+
+            Save.topRecords.Clear();
             FinishRun(false);
-            Check(IsPaused && blockingModal && Save.topRecords.Count == recordsBeforeDeath + 1,
+            Check(IsPaused && blockingModal && Save.topRecords.Count == 1,
                 "death did not create the game-over state and run record");
             StartRun();
             yield return null;
             Check(Depth == 1 && Gold == 0 && SessionKills == 0 && Player != null && !IsPaused,
                 "start again did not reset the run after death");
 
+            Application.logMessageReceived -= CaptureRuntimeFailure;
             if (failures.Count == 0)
-                Debug.Log("DARKFALL_RELEASE_SMOKE_PASS: start, descent, sanctuary, shop, mimic, death and restart");
+                Debug.Log("DARKFALL_RELEASE_SMOKE_PASS: start, chest, descent, sanctuary, shop, mimic, boss, biome transition, death and restart");
             else
                 foreach (var failure in failures) Debug.LogError("DARKFALL_RELEASE_SMOKE_FAIL: " + failure);
+
+            RestoreReleaseSmokeSave();
+#if UNITY_EDITOR
+            if (Application.isBatchMode) UnityEditor.EditorApplication.Exit(failures.Count == 0 ? 0 : 2);
+            else UnityEditor.EditorApplication.isPlaying = false;
+#else
             Application.Quit(failures.Count == 0 ? 0 : 2);
+#endif
+        }
+
+        public void BeginReleaseSmoke()
+        {
+            if (releaseSmokeActive) return;
+            releaseSmokeSaveSnapshot = SaveService.CaptureRaw();
+            releaseSmokeActive = true;
+            StartCoroutine(RunReleaseSmoke());
+        }
+
+        private void RestoreReleaseSmokeSave()
+        {
+            if (!releaseSmokeActive) return;
+            SaveService.RestoreRaw(releaseSmokeSaveSnapshot);
+            Save = SaveService.Load();
+            if (Save.topRecords == null) Save.topRecords = new List<RunRecord>();
+            releaseSmokeActive = false;
         }
 
         private void OnApplicationPause(bool paused)
         {
             if (paused && Player != null && !IsPaused) TogglePause();
+            if (releaseSmokeActive) return;
             SaveService.Save(Save);
         }
 
-        private void OnApplicationQuit() => SaveService.Save(Save);
+        private void OnApplicationQuit()
+        {
+            if (releaseSmokeActive) RestoreReleaseSmokeSave();
+            else SaveService.Save(Save);
+        }
     }
 }

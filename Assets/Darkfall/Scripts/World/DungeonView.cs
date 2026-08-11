@@ -10,6 +10,7 @@ namespace Darkfall.World
     {
         private readonly List<Mesh> meshes = new List<Mesh>();
         private readonly List<Material> materials = new List<Material>();
+        private readonly List<Texture2D> runtimeTextures = new List<Texture2D>();
         private DungeonVisualProfile profile;
         private Transform architectureDecor;
         private Transform structuralDecor;
@@ -35,6 +36,7 @@ namespace Darkfall.World
             clutterDecor = CreateGroup(decorRoot, "Clutter");
             BuildDecor(data);
             BuildBiomeEvents(data);
+            data.CompleteGenerationStage(DungeonGenerationStage.TileResolution);
         }
 
         private void BuildHazardSurfaces(DungeonData data)
@@ -49,47 +51,81 @@ namespace Darkfall.World
             var upperTriangles = new List<int>();
             var upperColors = new List<Color>();
             var upperUvs = new List<Vector2>();
+            var bankVertices = new List<Vector3>();
+            var bankTriangles = new List<int>();
+            var bankColors = new List<Color>();
+            var bankUvs = new List<Vector2>();
+            var upperBankVertices = new List<Vector3>();
+            var upperBankTriangles = new List<int>();
+            var upperBankColors = new List<Color>();
+            var upperBankUvs = new List<Vector2>();
             foreach (var hazard in data.Hazards)
             {
                 var x = hazard.Cell.x;
                 var y = hazard.Cell.y;
-                // Authored modules provide biome-specific banks, bridges and surface detail.
-                // The connected underlay remains mandatory: without it a river becomes a row of
-                // isolated props whenever a generated sprite has transparent margins.
-                CreateAuthoredHazardModule(authoredRoot, hazard, data);
+                // Full authored modules are minisets, not Wang tiles: repeating and mirroring them
+                // per cell exposes their square footprint. Keep the authored bridge as a landmark,
+                // while the river itself and its banks are built as continuous meshes below.
+                if (hazard.SafeCrossing) CreateAuthoredHazardModule(authoredRoot, hazard, data);
                 var shape = new List<Vector2>
                 {
-                    new Vector2(x + .18f, y + .06f), new Vector2(x + .82f, y + .06f),
-                    new Vector2(x + .94f, y + .18f), new Vector2(x + .94f, y + .82f),
-                    new Vector2(x + .82f, y + .94f), new Vector2(x + .18f, y + .94f),
-                    new Vector2(x + .06f, y + .82f), new Vector2(x + .06f, y + .18f)
+                    new Vector2(x + .14f, y + .03f), new Vector2(x + .86f, y + .03f),
+                    new Vector2(x + .97f, y + .14f), new Vector2(x + .97f, y + .86f),
+                    new Vector2(x + .86f, y + .97f), new Vector2(x + .14f, y + .97f),
+                    new Vector2(x + .03f, y + .86f), new Vector2(x + .03f, y + .14f)
                 };
                 if ((hazard.Connections & DungeonHazardConnections.West) != 0)
-                { shape[6] = new Vector2(x, y + .82f); shape[7] = new Vector2(x, y + .18f); }
+                { shape[6] = new Vector2(x, y + .86f); shape[7] = new Vector2(x, y + .14f); }
                 if ((hazard.Connections & DungeonHazardConnections.East) != 0)
-                { shape[2] = new Vector2(x + 1, y + .18f); shape[3] = new Vector2(x + 1, y + .82f); }
+                { shape[2] = new Vector2(x + 1, y + .14f); shape[3] = new Vector2(x + 1, y + .86f); }
                 if ((hazard.Connections & DungeonHazardConnections.South) != 0)
-                { shape[0] = new Vector2(x + .18f, y); shape[1] = new Vector2(x + .82f, y); }
+                { shape[0] = new Vector2(x + .14f, y); shape[1] = new Vector2(x + .86f, y); }
                 if ((hazard.Connections & DungeonHazardConnections.North) != 0)
-                { shape[4] = new Vector2(x + .82f, y + 1); shape[5] = new Vector2(x + .18f, y + 1); }
+                { shape[4] = new Vector2(x + .86f, y + 1); shape[5] = new Vector2(x + .14f, y + 1); }
                 var upper = data.ElevationLevel(x, y) > 0;
+                var height = upper
+                    ? data.SurfaceHeight(new Vector2(x + .5f, y + .5f)) + .008f
+                    : .008f;
                 if (upper)
                     AddHazardPolygon(upperVertices, upperTriangles, upperColors, upperUvs, shape,
-                        HazardSurfaceColor(hazard), data.SurfaceHeight(new Vector2(x + .5f, y + .5f)) + .008f,
-                        hazard.FlowIndex / (float)Mathf.Max(1, hazard.FlowLength - 1));
+                        HazardSurfaceColor(hazard), height);
                 else
                     AddHazardPolygon(vertices, triangles, colors, uvs, shape,
-                        HazardSurfaceColor(hazard), .008f,
-                        hazard.FlowIndex / (float)Mathf.Max(1, hazard.FlowLength - 1));
+                        HazardSurfaceColor(hazard), height);
+
+                AddHazardBanks(upper ? upperBankVertices : bankVertices,
+                    upper ? upperBankTriangles : bankTriangles,
+                    upper ? upperBankColors : bankColors,
+                    upper ? upperBankUvs : bankUvs, shape, hazard.Connections, height + .006f);
+                if (!hazard.SafeCrossing && hazard.FlowIndex % 4 == 1)
+                    data.AddLightSource(hazard.Cell + new Vector2(.5f, .5f), HazardGlowColor(hazard.Kind),
+                        hazard.Kind == DungeonHazardKind.Lava ? 3.7f : 3.15f,
+                        hazard.Kind == DungeonHazardKind.Lava ? .08f : .035f);
             }
             CreateHazardLayer("Connected Biome Hazards", vertices, triangles, colors, uvs, -9);
             CreateHazardLayer("Connected Upper Biome Hazards", upperVertices, upperTriangles,
                 upperColors, upperUvs, 974);
+            CreateHazardBankLayer("Continuous Hazard Banks", bankVertices, bankTriangles,
+                bankColors, bankUvs, -7);
+            CreateHazardBankLayer("Continuous Upper Hazard Banks", upperBankVertices,
+                upperBankTriangles, upperBankColors, upperBankUvs, 976);
         }
 
-        private Color HazardSurfaceColor(DungeonHazardCell hazard) => hazard.SafeCrossing
-            ? Color.Lerp(profile.FloorTint, profile.WallTint, .65f) * 1.18f
-            : HazardColor(hazard.Kind);
+        // Hue and surface detail live in one seamless material. White vertex color prevents the
+        // material from being multiplied by the same biome tint twice and turning into a dark mat.
+        private static Color HazardSurfaceColor(DungeonHazardCell hazard) => Color.white;
+
+        private static Color HazardGlowColor(DungeonHazardKind kind)
+        {
+            switch (kind)
+            {
+                case DungeonHazardKind.Lava: return new Color(1f, .24f, .045f, .58f);
+                case DungeonHazardKind.Brine: return new Color(.08f, .46f, .54f, .24f);
+                case DungeonHazardKind.Bile: return new Color(.42f, .56f, .07f, .27f);
+                case DungeonHazardKind.VoidRift: return new Color(.46f, .08f, .72f, .34f);
+                default: return new Color(.72f, .12f, .045f, .28f);
+            }
+        }
 
         private void CreateHazardLayer(string name, List<Vector3> vertices, List<int> triangles,
             List<Color> colors, List<Vector2> uvs, int sortingOrder)
@@ -98,10 +134,120 @@ namespace Darkfall.World
             var mesh = MakeMesh(name, vertices, triangles, colors, uvs);
             // Hazard color is part of its gameplay readability. It remains self-readable in the
             // ambient darkness while authored banks above it still receive local 2D lighting.
-            var surfaceMaterial = new Material(DarkfallRenderMaterials.SpriteUnlit) { color = Color.white };
+            var kind = HazardKindForBiome(profile.Id);
+            var surfaceMaterial = CreateHazardSurfaceMaterial(kind);
             materials.Add(surfaceMaterial);
             var layer = CreateLayer(mesh.name, mesh, surfaceMaterial, sortingOrder);
-            layer.AddComponent<HazardSurfaceAnimator>().Initialize(mesh, HazardKindForBiome(profile.Id));
+            layer.AddComponent<HazardSurfaceAnimator>().Initialize(mesh, kind, surfaceMaterial);
+        }
+
+        private void CreateHazardBankLayer(string name, List<Vector3> vertices, List<int> triangles,
+            List<Color> colors, List<Vector2> uvs, int sortingOrder)
+        {
+            if (vertices.Count == 0) return;
+            var mesh = MakeMesh(name, vertices, triangles, colors, uvs);
+            CreateLayer(name, mesh, CreateTexturedMaterial(profile.WallTexture), sortingOrder);
+        }
+
+        private void AddHazardBanks(List<Vector3> vertices, List<int> triangles, List<Color> colors,
+            List<Vector2> uvs, IReadOnlyList<Vector2> shape, DungeonHazardConnections connections,
+            float height)
+        {
+            var color = Color.Lerp(profile.FloorTint, profile.WallTint, .64f) * .92f;
+            for (var segment = 0; segment < shape.Count; segment++)
+            {
+                var connectionOpening = (segment == 0 &&
+                                         (connections & DungeonHazardConnections.South) != 0) ||
+                                        (segment == 2 &&
+                                         (connections & DungeonHazardConnections.East) != 0) ||
+                                        (segment == 4 &&
+                                         (connections & DungeonHazardConnections.North) != 0) ||
+                                        (segment == 6 &&
+                                         (connections & DungeonHazardConnections.West) != 0);
+                if (connectionOpening) continue;
+                var logicalA = shape[segment];
+                var logicalB = shape[(segment + 1) % shape.Count];
+                var a = IsoWorld.Project(logicalA) + Vector2.up * height;
+                var b = IsoWorld.Project(logicalB) + Vector2.up * height;
+                var direction = (b - a).normalized;
+                var normal = Vector2.Perpendicular(direction);
+                // A two-tone lip visually cuts the liquid into the floor. The inner edge catches
+                // light while the outer edge stays grounded; neither creates a detached black
+                // strip below the architecture.
+                AddHazardBankQuad(vertices, triangles, colors, uvs,
+                    a - normal * .058f, b - normal * .058f,
+                    b + normal * .046f, a + normal * .046f,
+                    color * .54f, color * 1.18f, logicalA, logicalB);
+            }
+        }
+
+        private static void AddHazardBankQuad(List<Vector3> vertices, List<int> triangles,
+            List<Color> colors, List<Vector2> uvs, Vector2 a, Vector2 b, Vector2 d, Vector2 e,
+            Color outer, Color inner, Vector2 logicalA, Vector2 logicalB)
+        {
+            var index = vertices.Count;
+            vertices.Add(a); vertices.Add(b); vertices.Add(d); vertices.Add(e);
+            triangles.Add(index); triangles.Add(index + 2); triangles.Add(index + 1);
+            triangles.Add(index); triangles.Add(index + 3); triangles.Add(index + 2);
+            colors.Add(outer); colors.Add(outer); colors.Add(inner); colors.Add(inner);
+            uvs.Add(logicalA * .18f); uvs.Add(logicalB * .18f);
+            uvs.Add(logicalB * .18f + Vector2.up * .07f);
+            uvs.Add(logicalA * .18f + Vector2.up * .07f);
+        }
+
+        private Material CreateHazardSurfaceMaterial(DungeonHazardKind kind)
+        {
+            const int size = 64;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false, false)
+            {
+                name = "Seamless " + kind + " Surface",
+                wrapMode = TextureWrapMode.Repeat,
+                filterMode = FilterMode.Bilinear
+            };
+            var baseColor = HazardColor(kind);
+            var pixels = new Color[size * size];
+            for (var y = 0; y < size; y++)
+            for (var x = 0; x < size; x++)
+            {
+                var u = x / (float)size;
+                var v = y / (float)size;
+                // Periodic functions make opposite texture borders identical. Quantisation keeps
+                // the late-90s hand-painted cadence without exposing a square repeat.
+                var broad = Mathf.Sin((u + v) * Mathf.PI * 4f + Mathf.Sin(v * Mathf.PI * 2f) * 1.7f);
+                var cross = Mathf.Sin((u * 3f - v * 2f) * Mathf.PI * 2f +
+                                      Mathf.Cos(u * Mathf.PI * 2f) * 1.35f);
+                var grain = Mathf.Sin((u * 9f + v * 7f) * Mathf.PI * 2f) * .18f;
+                var field = Mathf.Round((broad * .57f + cross * .31f + grain) * 5f) / 5f;
+                var value = 1f + field * SurfaceContrast(kind);
+                var highlight = Mathf.Clamp01((field - .28f) * 1.8f) * SurfaceHighlight(kind);
+                var color = baseColor * value + HazardGlowColor(kind) * highlight;
+                color.a = baseColor.a;
+                pixels[y * size + x] = color;
+            }
+            texture.SetPixels(pixels);
+            texture.Apply(false, false);
+            runtimeTextures.Add(texture);
+            return new Material(DarkfallRenderMaterials.SpriteUnlit)
+            {
+                name = kind + " Connected Surface Material",
+                color = Color.white,
+                mainTexture = texture
+            };
+        }
+
+        private static float SurfaceContrast(DungeonHazardKind kind)
+        {
+            if (kind == DungeonHazardKind.Lava) return .38f;
+            if (kind == DungeonHazardKind.VoidRift) return .31f;
+            if (kind == DungeonHazardKind.Bile) return .25f;
+            return .2f;
+        }
+
+        private static float SurfaceHighlight(DungeonHazardKind kind)
+        {
+            if (kind == DungeonHazardKind.Lava) return .42f;
+            if (kind == DungeonHazardKind.VoidRift) return .26f;
+            return .16f;
         }
 
         private bool CreateAuthoredHazardModule(Transform parent, DungeonHazardCell hazard, DungeonData data)
@@ -198,8 +344,7 @@ namespace Darkfall.World
         }
 
         private static void AddHazardPolygon(List<Vector3> vertices, List<int> triangles,
-            List<Color> colors, List<Vector2> uvs, IReadOnlyList<Vector2> shape, Color color, float height,
-            float flowPhase)
+            List<Color> colors, List<Vector2> uvs, IReadOnlyList<Vector2> shape, Color color, float height)
         {
             var centerLogical = Vector2.zero;
             for (var i = 0; i < shape.Count; i++) centerLogical += shape[i];
@@ -207,12 +352,14 @@ namespace Darkfall.World
             var center = vertices.Count;
             vertices.Add(IsoWorld.Project(centerLogical) + Vector2.up * height);
             colors.Add(color);
-            uvs.Add(new Vector2(flowPhase, .5f));
+            uvs.Add(centerLogical * .72f);
             for (var i = 0; i < shape.Count; i++)
             {
                 vertices.Add(IsoWorld.Project(shape[i]) + Vector2.up * height);
-                colors.Add(color * (i % 2 == 0 ? .86f : 1f));
-                uvs.Add(new Vector2(flowPhase, i / (float)shape.Count));
+                // Shared logical positions receive identical color and UV values, so adjacent
+                // cells become one uninterrupted surface rather than visible polygon facets.
+                colors.Add(color);
+                uvs.Add(shape[i] * .72f);
             }
             for (var i = 0; i < shape.Count; i++)
             {
@@ -226,11 +373,11 @@ namespace Darkfall.World
         {
             switch (kind)
             {
-                case DungeonHazardKind.Lava: return new Color(1f, .18f, .025f, .98f);
-                case DungeonHazardKind.Brine: return new Color(.08f, .48f, .52f, .88f);
-                case DungeonHazardKind.Bile: return new Color(.43f, .58f, .08f, .9f);
-                case DungeonHazardKind.VoidRift: return new Color(.42f, .08f, .67f, .92f);
-                default: return new Color(.48f, .075f, .035f, .88f);
+                case DungeonHazardKind.Lava: return new Color(.64f, .075f, .008f, .98f);
+                case DungeonHazardKind.Brine: return new Color(.025f, .27f, .32f, .9f);
+                case DungeonHazardKind.Bile: return new Color(.21f, .31f, .025f, .92f);
+                case DungeonHazardKind.VoidRift: return new Color(.20f, .025f, .39f, .94f);
+                default: return new Color(.34f, .04f, .018f, .9f);
             }
         }
 
@@ -772,8 +919,10 @@ namespace Darkfall.World
             for (var i = transform.childCount - 1; i >= 0; i--) Destroy(transform.GetChild(i).gameObject);
             foreach (var mesh in meshes) Destroy(mesh);
             foreach (var material in materials) Destroy(material);
+            foreach (var texture in runtimeTextures) Destroy(texture);
             meshes.Clear();
             materials.Clear();
+            runtimeTextures.Clear();
         }
 
         private void AddWallFace(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
@@ -1247,8 +1396,16 @@ namespace Darkfall.World
         private bool CreateProp(DungeonData data, int index, Vector2 position, float scale, string objectName, bool blocks,
             Transform group)
         {
-            if (!data.IsFloor(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y))) return false;
-            if (data.IsHazardCell(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y))) return false;
+            var cell = Vector2Int.FloorToInt(position);
+            if (!data.IsFloor(cell.x, cell.y)) return false;
+            if (data.IsHazardCell(cell.x, cell.y)) return false;
+            var authoredSetPiece = objectName.StartsWith("Wall Theme", System.StringComparison.Ordinal) ||
+                                   objectName.StartsWith("Corner Theme", System.StringComparison.Ordinal) ||
+                                   objectName.StartsWith("Central Theme", System.StringComparison.Ordinal) ||
+                                   objectName.StartsWith("Theme Detail", System.StringComparison.Ordinal) ||
+                                   objectName.StartsWith("Biome Event", System.StringComparison.Ordinal) ||
+                                   objectName.StartsWith("Event Satellite", System.StringComparison.Ordinal);
+            if (data.HasSemantic(cell, DungeonCellSemantic.EventReserved) && !authoredSetPiece) return false;
             foreach (var feature in data.Architecture)
                 if (Vector2.Distance(position, feature.Position) < 1.6f) return false;
             if (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 1.25f ||

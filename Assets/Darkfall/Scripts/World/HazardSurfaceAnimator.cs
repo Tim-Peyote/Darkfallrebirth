@@ -3,9 +3,9 @@ using UnityEngine;
 namespace Darkfall.World
 {
     /// <summary>
-    /// Animates only the connected liquid/organic surface, never its stone banks. UV.x stores the
-    /// source-to-sink distance, so stop-motion highlights travel with the generated flow and stay
-    /// perfectly joined across tile borders.
+    /// Animates only the connected liquid/organic surface, never its stone banks. UVs are derived
+    /// from logical world coordinates, so stop-motion highlights stay perfectly joined across
+    /// cell borders instead of restarting on every generated tile.
     /// </summary>
     public sealed class HazardSurfaceAnimator : MonoBehaviour
     {
@@ -16,10 +16,13 @@ namespace Darkfall.World
         private float speed;
         private float amplitude;
         private float nextFrame;
+        private Material material;
+        private Vector2 textureOffset;
 
-        public void Initialize(Mesh target, DungeonHazardKind kind)
+        public void Initialize(Mesh target, DungeonHazardKind kind, Material surfaceMaterial)
         {
             mesh = target;
+            material = surfaceMaterial;
             baseColors = mesh != null ? mesh.colors : null;
             flowCoordinates = mesh != null ? mesh.uv : null;
             animatedColors = baseColors != null ? new Color[baseColors.Length] : null;
@@ -35,6 +38,9 @@ namespace Darkfall.World
         {
             if (mesh == null || baseColors == null || flowCoordinates == null || Time.time < nextFrame) return;
             nextFrame = Time.time + 1f / 9f;
+            textureOffset.x = Mathf.Repeat(textureOffset.x + speed * .00065f, 1f);
+            textureOffset.y = Mathf.Repeat(textureOffset.y + speed * .00023f, 1f);
+            if (material != null) material.mainTextureOffset = textureOffset;
             for (var i = 0; i < animatedColors.Length; i++)
             {
                 var wave = Mathf.Sin(Time.time * speed - flowCoordinates[i].x * Mathf.PI * 2f);

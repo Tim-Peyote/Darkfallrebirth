@@ -45,6 +45,7 @@ namespace Darkfall.Gameplay
         private float idleRadius;
         private float idlePause;
         private string attackEffect;
+        private float visualScale;
 
         public static int Count => Active.Count;
         public bool IsBoss => boss;
@@ -107,7 +108,10 @@ namespace Darkfall.Gameplay
             spriteRenderer.color = boss ? new Color(1f, 0.42f, 0.42f) : ParseColor(definition.color);
             spriteRenderer.sortingOrder = 15;
             DarkfallRenderMaterials.MakeLit(spriteRenderer);
-            visual.localScale = Vector3.one * (boss ? 2.1f : 1.25f);
+            // Initialize and animate with one stable scale. The previous setup spawned at
+            // 1.25/2.1 and silently snapped to 1.0/1.55 on the first LateUpdate.
+            visualScale = boss ? 1.55f : 1f;
+            visual.localScale = Vector3.one * visualScale;
             visual.gameObject.AddComponent<IsoVisual>().Initialize(transform, 0f, boss ? 1010 : 1000);
             gameObject.AddComponent<CircleCollider2D>().radius = 0.46f;
             Active.Add(this);
@@ -280,7 +284,7 @@ namespace Darkfall.Gameplay
                 spriteRenderer.sprite = directional;
                 spriteRenderer.flipX = flipX;
                 spriteRenderer.color = boss ? new Color(1f, .72f, .72f) : Color.white;
-                visual.localScale = Vector3.one * (boss ? 1.55f : 1f);
+                visual.localScale = Vector3.one * visualScale;
                 visual.localPosition = Vector3.zero;
                 visual.localRotation = Quaternion.identity;
                 return;
@@ -300,6 +304,11 @@ namespace Darkfall.Gameplay
             }
             health -= amount;
             alertedUntil = Time.time + 5f;
+            if (player != null)
+            {
+                var attackerDirection = (Vector2)(player.transform.position - transform.position);
+                if (attackerDirection.sqrMagnitude > .001f) facingDirection = attackerDirection.normalized;
+            }
             hitAnimationUntil = Time.time + .2f;
             if (GameManager.Instance.Player != null && GameManager.Instance.Player.Vampirism)
                 GameManager.Instance.Player.Heal(amount * 0.5f);

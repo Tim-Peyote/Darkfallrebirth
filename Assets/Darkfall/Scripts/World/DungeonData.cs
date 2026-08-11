@@ -4,6 +4,44 @@ using UnityEngine;
 
 namespace Darkfall.World
 {
+    public enum DungeonGenerationStage : byte
+    {
+        Layout,
+        Repair,
+        SetPieces,
+        TileResolution,
+        Population,
+        Validation
+    }
+
+    [Serializable]
+    public sealed class DungeonGenerationInfo
+    {
+        public int depth;
+        public int seed;
+        public string strategy;
+        public int loopConnections;
+        public int repairOperations;
+    }
+
+    [Flags]
+    public enum DungeonCellSemantic : ushort
+    {
+        None = 0,
+        Floor = 1 << 0,
+        Room = 1 << 1,
+        Corridor = 1 << 2,
+        Arrival = 1 << 3,
+        Exit = 1 << 4,
+        Door = 1 << 5,
+        Stair = 1 << 6,
+        Portal = 1 << 7,
+        Hazard = 1 << 8,
+        Light = 1 << 9,
+        NoDecor = 1 << 10,
+        EventReserved = 1 << 11
+    }
+
     public enum DungeonRoomTheme
     {
         None,
@@ -150,12 +188,14 @@ namespace Darkfall.World
         private readonly bool[,] visible;
         private readonly bool[,] obstacles;
         private readonly byte[,] elevation;
+        private readonly DungeonCellSemantic[,] semantics;
         private readonly Dictionary<int, Rect> dynamicObstacles = new Dictionary<int, Rect>();
         private readonly List<Rect> architectureObstacles = new List<Rect>();
         private int nextDynamicObstacleId = 1;
         private readonly List<DungeonLightSource> lightSources = new List<DungeonLightSource>();
         private readonly List<DungeonArchitectureFeature> architecture = new List<DungeonArchitectureFeature>();
         private readonly List<DungeonHazardCell> hazards = new List<DungeonHazardCell>();
+        private readonly bool[] completedStages = new bool[Enum.GetValues(typeof(DungeonGenerationStage)).Length];
         public int Width { get; }
         public int Height { get; }
         public IReadOnlyList<DungeonRoom> Rooms { get; }
@@ -164,6 +204,16 @@ namespace Darkfall.World
         public IReadOnlyList<DungeonHazardCell> Hazards => hazards;
         public Vector2Int StartCell => Rooms[0].Center;
         public Vector2Int ExitCell => Rooms[Rooms.Count - 1].Center;
+        public DungeonGenerationInfo GenerationInfo { get; private set; }
+        public DungeonGenerationStage NextGenerationStage
+        {
+            get
+            {
+                for (var i = 0; i < completedStages.Length; i++)
+                    if (!completedStages[i]) return (DungeonGenerationStage)i;
+                return DungeonGenerationStage.Validation;
+            }
+        }
 
         public DungeonData(bool[,] floor, List<DungeonRoom> rooms)
         {
@@ -174,12 +224,78 @@ namespace Darkfall.World
             visible = new bool[Width, Height];
             obstacles = new bool[Width, Height];
             elevation = new byte[Width, Height];
+            semantics = new DungeonCellSemantic[Width, Height];
             Rooms = rooms;
+            InitializeSemantics(rooms);
+        }
+
+        private void InitializeSemantics(IReadOnlyList<DungeonRoom> rooms)
+        {
+            for (var x = 0; x < Width; x++)
+            for (var y = 0; y < Height; y++)
+                if (floor[x, y]) semantics[x, y] = DungeonCellSemantic.Floor | DungeonCellSemantic.Corridor;
+
+            for (var roomIndex = 0; roomIndex < rooms.Count; roomIndex++)
+            {
+                var bounds = rooms[roomIndex].bounds;
+                for (var x = bounds.xMin; x < bounds.xMax; x++)
+                for (var y = bounds.yMin; y < bounds.yMax; y++)
+                {
+                    if (!IsFloor(x, y)) continue;
+                    semantics[x, y] &= ~DungeonCellSemantic.Corridor;
+                    semantics[x, y] |= DungeonCellSemantic.Room;
+                    if (roomIndex == 0)
+                        semantics[x, y] |= DungeonCellSemantic.Arrival | DungeonCellSemantic.NoDecor;
+                    else if (roomIndex == rooms.Count - 1)
+                        semantics[x, y] |= DungeonCellSemantic.Exit | DungeonCellSemantic.NoDecor;
+                }
+            }
+            MarkSemantic(StartCell, DungeonCellSemantic.Arrival | DungeonCellSemantic.NoDecor);
+            MarkSemantic(ExitCell, DungeonCellSemantic.Exit | DungeonCellSemantic.Portal | DungeonCellSemantic.NoDecor);
         }
 
         public bool IsFloor(int x, int y)
         {
             return x >= 0 && y >= 0 && x < Width && y < Height && floor[x, y];
+        }
+
+        public DungeonCellSemantic SemanticsAt(int x, int y) =>
+            x >= 0 && y >= 0 && x < Width && y < Height ? semantics[x, y] : DungeonCellSemantic.None;
+
+        public DungeonCellSemantic SemanticsAt(Vector2Int cell) => SemanticsAt(cell.x, cell.y);
+
+        public bool HasSemantic(int x, int y, DungeonCellSemantic value) =>
+            (SemanticsAt(x, y) & value) == value;
+
+        public bool HasSemantic(Vector2Int cell, DungeonCellSemantic value) =>
+            HasSemantic(cell.x, cell.y, value);
+
+        public bool HasCompletedStage(DungeonGenerationStage stage) => completedStages[(int)stage];
+
+        internal void CompleteGenerationStage(DungeonGenerationStage stage)
+        {
+            var index = (int)stage;
+            if (completedStages[index]) return;
+            for (var previous = 0; previous < index; previous++)
+                if (!completedStages[previous])
+                    throw new InvalidOperationException(
+                        $"Dungeon generation stage {stage} cannot run before {(DungeonGenerationStage)previous}.");
+            completedStages[index] = true;
+        }
+
+        internal void SetGenerationInfo(DungeonGenerationInfo info) => GenerationInfo = info;
+
+        internal void MarkSemantic(Vector2Int cell, DungeonCellSemantic value)
+        {
+            if (cell.x < 0 || cell.y < 0 || cell.x >= Width || cell.y >= Height) return;
+            semantics[cell.x, cell.y] |= value;
+        }
+
+        internal void ReserveArea(RectInt area, DungeonCellSemantic reservation)
+        {
+            for (var x = Mathf.Max(0, area.xMin); x < Mathf.Min(Width, area.xMax); x++)
+            for (var y = Mathf.Max(0, area.yMin); y < Mathf.Min(Height, area.yMax); y++)
+                if (IsFloor(x, y)) semantics[x, y] |= reservation;
         }
 
         public bool IsExplored(int x, int y) =>
@@ -188,7 +304,20 @@ namespace Darkfall.World
         public bool IsVisible(int x, int y) =>
             x >= 0 && y >= 0 && x < Width && y < Height && visible[x, y];
 
-        public bool BlocksVision(int x, int y) => !IsFloor(x, y) || obstacles[x, y];
+        public bool BlocksVision(int x, int y) => BlocksVision(new Vector2(x + .5f, y + .5f));
+
+        public bool BlocksVision(Vector2 point)
+        {
+            var x = Mathf.FloorToInt(point.x);
+            var y = Mathf.FloorToInt(point.y);
+            if (!IsFloor(x, y)) return true;
+            // Gameplay props use the cell obstacle grid for collision, but a sarcophagus, statue
+            // or altar must not turn the whole Nox visibility polygon into a black wall. Only
+            // authored architecture and currently closed dynamic doors occlude sight.
+            foreach (var obstacle in dynamicObstacles.Values)
+                if (obstacle.Contains(point)) return true;
+            return false;
+        }
 
         public bool TryAddObstaclePreservingRoutes(Vector2 position)
         {
@@ -239,11 +368,23 @@ namespace Darkfall.World
         public void AddLightSource(Vector2 position, Color color, float radius, float flicker = .1f)
         {
             lightSources.Add(new DungeonLightSource(position, color, radius, flicker));
+            MarkSemantic(Vector2Int.FloorToInt(position), DungeonCellSemantic.Light);
         }
 
-        internal void AddArchitecture(DungeonArchitectureFeature feature) => architecture.Add(feature);
+        internal void AddArchitecture(DungeonArchitectureFeature feature)
+        {
+            architecture.Add(feature);
+            var semantic = feature.Kind == DungeonArchitectureKind.ElevationStairs
+                ? DungeonCellSemantic.Stair | DungeonCellSemantic.NoDecor
+                : DungeonCellSemantic.Door | DungeonCellSemantic.NoDecor;
+            MarkSemantic(Vector2Int.FloorToInt(feature.Position), semantic);
+        }
 
-        internal void AddHazard(DungeonHazardCell hazard) => hazards.Add(hazard);
+        internal void AddHazard(DungeonHazardCell hazard)
+        {
+            hazards.Add(hazard);
+            MarkSemantic(hazard.Cell, DungeonCellSemantic.Hazard | DungeonCellSemantic.NoDecor);
+        }
 
         public float HazardDamageAt(Vector2 point)
         {

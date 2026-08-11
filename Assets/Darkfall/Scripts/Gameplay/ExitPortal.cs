@@ -79,18 +79,17 @@ namespace Darkfall.Gameplay
             if (Active == null || target == null ||
                 Vector2.Distance(Active.transform.position, target.transform.position) > 1.45f)
                 return false;
-            Active.Enter();
-            return true;
+            return Active.Enter();
         }
 
         public static float DistanceToNearest(PlayerController target) =>
             Active == null || target == null ? float.MaxValue : Vector2.Distance(Active.transform.position, target.transform.position);
 
-        private void Enter()
+        private bool Enter()
         {
-            if (entered) return;
+            if (entered || GameManager.Instance == null || !GameManager.Instance.CompleteLevel()) return false;
             entered = true;
-            GameManager.Instance.CompleteLevel();
+            return true;
         }
 
         private void Update()
