@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Darkfall.World
 {
@@ -8,26 +9,26 @@ namespace Darkfall.World
         {
             if (dungeon == null) return;
             var placed = 0;
-            for (var roomIndex = 1; roomIndex < dungeon.Rooms.Count - 1 && placed < 6; roomIndex++)
+            var usedKinds = new HashSet<DungeonMiniSetKind>();
+            var roomCount = Mathf.Max(1, dungeon.Rooms.Count - 2);
+            var start = StableScore(0, seed ^ 0x4D1A1) % roomCount;
+            for (var offset = 0; offset < roomCount && placed < 6; offset++)
             {
+                var roomIndex = 1 + (start + offset) % roomCount;
                 var room = dungeon.Rooms[roomIndex];
                 var bounds = room.bounds;
                 if (bounds.width < 5 || bounds.height < 5) continue;
                 var selector = StableScore(roomIndex, seed) % 8;
-                var kind = selector == 0 ? DungeonMiniSetKind.StatueNiche :
-                    selector == 1 ? DungeonMiniSetKind.RuinedCorner :
-                    selector == 2 ? DungeonMiniSetKind.Colonnade :
-                    selector == 3 ? DungeonMiniSetKind.RubbleBlock :
-                    selector == 4 ? DungeonMiniSetKind.Campfire :
-                    selector == 5 ? DungeonMiniSetKind.Altar :
-                    selector == 6 ? DungeonMiniSetKind.SideChapel : DungeonMiniSetKind.CollapsedWall;
+                if (!TrySelectKind(room, selector, usedKinds, out var kind)) continue;
                 var size = kind == DungeonMiniSetKind.Colonnade || kind == DungeonMiniSetKind.SideChapel ? 5 : 3;
                 if (bounds.width < size + 1 || bounds.height < size + 1) continue;
                 var anchor = AnchorFor(kind, bounds, selector);
                 var cell = Vector2Int.FloorToInt(anchor);
                 var half = size / 2;
                 var mask = new RectInt(cell.x - half, cell.y - half, size, size);
-                if (dungeon.TryReserveMiniSet(kind, roomIndex, mask, dungeon.CellCenter(cell))) placed++;
+                if (!dungeon.TryReserveMiniSet(kind, roomIndex, mask, dungeon.CellCenter(cell))) continue;
+                usedKinds.Add(kind);
+                placed++;
             }
 
             foreach (var hazard in dungeon.Hazards)
@@ -39,6 +40,40 @@ namespace Darkfall.World
                 dungeon.TryReserveMiniSet(DungeonMiniSetKind.HazardBridge, roomIndex,
                     new RectInt(cell.x - 1, cell.y - 1, 3, 3), dungeon.CellCenter(cell), true);
             }
+        }
+
+        private static bool TrySelectKind(DungeonRoom room, int selector,
+            HashSet<DungeonMiniSetKind> used, out DungeonMiniSetKind result)
+        {
+            // Room role narrows the visual grammar before deterministic variation is applied.
+            // This turns mini-sets into contextual compositions instead of scattered props.
+            DungeonMiniSetKind[] pool;
+            if (room.theme == DungeonRoomTheme.Shrine)
+                pool = new[] { DungeonMiniSetKind.SideChapel, DungeonMiniSetKind.StatueNiche,
+                    DungeonMiniSetKind.Altar };
+            else if (room.theme == DungeonRoomTheme.Reliquary)
+                pool = new[] { DungeonMiniSetKind.RuinedCorner, DungeonMiniSetKind.RubbleBlock,
+                    DungeonMiniSetKind.CollapsedWall };
+            else if (room.theme == DungeonRoomTheme.Ossuary)
+                pool = new[] { DungeonMiniSetKind.Colonnade, DungeonMiniSetKind.StatueNiche,
+                    DungeonMiniSetKind.RuinedCorner };
+            else if (room.theme == DungeonRoomTheme.Ritual)
+                pool = new[] { DungeonMiniSetKind.Campfire, DungeonMiniSetKind.Colonnade,
+                    DungeonMiniSetKind.CollapsedWall };
+            else
+                pool = new[] { DungeonMiniSetKind.RuinedCorner, DungeonMiniSetKind.RubbleBlock,
+                    DungeonMiniSetKind.Campfire, DungeonMiniSetKind.CollapsedWall,
+                    DungeonMiniSetKind.StatueNiche };
+
+            for (var step = 0; step < pool.Length; step++)
+            {
+                var candidate = pool[(selector + step) % pool.Length];
+                if (used.Contains(candidate)) continue;
+                result = candidate;
+                return true;
+            }
+            result = default;
+            return false;
         }
 
         private static Vector2 AnchorFor(DungeonMiniSetKind kind, RectInt bounds, int selector)

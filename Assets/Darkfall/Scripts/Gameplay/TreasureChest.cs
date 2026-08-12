@@ -12,15 +12,18 @@ namespace Darkfall.Gameplay
         private PlayerController player;
         private SpriteRenderer spriteRenderer;
         private bool resolved;
+        private bool guaranteedMimic;
         public readonly ItemInstance[] Items = new ItemInstance[12];
 
-        public static TreasureChest Spawn(Vector2 position, PlayerController target)
+        public static TreasureChest Spawn(Vector2 position, PlayerController target,
+            bool guaranteedReward = false, bool guaranteedMimic = false)
         {
             var chestObject = new GameObject("Treasure Chest");
             if (GameManager.Instance?.LevelRoot != null) chestObject.transform.SetParent(GameManager.Instance.LevelRoot);
             chestObject.transform.position = position;
             var chest = chestObject.AddComponent<TreasureChest>();
             chest.player = target;
+            chest.guaranteedMimic = guaranteedMimic;
             var visual = new GameObject("Chest Visual");
             visual.transform.SetParent(chestObject.transform, false);
             chest.spriteRenderer = visual.AddComponent<SpriteRenderer>();
@@ -50,6 +53,19 @@ namespace Darkfall.Gameplay
                         };
                         break;
                     }
+            if (guaranteedReward)
+            {
+                chest.Items[0] ??= InventorySystem.GenerateLoot(GameManager.Instance.Depth);
+                chest.Items[1] = new ItemInstance
+                {
+                    id = "vault_gold_" + Random.Range(1000, 9999),
+                    baseId = "gold_pouch",
+                    name = "Клад катакомб",
+                    description = "Награда из запечатанной сокровищницы",
+                    kind = ItemKind.Gold,
+                    quantity = Mathf.Max(12, 8 + GameManager.Instance.Depth * 7)
+                };
+            }
             Active.Add(chest);
             return chest;
         }
@@ -87,7 +103,7 @@ namespace Darkfall.Gameplay
             if (!resolved)
             {
                 resolved = true;
-                if (allowMimic && Random.value < MimicChance)
+                if (allowMimic && (guaranteedMimic || Random.value < MimicChance))
                 {
                     Active.Remove(this);
                     gameObject.SetActive(false);

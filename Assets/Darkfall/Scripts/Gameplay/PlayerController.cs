@@ -394,7 +394,9 @@ namespace Darkfall.Gameplay
                     CombatVfx.SpawnStatus(transform, StatusVisualStyle.ArcaneCharge, .65f, 1.35f);
                     var enemies = EnemyController.Snapshot();
                     for (var i = 0; i < enemies.Count; i++)
-                        if (enemies[i] != null && Vector2.Distance(transform.position, enemies[i].transform.position) <= 4f)
+                        if (enemies[i] != null &&
+                            dungeon.SharesCombatElevation(transform.position, enemies[i].transform.position) &&
+                            Vector2.Distance(transform.position, enemies[i].transform.position) <= 4f)
                         {
                             enemies[i].TakeDamage(40f);
                             CombatVfx.SpawnImpact(enemies[i].transform.position, ProjectileVisualStyle.Arcane,

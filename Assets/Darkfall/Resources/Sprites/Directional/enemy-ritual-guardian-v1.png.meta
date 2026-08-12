@@ -1,0 +1,1495 @@
+fileFormatVersion: 2
+guid: 266f2efb26ad04d4bb0ad10e9f75472c
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2742461178551923069
+    second: enemy-ritual-guardian-v1_0
+  - first:
+      213: 6876563742953216480
+    second: enemy-ritual-guardian-v1_1
+  - first:
+      213: -578183531428516000
+    second: enemy-ritual-guardian-v1_2
+  - first:
+      213: 2572546196371549175
+    second: enemy-ritual-guardian-v1_3
+  - first:
+      213: 1226973563944502908
+    second: enemy-ritual-guardian-v1_4
+  - first:
+      213: 225344092977738611
+    second: enemy-ritual-guardian-v1_5
+  - first:
+      213: -591617474839605017
+    second: enemy-ritual-guardian-v1_6
+  - first:
+      213: 3232125558684128611
+    second: enemy-ritual-guardian-v1_7
+  - first:
+      213: 7919613012677220047
+    second: enemy-ritual-guardian-v1_8
+  - first:
+      213: -6618419742455244614
+    second: enemy-ritual-guardian-v1_9
+  - first:
+      213: 5643901742703161916
+    second: enemy-ritual-guardian-v1_10
+  - first:
+      213: 7052130416215390626
+    second: enemy-ritual-guardian-v1_11
+  - first:
+      213: 7684042826520275969
+    second: enemy-ritual-guardian-v1_12
+  - first:
+      213: 2138862934400699853
+    second: enemy-ritual-guardian-v1_13
+  - first:
+      213: -4409094462316375746
+    second: enemy-ritual-guardian-v1_14
+  - first:
+      213: -7023478568131484334
+    second: enemy-ritual-guardian-v1_15
+  - first:
+      213: 4976181599660170099
+    second: enemy-ritual-guardian-v1_16
+  - first:
+      213: -4147423594461927416
+    second: enemy-ritual-guardian-v1_17
+  - first:
+      213: 2416616860109126918
+    second: enemy-ritual-guardian-v1_18
+  - first:
+      213: 4760803257639386972
+    second: enemy-ritual-guardian-v1_19
+  - first:
+      213: -6654102474665596431
+    second: enemy-ritual-guardian-v1_20
+  - first:
+      213: -7519569468457385061
+    second: enemy-ritual-guardian-v1_21
+  - first:
+      213: 6336747595541368588
+    second: enemy-ritual-guardian-v1_22
+  - first:
+      213: 7833473684831547403
+    second: enemy-ritual-guardian-v1_23
+  - first:
+      213: -7602398468252551566
+    second: enemy-ritual-guardian-v1_24
+  - first:
+      213: -8907223737210754378
+    second: enemy-ritual-guardian-v1_25
+  - first:
+      213: -1466576141079395190
+    second: enemy-ritual-guardian-v1_26
+  - first:
+      213: 7748919346996793362
+    second: enemy-ritual-guardian-v1_27
+  - first:
+      213: 2954522161026902513
+    second: enemy-ritual-guardian-v1_28
+  - first:
+      213: -7309197784484361128
+    second: enemy-ritual-guardian-v1_29
+  - first:
+      213: -5018294956936101281
+    second: enemy-ritual-guardian-v1_30
+  - first:
+      213: 1546633137435999166
+    second: enemy-ritual-guardian-v1_31
+  - first:
+      213: -2168732385100934840
+    second: enemy-ritual-guardian-v1_32
+  - first:
+      213: -745186859829833825
+    second: enemy-ritual-guardian-v1_33
+  - first:
+      213: -5585937442200246328
+    second: enemy-ritual-guardian-v1_34
+  - first:
+      213: -3732512911005604191
+    second: enemy-ritual-guardian-v1_35
+  - first:
+      213: -4661983294386376162
+    second: enemy-ritual-guardian-v1_36
+  - first:
+      213: 2017136698410197001
+    second: enemy-ritual-guardian-v1_37
+  - first:
+      213: 2950537882823432146
+    second: enemy-ritual-guardian-v1_38
+  - first:
+      213: 1663828512059105047
+    second: enemy-ritual-guardian-v1_39
+  - first:
+      213: 4761985991686140405
+    second: enemy-ritual-guardian-v1_40
+  - first:
+      213: 6779796089346421217
+    second: enemy-ritual-guardian-v1_41
+  - first:
+      213: 963828782237086508
+    second: enemy-ritual-guardian-v1_42
+  - first:
+      213: 5851687133156777392
+    second: enemy-ritual-guardian-v1_43
+  - first:
+      213: -3071173663990887436
+    second: enemy-ritual-guardian-v1_44
+  - first:
+      213: 7174014077471366780
+    second: enemy-ritual-guardian-v1_45
+  - first:
+      213: 4991330878730000360
+    second: enemy-ritual-guardian-v1_46
+  - first:
+      213: -1182420821888868279
+    second: enemy-ritual-guardian-v1_47
+  - first:
+      213: -7102164341441151043
+    second: enemy-ritual-guardian-v1_48
+  - first:
+      213: 8138126648593281898
+    second: enemy-ritual-guardian-v1_49
+  - first:
+      213: -5499884144624463673
+    second: enemy-ritual-guardian-v1_50
+  - first:
+      213: 6081678102203705519
+    second: enemy-ritual-guardian-v1_51
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_0
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 1566
+        width: 218
+        height: 435
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38e0d1a9612d0f9d0800000000000000
+      internalID: -2742461178551923069
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_1
+      rect:
+        serializedVersion: 2
+        x: 528
+        y: 1566
+        width: 218
+        height: 435
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e99e066a467e6f50800000000000000
+      internalID: 6876563742953216480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_2
+      rect:
+        serializedVersion: 2
+        x: 901
+        y: 1626
+        width: 221
+        height: 422
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06fe83a3421e9f7f0800000000000000
+      internalID: -578183531428516000
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_3
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 1566
+        width: 218
+        height: 435
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fb220bb22583b320800000000000000
+      internalID: 2572546196371549175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_4
+      rect:
+        serializedVersion: 2
+        x: 1669
+        y: 1626
+        width: 221
+        height: 422
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7605b3a4f5170110800000000000000
+      internalID: 1226973563944502908
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_5
+      rect:
+        serializedVersion: 2
+        x: 2064
+        y: 1566
+        width: 218
+        height: 435
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 373bb263245902300800000000000000
+      internalID: 225344092977738611
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_6
+      rect:
+        serializedVersion: 2
+        x: 2437
+        y: 1626
+        width: 221
+        height: 422
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e095498a072ac7f0800000000000000
+      internalID: -591617474839605017
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_7
+      rect:
+        serializedVersion: 2
+        x: 2832
+        y: 1566
+        width: 218
+        height: 435
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36514d23211dadc20800000000000000
+      internalID: 3232125558684128611
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_8
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 1535
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc6df2b331e18ed60800000000000000
+      internalID: 7919613012677220047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_9
+      rect:
+        serializedVersion: 2
+        x: 703
+        y: 1535
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab8d5846f46a624a0800000000000000
+      internalID: -6618419742455244614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_10
+      rect:
+        serializedVersion: 2
+        x: 845
+        y: 1122
+        width: 238
+        height: 415
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c32b7097bba235e40800000000000000
+      internalID: 5643901742703161916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_11
+      rect:
+        serializedVersion: 2
+        x: 1471
+        y: 1535
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a9fe30ff333ed160800000000000000
+      internalID: 7052130416215390626
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_12
+      rect:
+        serializedVersion: 2
+        x: 1613
+        y: 1122
+        width: 238
+        height: 415
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10c21a92d3433aa60800000000000000
+      internalID: 7684042826520275969
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_13
+      rect:
+        serializedVersion: 2
+        x: 2239
+        y: 1535
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dcd0434b184cead10800000000000000
+      internalID: 2138862934400699853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_14
+      rect:
+        serializedVersion: 2
+        x: 2381
+        y: 1122
+        width: 238
+        height: 415
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e319d7862ffbfc2c0800000000000000
+      internalID: -4409094462316375746
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_15
+      rect:
+        serializedVersion: 2
+        x: 3007
+        y: 1535
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25524fa4477978e90800000000000000
+      internalID: -7023478568131484334
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_16
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 1049
+        width: 225
+        height: 446
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37b5499ccc2fe0540800000000000000
+      internalID: 4976181599660170099
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_17
+      rect:
+        serializedVersion: 2
+        x: 494
+        y: 1049
+        width: 225
+        height: 446
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 808e50ff6346176c0800000000000000
+      internalID: -4147423594461927416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_18
+      rect:
+        serializedVersion: 2
+        x: 1262
+        y: 1049
+        width: 225
+        height: 446
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60d36010b3c898120800000000000000
+      internalID: 2416616860109126918
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_19
+      rect:
+        serializedVersion: 2
+        x: 2030
+        y: 1049
+        width: 225
+        height: 446
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5f3e19c655c11240800000000000000
+      internalID: 4760803257639386972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_20
+      rect:
+        serializedVersion: 2
+        x: 2798
+        y: 1049
+        width: 225
+        height: 446
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f96282ed01e7a3a0800000000000000
+      internalID: -6654102474665596431
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_21
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 1023
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9389b8a86f15a790800000000000000
+      internalID: -7519569468457385061
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_22
+      rect:
+        serializedVersion: 2
+        x: 669
+        y: 1023
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0fcd875d56a0f750800000000000000
+      internalID: 6336747595541368588
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_23
+      rect:
+        serializedVersion: 2
+        x: 783
+        y: 614
+        width: 219
+        height: 411
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0031c510d616bc60800000000000000
+      internalID: 7833473684831547403
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_24
+      rect:
+        serializedVersion: 2
+        x: 1437
+        y: 1023
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27635d25fdade7690800000000000000
+      internalID: -7602398468252551566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_25
+      rect:
+        serializedVersion: 2
+        x: 1551
+        y: 614
+        width: 219
+        height: 411
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ba20a8143f236480800000000000000
+      internalID: -8907223737210754378
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_26
+      rect:
+        serializedVersion: 2
+        x: 2205
+        y: 1023
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8446ea15cca5abe0800000000000000
+      internalID: -1466576141079395190
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_27
+      rect:
+        serializedVersion: 2
+        x: 2319
+        y: 614
+        width: 219
+        height: 411
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21055ee2711b98b60800000000000000
+      internalID: 7748919346996793362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_28
+      rect:
+        serializedVersion: 2
+        x: 2973
+        y: 1023
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f927017042900920800000000000000
+      internalID: 2954522161026902513
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_29
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 541
+        width: 200
+        height: 443
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85cccbe3753809a90800000000000000
+      internalID: -7309197784484361128
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_30
+      rect:
+        serializedVersion: 2
+        x: 404
+        y: 541
+        width: 200
+        height: 443
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5280b1235f6b5ab0800000000000000
+      internalID: -5018294956936101281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_31
+      rect:
+        serializedVersion: 2
+        x: 1172
+        y: 541
+        width: 200
+        height: 443
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebb78b2e4aeb67510800000000000000
+      internalID: 1546633137435999166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_32
+      rect:
+        serializedVersion: 2
+        x: 1940
+        y: 541
+        width: 200
+        height: 443
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8415c2dd26d17e1e0800000000000000
+      internalID: -2168732385100934840
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_33
+      rect:
+        serializedVersion: 2
+        x: 2708
+        y: 541
+        width: 200
+        height: 443
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9fcd88cf7098a5f0800000000000000
+      internalID: -745186859829833825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_34
+      rect:
+        serializedVersion: 2
+        x: 211
+        y: 511
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c7a91ced73ca72b0800000000000000
+      internalID: -5585937442200246328
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_35
+      rect:
+        serializedVersion: 2
+        x: 595
+        y: 511
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a6a3fb7843733cc0800000000000000
+      internalID: -3732512911005604191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_36
+      rect:
+        serializedVersion: 2
+        x: 823
+        y: 92
+        width: 231
+        height: 421
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e127b4dd4ee4d4fb0800000000000000
+      internalID: -4661983294386376162
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_37
+      rect:
+        serializedVersion: 2
+        x: 1363
+        y: 511
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 900e424d32f4efb10800000000000000
+      internalID: 2017136698410197001
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_38
+      rect:
+        serializedVersion: 2
+        x: 1591
+        y: 92
+        width: 231
+        height: 421
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d71602629a62f820800000000000000
+      internalID: 2950537882823432146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_39
+      rect:
+        serializedVersion: 2
+        x: 2131
+        y: 511
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71f1374673b171710800000000000000
+      internalID: 1663828512059105047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_40
+      rect:
+        serializedVersion: 2
+        x: 2359
+        y: 92
+        width: 231
+        height: 421
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f1b6d38709f51240800000000000000
+      internalID: 4761985991686140405
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_41
+      rect:
+        serializedVersion: 2
+        x: 2899
+        y: 511
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e173135f9ca61e50800000000000000
+      internalID: 6779796089346421217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_42
+      rect:
+        serializedVersion: 2
+        x: 76
+        y: 40
+        width: 219
+        height: 432
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c23f98dbb25306d00800000000000000
+      internalID: 963828782237086508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_43
+      rect:
+        serializedVersion: 2
+        x: 460
+        y: 40
+        width: 219
+        height: 432
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0bd988ca17e553150800000000000000
+      internalID: 5851687133156777392
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_44
+      rect:
+        serializedVersion: 2
+        x: 1228
+        y: 40
+        width: 219
+        height: 432
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fbc94a03dff065d0800000000000000
+      internalID: -3071173663990887436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_45
+      rect:
+        serializedVersion: 2
+        x: 1996
+        y: 40
+        width: 219
+        height: 432
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7e155d3bc73f8360800000000000000
+      internalID: 7174014077471366780
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_46
+      rect:
+        serializedVersion: 2
+        x: 2764
+        y: 40
+        width: 219
+        height: 432
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e7d32f2df4c44540800000000000000
+      internalID: 4991330878730000360
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_47
+      rect:
+        serializedVersion: 2
+        x: 239
+        y: 0
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 940e948f682379fe0800000000000000
+      internalID: -1182420821888868279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_48
+      rect:
+        serializedVersion: 2
+        x: 623
+        y: 0
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dbf34fb092b007d90800000000000000
+      internalID: -7102164341441151043
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_49
+      rect:
+        serializedVersion: 2
+        x: 1391
+        y: 0
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a63fa8ab11f60f070800000000000000
+      internalID: 8138126648593281898
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_50
+      rect:
+        serializedVersion: 2
+        x: 2159
+        y: 0
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c01bd5928c7ca3b0800000000000000
+      internalID: -5499884144624463673
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy-ritual-guardian-v1_51
+      rect:
+        serializedVersion: 2
+        x: 2927
+        y: 0
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa8af180306766450800000000000000
+      internalID: 6081678102203705519
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      enemy-ritual-guardian-v1_0: -2742461178551923069
+      enemy-ritual-guardian-v1_1: 6876563742953216480
+      enemy-ritual-guardian-v1_10: 5643901742703161916
+      enemy-ritual-guardian-v1_11: 7052130416215390626
+      enemy-ritual-guardian-v1_12: 7684042826520275969
+      enemy-ritual-guardian-v1_13: 2138862934400699853
+      enemy-ritual-guardian-v1_14: -4409094462316375746
+      enemy-ritual-guardian-v1_15: -7023478568131484334
+      enemy-ritual-guardian-v1_16: 4976181599660170099
+      enemy-ritual-guardian-v1_17: -4147423594461927416
+      enemy-ritual-guardian-v1_18: 2416616860109126918
+      enemy-ritual-guardian-v1_19: 4760803257639386972
+      enemy-ritual-guardian-v1_2: -578183531428516000
+      enemy-ritual-guardian-v1_20: -6654102474665596431
+      enemy-ritual-guardian-v1_21: -7519569468457385061
+      enemy-ritual-guardian-v1_22: 6336747595541368588
+      enemy-ritual-guardian-v1_23: 7833473684831547403
+      enemy-ritual-guardian-v1_24: -7602398468252551566
+      enemy-ritual-guardian-v1_25: -8907223737210754378
+      enemy-ritual-guardian-v1_26: -1466576141079395190
+      enemy-ritual-guardian-v1_27: 7748919346996793362
+      enemy-ritual-guardian-v1_28: 2954522161026902513
+      enemy-ritual-guardian-v1_29: -7309197784484361128
+      enemy-ritual-guardian-v1_3: 2572546196371549175
+      enemy-ritual-guardian-v1_30: -5018294956936101281
+      enemy-ritual-guardian-v1_31: 1546633137435999166
+      enemy-ritual-guardian-v1_32: -2168732385100934840
+      enemy-ritual-guardian-v1_33: -745186859829833825
+      enemy-ritual-guardian-v1_34: -5585937442200246328
+      enemy-ritual-guardian-v1_35: -3732512911005604191
+      enemy-ritual-guardian-v1_36: -4661983294386376162
+      enemy-ritual-guardian-v1_37: 2017136698410197001
+      enemy-ritual-guardian-v1_38: 2950537882823432146
+      enemy-ritual-guardian-v1_39: 1663828512059105047
+      enemy-ritual-guardian-v1_4: 1226973563944502908
+      enemy-ritual-guardian-v1_40: 4761985991686140405
+      enemy-ritual-guardian-v1_41: 6779796089346421217
+      enemy-ritual-guardian-v1_42: 963828782237086508
+      enemy-ritual-guardian-v1_43: 5851687133156777392
+      enemy-ritual-guardian-v1_44: -3071173663990887436
+      enemy-ritual-guardian-v1_45: 7174014077471366780
+      enemy-ritual-guardian-v1_46: 4991330878730000360
+      enemy-ritual-guardian-v1_47: -1182420821888868279
+      enemy-ritual-guardian-v1_48: -7102164341441151043
+      enemy-ritual-guardian-v1_49: 8138126648593281898
+      enemy-ritual-guardian-v1_5: 225344092977738611
+      enemy-ritual-guardian-v1_50: -5499884144624463673
+      enemy-ritual-guardian-v1_51: 6081678102203705519
+      enemy-ritual-guardian-v1_6: -591617474839605017
+      enemy-ritual-guardian-v1_7: 3232125558684128611
+      enemy-ritual-guardian-v1_8: 7919613012677220047
+      enemy-ritual-guardian-v1_9: -6618419742455244614
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -67,7 +67,7 @@ namespace Darkfall.Gameplay
                 case "scroll_ice_storm": foreach (var enemy in enemies) if (Near(enemy, player, 4.7f)) enemy.ApplySlow(.5f, 5); break;
                 case "scroll_lightning":
                     enemies.Sort((a, b) => Distance(a, player).CompareTo(Distance(b, player)));
-                    for (var i = 0; i < Mathf.Min(5, enemies.Count); i++) if (enemies[i] != null)
+                    for (var i = 0; i < Mathf.Min(5, enemies.Count); i++) if (SameElevation(enemies[i], player))
                     {
                         CombatVfx.SpawnLightning(player.transform.position, enemies[i].transform.position,
                             new Color(1f, .86f, .28f));
@@ -80,7 +80,7 @@ namespace Darkfall.Gameplay
                 case "scroll_clone": PlayerClone.Spawn(player, 20); break;
                 case "scroll_teleport": player.TeleportToRandomRoom(); break;
                 case "scroll_invisibility": player.ApplyTimedState(8, invisible: true); break;
-                case "scroll_time": foreach (var enemy in enemies) enemy.ApplySlow(.6f, 10); break;
+                case "scroll_time": foreach (var enemy in enemies) if (SameElevation(enemy, player)) enemy.ApplySlow(.6f, 10); break;
                 case "scroll_curse":
                     foreach (var enemy in enemies) if (Near(enemy, player, 6.25f))
                     {
@@ -93,10 +93,11 @@ namespace Darkfall.Gameplay
                         }
                     }
                     break;
-                case "scroll_chaos": foreach (var enemy in enemies) enemy.ApplyChaos(15); break;
-                case "scroll_fear": foreach (var enemy in enemies) enemy.ApplyFear(12); break;
+                case "scroll_chaos": foreach (var enemy in enemies) if (SameElevation(enemy, player)) enemy.ApplyChaos(15); break;
+                case "scroll_fear": foreach (var enemy in enemies) if (SameElevation(enemy, player)) enemy.ApplyFear(12); break;
                 case "scroll_smoke": player.ApplyTimedState(10, invisible: true); break;
                 case "scroll_meteor":
+                    enemies.RemoveAll(enemy => !SameElevation(enemy, player));
                     if (enemies.Count > 0)
                         player.StartCoroutine(Meteor(enemies[Random.Range(0, enemies.Count)].transform.position));
                     break;
@@ -116,10 +117,20 @@ namespace Darkfall.Gameplay
         }
 
         private static bool Near(EnemyController enemy, PlayerController player, float radius) =>
-            enemy != null && Vector2.Distance(enemy.transform.position, player.transform.position) <= radius;
+            SameElevation(enemy, player) &&
+            Vector2.Distance(enemy.transform.position, player.transform.position) <= radius;
+
+        private static bool SameElevation(EnemyController enemy, PlayerController player)
+        {
+            var dungeon = GameManager.Instance?.Dungeon;
+            return enemy != null && player != null &&
+                   (dungeon == null || dungeon.SharesCombatElevation(enemy.transform.position,
+                       player.transform.position));
+        }
 
         private static float Distance(EnemyController enemy, PlayerController player) =>
-            enemy == null ? float.MaxValue : Vector2.Distance(enemy.transform.position, player.transform.position);
+            !SameElevation(enemy, player) ? float.MaxValue :
+                Vector2.Distance(enemy.transform.position, player.transform.position);
 
         private static void DamageInRadius(System.Collections.Generic.IEnumerable<EnemyController> enemies, Vector2 point, float radius, float damage)
         {

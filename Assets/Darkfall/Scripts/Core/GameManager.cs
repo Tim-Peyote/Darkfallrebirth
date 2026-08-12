@@ -203,23 +203,31 @@ namespace Darkfall.Core
                 var enemyBudget = EnemyBudgetForDepth(Balance, Depth);
                 if (Dungeon.TryGetSetPiece(DungeonSetPieceKind.EliteArena, out var eliteArena) && enemyBudget > 0)
                 {
-                    SpawnEnemy(Vector2Int.FloorToInt(eliteArena.Anchor), false);
-                    enemyBudget--;
+                    var ritualTrap = SpawnRitualArenaTrap(eliteArena);
+                    enemyBudget -= SpawnSetPieceWave(eliteArena, Mathf.Min(3, enemyBudget), 1.15f,
+                        ritualTrap.RegisterGuardian);
+                }
+                if (Dungeon.TryGetSetPiece(DungeonSetPieceKind.EventRoom, out var eventRoom) && enemyBudget > 0)
+                {
+                    var ossuaryEvent = SpawnOssuaryEvent(eventRoom);
+                    enemyBudget -= SpawnSetPieceWave(eventRoom, Mathf.Min(2, enemyBudget), .92f,
+                        ossuaryEvent.RegisterKeeper);
                 }
                 for (var i = 0; i < enemyBudget; i++)
                 {
                     SpawnEnemy(PickSpawnCell(i), false);
                 }
                 var chestCount = Mathf.Clamp(1 + Depth / 4, 1, 4);
-                if (Dungeon.TryGetSetPiece(DungeonSetPieceKind.TreasureVault, out var treasureVault))
+                foreach (var setPiece in Dungeon.SetPieces)
                 {
-                    TreasureChest.Spawn(treasureVault.Anchor, Player);
-                    chestCount--;
+                    if (setPiece.Kind != DungeonSetPieceKind.TreasureVault) continue;
+                    TreasureChest.Spawn(setPiece.Anchor, Player, guaranteedReward: true);
+                    chestCount = Mathf.Max(0, chestCount - 1);
                 }
-                if (Dungeon.TryGetSetPiece(DungeonSetPieceKind.MimicLair, out var mimicLair) && chestCount > 0)
+                if (Dungeon.TryGetSetPiece(DungeonSetPieceKind.MimicLair, out var mimicLair))
                 {
-                    TreasureChest.Spawn(mimicLair.Anchor, Player);
-                    chestCount--;
+                    TreasureChest.Spawn(mimicLair.Anchor, Player, guaranteedMimic: true);
+                    chestCount = Mathf.Max(0, chestCount - 1);
                 }
                 for (var i = 0; i < chestCount; i++)
                     TreasureChest.Spawn(Dungeon.CellCenter(PickSpawnCell(enemyBudget + i + 3)), Player);
@@ -228,10 +236,67 @@ namespace Darkfall.Core
                 ? portalSetPiece.Anchor
                 : Dungeon.CellCenter(Dungeon.ExitCell);
             var portal = ExitPortal.Spawn(portalPosition, Player);
+            if (Dungeon.TryGetSetPiece(DungeonSetPieceKind.Shrine, out var shrine))
+                SpawnCatacombShrine(shrine);
             if (EnemyController.Count == 0) portal.Empower();
             Dungeon.CompleteGenerationStage(DungeonGenerationStage.Population);
             DungeonGenerationValidator.ValidateAndComplete(Dungeon);
             NotifyStatsChanged();
+        }
+
+        private RitualArenaTrap SpawnRitualArenaTrap(DungeonSetPiece arena)
+        {
+            var root = new GameObject("Scenario · Ritual Arena Trap");
+            root.transform.SetParent(levelRoot, false);
+            root.transform.position = arena.Anchor;
+            var trap = root.AddComponent<RitualArenaTrap>();
+            trap.Initialize(Dungeon, Player, Depth);
+            return trap;
+        }
+
+        private OssuaryEventScenario SpawnOssuaryEvent(DungeonSetPiece eventRoom)
+        {
+            var root = new GameObject("Scenario · Ossuary Event");
+            root.transform.SetParent(levelRoot, false);
+            root.transform.position = eventRoom.Anchor;
+            var scenario = root.AddComponent<OssuaryEventScenario>();
+            scenario.Initialize(Dungeon, Player);
+            return scenario;
+        }
+
+        private void SpawnCatacombShrine(DungeonSetPiece shrine)
+        {
+            var root = new GameObject("Scenario · Catacomb Shrine");
+            root.transform.SetParent(levelRoot, false);
+            root.transform.position = shrine.Anchor;
+            root.AddComponent<CatacombShrineScenario>().Initialize(Dungeon, Player);
+        }
+
+        private int SpawnSetPieceWave(DungeonSetPiece setPiece, int requested, float radius,
+            Action<EnemyController> onSpawned = null)
+        {
+            if (requested <= 0) return 0;
+            var spawned = 0;
+            // An authored room scenario uses a stable formation around its semantic anchor. The
+            // generic population pass consumes only the remaining budget afterwards.
+            var offsets = new[]
+            {
+                Vector2.zero, new Vector2(radius, 0f), new Vector2(-radius, 0f),
+                new Vector2(0f, radius), new Vector2(0f, -radius)
+            };
+            for (var i = 0; i < offsets.Length && spawned < requested; i++)
+            {
+                var point = setPiece.Anchor + offsets[i];
+                var cell = Vector2Int.FloorToInt(point);
+                if (!Dungeon.IsFloor(cell.x, cell.y) ||
+                    !Dungeon.CanOccupy(Dungeon.CellCenter(cell), .22f)) continue;
+                var enemy = SpawnEnemy(cell, false, setPiece.Kind);
+                if (setPiece.Kind == DungeonSetPieceKind.EliteArena)
+                    enemy.OverrideDirectionalSheet("enemy-ritual-guardian-v1");
+                onSpawned?.Invoke(enemy);
+                spawned++;
+            }
+            return spawned;
         }
 
         private Vector2Int PickSpawnCell(int index)
@@ -258,7 +323,7 @@ namespace Darkfall.Core
                 80);
         }
 
-        private void SpawnEnemy(Vector2Int cell, bool boss)
+        private EnemyController SpawnEnemy(Vector2Int cell, bool boss, DungeonSetPieceKind? scenario = null)
         {
             LegacyEnemy definition;
             if (boss)
@@ -278,15 +343,39 @@ namespace Darkfall.Core
                         eligible.Add(candidate);
                         if (candidate.biome == biome) local.Add(candidate);
                     }
-                // Signature inhabitants must be visible often enough to establish the biome, while
-                // shared undead still connect adjacent chapters into one underground ecosystem.
-                var pool = local.Count > 0 && UnityEngine.Random.value < .42f ? local : eligible;
-                definition = pool[UnityEngine.Random.Range(0, pool.Count)];
+                if (scenario == DungeonSetPieceKind.EventRoom)
+                {
+                    // Ossuaries tell their story through undead formations, not an unrelated
+                    // global random roll. Keep both melee and ranged skeleton silhouettes valid.
+                    var ossuary = eligible.FindAll(candidate =>
+                        candidate.type.StartsWith("Skeleton", StringComparison.OrdinalIgnoreCase));
+                    var pool = ossuary.Count > 0 ? ossuary : eligible;
+                    definition = pool[UnityEngine.Random.Range(0, pool.Count)];
+                }
+                else if (scenario == DungeonSetPieceKind.EliteArena)
+                {
+                    // An elite arena favours the biome signature; before it unlocks, select the
+                    // toughest eligible shared inhabitant instead of silently spawning fodder.
+                    var pool = local.Count > 0 ? local : eligible;
+                    definition = pool[0];
+                    for (var i = 1; i < pool.Count; i++)
+                        if (pool[i].hp + pool[i].damage * 2f > definition.hp + definition.damage * 2f)
+                            definition = pool[i];
+                }
+                else
+                {
+                    // Signature inhabitants must be visible often enough to establish the biome,
+                    // while shared undead connect adjacent chapters into one ecosystem.
+                    var pool = local.Count > 0 && UnityEngine.Random.value < .42f ? local : eligible;
+                    definition = pool[UnityEngine.Random.Range(0, pool.Count)];
+                }
             }
             var enemyObject = new GameObject(definition.type);
             enemyObject.transform.SetParent(levelRoot);
             enemyObject.transform.position = Dungeon.CellCenter(cell);
-            enemyObject.AddComponent<EnemyController>().Initialize(Dungeon, Player, Depth, boss, definition);
+            var controller = enemyObject.AddComponent<EnemyController>();
+            controller.Initialize(Dungeon, Player, Depth, boss, definition);
+            return controller;
         }
 
         public void SpawnSummonedSkeleton(Vector2 position)
@@ -644,6 +733,12 @@ namespace Darkfall.Core
                 "start/restart did not create a complete first floor");
             Check(EnemyController.Count == EnemyBudgetForDepth(Balance, 1),
                 "first floor did not spawn the expected active creep population");
+            Check(FindFirstObjectByType<RitualArenaTrap>() != null,
+                "Ritual arena did not create its authored trap scenario");
+            Check(FindFirstObjectByType<OssuaryEventScenario>() != null,
+                "Ossuary EventRoom did not create its authored altar scenario");
+            Check(FindFirstObjectByType<CatacombShrineScenario>() != null,
+                "Shrine room did not create its authored cleansing scenario");
             Check(Gold == 0 && Inventory != null && Inventory.Count("potion") == 0,
                 "new run did not reset economy and inventory");
 
@@ -704,8 +799,10 @@ namespace Darkfall.Core
                     LegacyCatalog.Item("potion"), Depth);
                 Check(validationChest.OpenForValidation() && InventoryUI.Instance != null && InventoryUI.Instance.IsOpen,
                     "ordinary chest did not open the inventory transfer view");
-                Check(validationChest.TakeTo(0, 0) && Inventory.Count("potion") == 1,
-                    "ordinary chest item did not transfer to the requested backpack slot");
+                var validationBackpackSlot = Array.FindIndex(Inventory.Slots, slot => slot == null);
+                Check(validationBackpackSlot >= 0 && validationChest.TakeTo(0, validationBackpackSlot) &&
+                      Inventory.Slots[validationBackpackSlot]?.baseId == "potion" && Inventory.Count("potion") == 1,
+                    "ordinary chest item did not transfer to the requested empty backpack slot");
                 InventoryUI.Instance?.Close();
                 Check(!IsPaused, "closing the chest inventory did not resume the run");
             }
@@ -759,7 +856,7 @@ namespace Darkfall.Core
 
             Application.logMessageReceived -= CaptureRuntimeFailure;
             if (failures.Count == 0)
-                Debug.Log("DARKFALL_RELEASE_SMOKE_PASS: start, chest, descent, sanctuary, shop, mimic, boss, biome transition, death and restart");
+                Debug.Log("DARKFALL_RELEASE_SMOKE_PASS: start, ritual arena, ossuary event, chest, descent, sanctuary, shop, mimic, boss, biome transition, death and restart");
             else
                 foreach (var failure in failures) Debug.LogError("DARKFALL_RELEASE_SMOKE_FAIL: " + failure);
 

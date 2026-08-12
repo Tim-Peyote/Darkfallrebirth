@@ -229,13 +229,48 @@ namespace Darkfall.Editor
                                         dungeon.TryGetSetPiece(DungeonSetPieceKind.Portal, out _) &&
                                         dungeon.TryGetSetPiece(DungeonSetPieceKind.Shrine, out _),
                         $"Seed {seed}: required Ashen set pieces are missing");
+                    var treasureVaults = 0;
+                    var hasEliteArena = false;
+                    var hasEventRoom = false;
+                    foreach (var setPiece in dungeon.SetPieces)
+                    {
+                        if (setPiece.Kind == DungeonSetPieceKind.TreasureVault) treasureVaults++;
+                        else if (setPiece.Kind == DungeonSetPieceKind.EliteArena) hasEliteArena = true;
+                        else if (setPiece.Kind == DungeonSetPieceKind.EventRoom) hasEventRoom = true;
+                        var anchorCell = Vector2Int.FloorToInt(setPiece.Anchor);
+                        failures += Require(dungeon.IsFloor(anchorCell.x, anchorCell.y),
+                            $"Seed {seed}: {setPiece.Kind} anchor is not on walkable floor");
+                        if (setPiece.Kind == DungeonSetPieceKind.EliteArena)
+                            failures += Require(dungeon.Rooms[setPiece.RoomIndex].theme == DungeonRoomTheme.Ritual,
+                                $"Seed {seed}: elite arena is not assigned to a Ritual room");
+                        if (setPiece.Kind == DungeonSetPieceKind.EventRoom)
+                            failures += Require(dungeon.Rooms[setPiece.RoomIndex].theme == DungeonRoomTheme.Ossuary,
+                                $"Seed {seed}: event encounter is not assigned to an Ossuary room");
+                    }
+                    failures += Require(treasureVaults > 0,
+                        $"Seed {seed}: Ashen Catacombs have no gameplay treasure vault");
+                    failures += Require(hasEliteArena,
+                        $"Seed {seed}: Ashen Catacombs have no elite arena encounter");
+                    failures += Require(hasEventRoom,
+                        $"Seed {seed}: Ashen Catacombs have no ossuary event encounter");
                     for (var first = 0; first < dungeon.SetPieces.Count; first++)
                     for (var second = first + 1; second < dungeon.SetPieces.Count; second++)
                         failures += Require(!dungeon.SetPieces[first].Mask.Overlaps(dungeon.SetPieces[second].Mask),
                             $"Seed {seed}: set-piece masks overlap");
                     foreach (var hazard in dungeon.Hazards)
-                        failures += Require(!dungeon.HasSemantic(hazard.Cell, DungeonCellSemantic.EventReserved),
-                            $"Seed {seed}: hazard overlaps a reserved set piece");
+                    {
+                        if (!dungeon.HasSemantic(hazard.Cell, DungeonCellSemantic.EventReserved)) continue;
+                        var authoredCrossing = false;
+                        foreach (var miniSet in dungeon.MiniSets)
+                            if (miniSet.Kind == DungeonMiniSetKind.HazardBridge &&
+                                miniSet.Mask.Contains(hazard.Cell))
+                            {
+                                authoredCrossing = true;
+                                break;
+                            }
+                        failures += Require(authoredCrossing,
+                            $"Seed {seed}: hazard overlaps a reserved feature outside its authored bridge crossing");
+                    }
                     failures += Require(dungeon.MiniSets.Count > 0,
                         $"Seed {seed}: Ashen Catacombs have no matched mini-sets");
                     for (var first = 0; first < dungeon.MiniSets.Count; first++)
@@ -590,6 +625,72 @@ namespace Darkfall.Editor
             Debug.Log("Darkfall Ashen Catacombs audit captured: " + output);
         }
 
+        [MenuItem("Darkfall/Capture Elevation Variants Audit")]
+        public static void CaptureElevationVariantsAudit()
+        {
+            var output = Path.GetFullPath("work/visual-audit/elevation");
+            Directory.CreateDirectory(output);
+            var balance = GameBalance.RuntimeDefault();
+            try
+            {
+                CaptureElevationVariant(output, balance, -1, 2, "descent-narrow");
+                CaptureElevationVariant(output, balance, -1, 3, "descent-wide");
+                CaptureElevationVariant(output, balance, 1, 2, "ascent-narrow");
+                CaptureElevationVariant(output, balance, 1, 3, "ascent-wide");
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(balance);
+            }
+            Debug.Log("Darkfall elevation variants audit captured: " + output);
+        }
+
+        private static void CaptureElevationVariant(string output, GameBalance balance, int requestedPlatformLevel,
+            int requestedWidth, string subject)
+        {
+            const int auditDepth = 9;
+            for (var seed = 73001; seed < 79001; seed++)
+            {
+                var dungeon = DungeonGenerator.Generate(balance, auditDepth, seed);
+                foreach (var feature in dungeon.Architecture)
+                {
+                    if (feature.Kind != DungeonArchitectureKind.ElevationStairs || feature.Width != requestedWidth)
+                        continue;
+                    var normal = feature.Vertical ? Vector2.right : Vector2.up;
+                    var negative = dungeon.ElevationLevel(
+                        Mathf.FloorToInt(feature.Position.x - normal.x * .25f),
+                        Mathf.FloorToInt(feature.Position.y - normal.y * .25f));
+                    var positive = dungeon.ElevationLevel(
+                        Mathf.FloorToInt(feature.Position.x + normal.x * .25f),
+                        Mathf.FloorToInt(feature.Position.y + normal.y * .25f));
+                    var platformLevel = negative != 0 ? negative : positive;
+                    if (platformLevel != requestedPlatformLevel) continue;
+
+                    var root = new GameObject("Elevation Variant Audit Root");
+                    root.AddComponent<DungeonView>().Build(dungeon, auditDepth);
+                    var ambient = new GameObject("Elevation Variant Audit Ambient").AddComponent<Light2D>();
+                    ambient.lightType = Light2D.LightType.Global;
+                    ambient.color = new Color(.40f, .39f, .36f);
+                    ambient.intensity = .84f;
+                    ambient.shadowsEnabled = false;
+
+                    var lowerDirection = negative < positive ? -normal : normal;
+                    CaptureAuditFrame(output, auditDepth, subject + $"-raw-seed-{seed}", feature.Position, 3.2f);
+                    var observer = new GameObject("Elevation Variant Audit Observer");
+                    observer.transform.position = feature.Position - lowerDirection * .72f;
+                    var veil = new GameObject("Elevation Variant Audit Veil").AddComponent<ElevationDepthVeil>();
+                    veil.Initialize(dungeon, observer.transform);
+                    CaptureAuditFrame(output, auditDepth, subject + $"-seed-{seed}", feature.Position, 3.2f);
+                    UnityEngine.Object.DestroyImmediate(veil.gameObject);
+                    UnityEngine.Object.DestroyImmediate(observer);
+                    UnityEngine.Object.DestroyImmediate(ambient.gameObject);
+                    UnityEngine.Object.DestroyImmediate(root);
+                    return;
+                }
+            }
+            throw new InvalidOperationException($"No elevation variant found: {subject}");
+        }
+
         private static void CaptureBiomeDepth(string output, int depth)
         {
                 var dungeon = DungeonGenerator.Generate(GameBalance.RuntimeDefault(), depth, 73000 + depth);
@@ -663,19 +764,33 @@ namespace Darkfall.Editor
                     break;
                 }
                 if (firstEvent != null) CaptureAuditFrame(output, depth, "event", firstEvent.position);
+                var setPieceCounters = new Dictionary<DungeonSetPieceKind, int>();
+                foreach (var setPiece in dungeon.SetPieces)
+                {
+                    if (setPiece.Kind != DungeonSetPieceKind.TreasureVault &&
+                        setPiece.Kind != DungeonSetPieceKind.EliteArena &&
+                        setPiece.Kind != DungeonSetPieceKind.EventRoom &&
+                        setPiece.Kind != DungeonSetPieceKind.MimicLair) continue;
+                    setPieceCounters.TryGetValue(setPiece.Kind, out var setPieceIndex);
+                    setPieceCounters[setPiece.Kind] = setPieceIndex + 1;
+                    CaptureAuditFrame(output, depth,
+                        $"setpiece-{setPiece.Kind.ToString().ToLowerInvariant()}-{setPieceIndex + 1}",
+                        setPiece.Anchor, 4.8f);
+                }
                 UnityEngine.Object.DestroyImmediate(elevationVeil.gameObject);
                 UnityEngine.Object.DestroyImmediate(elevationObserver);
                 UnityEngine.Object.DestroyImmediate(ambient.gameObject);
                 UnityEngine.Object.DestroyImmediate(root);
         }
 
-        private static void CaptureAuditFrame(string output, int depth, string subject, Vector2 logicalFocus)
+        private static void CaptureAuditFrame(string output, int depth, string subject, Vector2 logicalFocus,
+            float orthographicSize = -1f)
         {
             var projected = IsoWorld.Project(logicalFocus);
             var cameraObject = new GameObject("Visual Audit Camera · " + subject);
             var camera = cameraObject.AddComponent<Camera>();
             camera.orthographic = true;
-            camera.orthographicSize = subject == "event" ? 4.8f : 6.4f;
+            camera.orthographicSize = orthographicSize > 0f ? orthographicSize : subject == "event" ? 4.8f : 6.4f;
             camera.aspect = 16f / 9f;
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(.006f, .005f, .012f, 1f);

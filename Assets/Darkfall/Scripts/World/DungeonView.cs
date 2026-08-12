@@ -11,6 +11,7 @@ namespace Darkfall.World
         private readonly List<Mesh> meshes = new List<Mesh>();
         private readonly List<Material> materials = new List<Material>();
         private readonly List<Texture2D> runtimeTextures = new List<Texture2D>();
+        private readonly List<Sprite> runtimeSprites = new List<Sprite>();
         private DungeonVisualProfile profile;
         private Transform architectureDecor;
         private Transform structuralDecor;
@@ -73,21 +74,73 @@ namespace Darkfall.World
         {
             foreach (var setPiece in data.SetPieces)
             {
-                if (setPiece.Kind == DungeonSetPieceKind.Entrance ||
-                    setPiece.Kind == DungeonSetPieceKind.Portal ||
-                    setPiece.Kind == DungeonSetPieceKind.TreasureVault ||
-                    setPiece.Kind == DungeonSetPieceKind.MimicLair) continue;
-                var index = setPiece.Kind == DungeonSetPieceKind.Shrine ? 1 :
-                    setPiece.Kind == DungeonSetPieceKind.EliteArena ? 11 :
-                    setPiece.Kind == DungeonSetPieceKind.EventRoom ? 8 : 6;
-                CreateProp(data, index, setPiece.Anchor, setPiece.Mask.width >= 5 ? .92f : .78f,
-                    "Set Piece · " + setPiece.Kind, true, structuralDecor);
-                if (setPiece.Mask.width >= 5)
+                var label = "Set Piece · " + setPiece.Kind;
+                switch (setPiece.Kind)
                 {
-                    CreateProp(data, 5, setPiece.Anchor + Vector2.left * 1.55f, .48f,
-                        "Set Piece · " + setPiece.Kind + " Satellite", false, clutterDecor);
-                    CreateProp(data, 5, setPiece.Anchor + Vector2.right * 1.55f, .48f,
-                        "Set Piece · " + setPiece.Kind + " Satellite", false, clutterDecor);
+                    case DungeonSetPieceKind.Entrance:
+                        // Quiet, symmetric vigil around the landing. The centre and the line to
+                        // the safety door remain empty, so these marks orient rather than block.
+                        CreateProp(data, 2, setPiece.Anchor + new Vector2(-1.05f, .82f), .48f,
+                            label + " Vigil", false, lightDecor);
+                        CreateProp(data, 2, setPiece.Anchor + new Vector2(1.05f, .82f), .48f,
+                            label + " Vigil", false, lightDecor);
+                        CreateProp(data, 5, setPiece.Anchor + Vector2.down * .94f, .34f,
+                            label + " Threshold Offering", false, clutterDecor);
+                        break;
+                    case DungeonSetPieceKind.Portal:
+                        // The ExitPortal remains the sole interactable. Low non-blocking markers
+                        // frame it from behind and make the destination legible before empowerment.
+                        CreateProp(data, 5, setPiece.Anchor + new Vector2(-1.08f, .86f), .4f,
+                            label + " Pilgrim Remains", false, clutterDecor);
+                        CreateProp(data, 5, setPiece.Anchor + new Vector2(1.08f, .86f), .4f,
+                            label + " Pilgrim Remains", false, clutterDecor);
+                        CreateProp(data, 7, setPiece.Anchor + Vector2.up * 1.02f, .52f,
+                            label + " Seal", false, structuralDecor);
+                        break;
+                    case DungeonSetPieceKind.EliteArena:
+                        // Keep the centre clear for the encounter. Four braziers make the arena
+                        // legible from every entrance and provide its own combat-light rhythm.
+                        CreateProp(data, 2, setPiece.Anchor + new Vector2(-1.05f, -.72f), .58f,
+                            label + " Brazier", true, lightDecor);
+                        CreateProp(data, 2, setPiece.Anchor + new Vector2(1.05f, -.72f), .58f,
+                            label + " Brazier", true, lightDecor);
+                        CreateProp(data, 5, setPiece.Anchor + new Vector2(-.92f, .86f), .42f,
+                            label + " Remains", false, clutterDecor);
+                        CreateProp(data, 5, setPiece.Anchor + new Vector2(.92f, .86f), .42f,
+                            label + " Remains", false, clutterDecor);
+                        break;
+                    case DungeonSetPieceKind.EventRoom:
+                        // OssuaryEventScenario owns the animated altar at the semantic anchor.
+                        // Keep only the low offerings here so no generic prop overlaps it.
+                        CreateProp(data, 5, setPiece.Anchor + new Vector2(-1.02f, -.72f), .42f,
+                            label + " Offering", false, clutterDecor);
+                        CreateProp(data, 5, setPiece.Anchor + new Vector2(1.02f, -.72f), .42f,
+                            label + " Offering", false, clutterDecor);
+                        break;
+                    case DungeonSetPieceKind.TreasureVault:
+                        // The runtime chest owns the centre; authored storage frames it without
+                        // competing with the interactable or closing the room's only route.
+                        CreateProp(data, 4, setPiece.Anchor + Vector2.left * 1.02f, .54f,
+                            label + " Stores", true, structuralDecor);
+                        CreateProp(data, 4, setPiece.Anchor + Vector2.right * 1.02f, .54f,
+                            label + " Stores", true, structuralDecor);
+                        CreateProp(data, 10, setPiece.Anchor + Vector2.up * .94f, .48f,
+                            label + " Ledger", true, structuralDecor);
+                        break;
+                    case DungeonSetPieceKind.MimicLair:
+                        CreateProp(data, 5, setPiece.Anchor + Vector2.left * .92f, .5f,
+                            label + " Victims", false, clutterDecor);
+                        CreateProp(data, 5, setPiece.Anchor + Vector2.right * .92f, .5f,
+                            label + " Victims", false, clutterDecor);
+                        CreateProp(data, 7, setPiece.Anchor + Vector2.up * .82f, .58f,
+                            label + " Chains", false, structuralDecor);
+                        break;
+                    default:
+                        // CatacombShrineScenario owns the animated shrine at its semantic anchor.
+                        if (setPiece.Kind != DungeonSetPieceKind.Shrine)
+                            CreateProp(data, 6, setPiece.Anchor, setPiece.Mask.width >= 5 ? .92f : .78f,
+                                label, true, structuralDecor);
+                        break;
                 }
             }
         }
@@ -471,7 +524,97 @@ namespace Darkfall.World
             CreateLayer(mesh.name, mesh, material, -20);
             BuildRaisedFloorCaps(data);
             BuildElevationRisers(data);
+            BuildStairRamps(data);
             BuildElevationGuardrails(data);
+        }
+
+        private void BuildStairRamps(DungeonData data)
+        {
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            var colors = new List<Color>();
+            var uvs = new List<Vector2>();
+            foreach (var feature in data.Architecture)
+            {
+                if (feature.Kind != DungeonArchitectureKind.ElevationStairs) continue;
+                var normal = feature.Vertical ? Vector2.right : Vector2.up;
+                var tangent = feature.Vertical ? Vector2.up : Vector2.right;
+                var negative = data.ElevationLevel(
+                    Mathf.FloorToInt(feature.Position.x - normal.x * .25f),
+                    Mathf.FloorToInt(feature.Position.y - normal.y * .25f));
+                var positive = data.ElevationLevel(
+                    Mathf.FloorToInt(feature.Position.x + normal.x * .25f),
+                    Mathf.FloorToInt(feature.Position.y + normal.y * .25f));
+                if (negative == positive) continue;
+                var lowerDirection = negative < positive ? -normal : normal;
+                var lowerLevel = Mathf.Min(negative, positive);
+                var upperLevel = Mathf.Max(negative, positive);
+                // Raised platforms already use the authored exterior stair module. This composite
+                // mesh is the recessed counterpart and must never be drawn on top of that module.
+                if (lowerLevel >= 0) continue;
+                const float flightDepth = 1.42f;
+                // A 2/3-cell authored opening must also produce a 2/3-cell visual flight. The
+                // previous hard cap made the wide variant look like the same narrow ramp inside a
+                // larger hole.
+                var halfWidth = Mathf.Max(.68f, feature.Width * .5f - .12f);
+                var upperCenter = feature.Position;
+                var lowerCenter = feature.Position + lowerDirection * flightDepth;
+                var tint = Color.Lerp(profile.FloorTint, profile.WallTint, .32f) * .78f;
+                const int stepCount = 7;
+                for (var step = 0; step < stepCount; step++)
+                {
+                    var nearT = step / (float)stepCount;
+                    var farT = (step + 1f) / stepCount;
+                    var near = Vector2.Lerp(upperCenter, lowerCenter, nearT);
+                    var far = Vector2.Lerp(upperCenter, lowerCenter, farT);
+                    var height = Mathf.Lerp(upperLevel, lowerLevel, nearT) * DungeonData.ElevationStepHeight;
+                    var nextHeight = Mathf.Lerp(upperLevel, lowerLevel, farT) * DungeonData.ElevationStepHeight;
+                    var logical = new[]
+                    {
+                        near - tangent * halfWidth, near + tangent * halfWidth,
+                        far + tangent * halfWidth, far - tangent * halfWidth
+                    };
+                    var index = vertices.Count;
+                    for (var i = 0; i < logical.Length; i++)
+                    {
+                        vertices.Add(IsoWorld.Project(logical[i]) + Vector2.up * height);
+                        colors.Add(tint);
+                        uvs.Add(logical[i] * .08f);
+                    }
+                    triangles.Add(index); triangles.Add(index + 2); triangles.Add(index + 1);
+                    triangles.Add(index); triangles.Add(index + 3); triangles.Add(index + 2);
+
+                    // The vertical face is what makes the height change readable as stairs rather
+                    // than a smooth painted ramp. It also closes every screen-space crack between
+                    // consecutive tread planes.
+                    var riser = new[]
+                    {
+                        far - tangent * halfWidth, far + tangent * halfWidth
+                    };
+                    index = vertices.Count;
+                    vertices.Add(IsoWorld.Project(riser[0]) + Vector2.up * height);
+                    vertices.Add(IsoWorld.Project(riser[1]) + Vector2.up * height);
+                    vertices.Add(IsoWorld.Project(riser[1]) + Vector2.up * nextHeight);
+                    vertices.Add(IsoWorld.Project(riser[0]) + Vector2.up * nextHeight);
+                    for (var i = 0; i < 4; i++)
+                    {
+                        colors.Add(profile.WallTint * .68f);
+                        uvs.Add(riser[Mathf.Min(i, 1)] * .08f);
+                    }
+                    triangles.Add(index); triangles.Add(index + 1); triangles.Add(index + 2);
+                    triangles.Add(index); triangles.Add(index + 2); triangles.Add(index + 3);
+                }
+            }
+            if (vertices.Count == 0) return;
+            var mesh = MakeMesh("Elevation Stair Ramps", vertices, triangles, colors, uvs);
+            CreateLayer(mesh.name, mesh, CreateTexturedMaterial(profile.FloorTexture), 974);
+            var stairReadability = new Material(DarkfallRenderMaterials.SpriteUnlit)
+            {
+                color = new Color(.76f, .72f, .64f, .28f),
+                mainTexture = Resources.Load<Texture2D>(profile.FloorTexture)
+            };
+            materials.Add(stairReadability);
+            CreateLayer("Elevation Stair Readability", mesh, stairReadability, 975);
         }
 
         private void BuildContextFloorTiles(DungeonData data)
@@ -574,7 +717,14 @@ namespace Darkfall.World
                 data.ElevationLevel(upperX, upperY) || IsStairRiserOpening(data, anchor, vertical)) return;
             var role = ArchitectureSpriteLibrary.WallRoleForAxis(profile.Id, vertical);
             var flip = ArchitectureSpriteLibrary.FlipForAxis(profile.Id, role, vertical);
-            CreateArchitectureModule(role, anchor, flip, .985f, moduleIndex++, top);
+            var lowerLevel = data.ElevationLevel(lowerX, lowerY);
+            // A sunken room owns walls rooted in its own floor. Keeping them at the main-floor
+            // ledge made the floor descend while the whole room silhouette stayed at elevation 0.
+            // Raised platforms still need their guard wall on the upper platform.
+            var wallElevation = lowerLevel < 0
+                ? lowerLevel * DungeonData.ElevationStepHeight
+                : top;
+            CreateArchitectureModule(role, anchor, flip, .985f, moduleIndex++, wallElevation);
         }
 
         private void BuildRaisedFloorCaps(DungeonData data)
@@ -710,7 +860,10 @@ namespace Darkfall.World
                 var tangentDistance = vertical
                     ? Mathf.Abs(midpoint.y - feature.Position.y)
                     : Mathf.Abs(midpoint.x - feature.Position.x);
-                if (normalDistance < .05f && tangentDistance <= .51f) return true;
+                // Reserve the complete authored opening. The old fixed .51 half-width only
+                // removed a one-cell slit, so ordinary guard walls overlapped every 2/3-cell
+                // staircase and made the transition look glued over a black hole.
+                if (normalDistance < .05f && tangentDistance <= feature.Width * .5f + .05f) return true;
             }
             return false;
         }
@@ -898,8 +1051,13 @@ namespace Darkfall.World
                 // contour. Removing their neighbouring contour modules cuts false side passages
                 // beside the jambs. Only an elevation stair replaces its platform guardrail.
                 if (feature.Kind != DungeonArchitectureKind.ElevationStairs) continue;
-                const float radius = 1.05f;
-                if (Vector2.Distance(point, feature.Position) < radius) return true;
+                var normalDistance = feature.Vertical
+                    ? Mathf.Abs(point.x - feature.Position.x)
+                    : Mathf.Abs(point.y - feature.Position.y);
+                var tangentDistance = feature.Vertical
+                    ? Mathf.Abs(point.y - feature.Position.y)
+                    : Mathf.Abs(point.x - feature.Position.x);
+                if (normalDistance <= .62f && tangentDistance <= feature.Width * .5f + .12f) return true;
             }
             return false;
         }
@@ -947,15 +1105,22 @@ namespace Darkfall.World
                     Mathf.FloorToInt(feature.Position.x + normal.x * .25f),
                     Mathf.FloorToInt(feature.Position.y + normal.y * .25f));
                 var lowerDirection = negativeLevel < positiveLevel ? -normal : normal;
-                // The sprite pivot is at the foot of its first step. Place that foot on the lower
-                // half of the traversal ramp so the upper landing terminates at the raised floor.
-                var stairAnchor = feature.Position + lowerDirection * .64f;
-                // Width 2/3 thresholds share the same art. Stretch only screen X to close the
-                // side voids while retaining the authored vertical rise and landing height.
-                var stairHorizontalScale = feature.Width == 2 ? 1.28f : 1.48f;
-                var lowerElevation = Mathf.Min(negativeLevel, positiveLevel) * DungeonData.ElevationStepHeight;
+                // Up and down are the same physical flight. Its foot always belongs to the lower
+                // platform and its top always terminates at the higher platform; traversal
+                // direction must never select another piece of artwork.
+                var lowerElevation = Mathf.Min(negativeLevel, positiveLevel) *
+                                     DungeonData.ElevationStepHeight;
+
+                // Two- and three-cell openings use the same flight at distinct authored widths.
+                // Only screen X changes so the .9 elevation rise remains exact.
+                var stairHorizontalScale = feature.Width >= 3 ? 1.66f : 1.24f;
+                // The same authored flight serves both directions. Mirror it along its travel
+                // axis when the lower landing lies on the opposite side, otherwise a descent
+                // reads as another staircase rising out of a hole.
+                var stairFlip = Mathf.Min(negativeLevel, positiveLevel) < 0;
+                var stairAnchor = feature.Position + lowerDirection * (stairFlip ? .90f : .64f);
                 CreateArchitectureModule("stairs", stairAnchor, feature.Vertical, 1.03f,
-                    featureIndex++, lowerElevation, stairHorizontalScale);
+                    featureIndex++, lowerElevation, stairHorizontalScale, 0, stairFlip);
             }
         }
 
@@ -971,7 +1136,8 @@ namespace Darkfall.World
         }
 
         private void CreateArchitectureModule(string role, Vector2 anchor, bool flipX, float scale, int index,
-            float elevation = 0f, float horizontalScale = -1f, int visualVariant = 0)
+            float elevation = 0f, float horizontalScale = -1f, int visualVariant = 0,
+            bool reverseTravel = false)
         {
             var sprite = ArchitectureSpriteLibrary.Module(profile.Id, role);
             if (sprite == null) return;
@@ -984,16 +1150,35 @@ namespace Darkfall.World
             visual.transform.SetParent(owner.transform, false);
             ArchitectureSpriteLibrary.Placement(profile.Id, role, sprite, out var moduleScale,
                 out var moduleOffset);
-            visual.transform.localPosition = moduleOffset * scale;
+            visual.transform.localPosition = reverseTravel ? Vector3.zero : (Vector3)(moduleOffset * scale);
             visual.transform.localScale = new Vector3(
                 (horizontalScale > 0f ? horizontalScale : scale) * moduleScale.x,
                 scale * moduleScale.y, 1f);
+            // Reversing travel is a 180-degree rotation of the complete isometric construction.
+            // The imported sprite has a bottom-left pivot, so preserve its visible centre while
+            // rotating; otherwise the staircase jumps several cells away from the threshold.
+            if (reverseTravel)
+            {
+                visual.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
+            }
+
+            // Multi-sprite architecture was imported with a bottom-left pivot. A centred runtime
+            // view of the same texture rect lets the reversed preset rotate around its actual
+            // construction rather than around an arbitrary canvas corner.
+            var renderSprite = sprite;
+            if (reverseTravel)
+            {
+                renderSprite = Sprite.Create(sprite.texture, sprite.rect, new Vector2(.5f, .5f),
+                    sprite.pixelsPerUnit, 0, SpriteMeshType.FullRect, sprite.border);
+                renderSprite.name = sprite.name + " · centered reverse";
+                runtimeSprites.Add(renderSprite);
+            }
 
             // Authored sprites already contain their own material shading. A restrained unlit pass
             // keeps carved detail legible in the global darkness; the lit pass still receives local
             // torches and player light.
             var readability = visual.AddComponent<SpriteRenderer>();
-            readability.sprite = sprite;
+            readability.sprite = renderSprite;
             readability.flipX = flipX;
             var variantTint = ArchitectureVariantTint(visualVariant);
             readability.color = new Color(.72f * variantTint.r, .72f * variantTint.g,
@@ -1004,7 +1189,7 @@ namespace Darkfall.World
             var litObject = new GameObject("Local Light Pass");
             litObject.transform.SetParent(visual.transform, false);
             var lit = litObject.AddComponent<SpriteRenderer>();
-            lit.sprite = sprite;
+            lit.sprite = renderSprite;
             lit.flipX = flipX;
             lit.color = variantTint;
             lit.sortingOrder = 1;
@@ -1091,9 +1276,11 @@ namespace Darkfall.World
             foreach (var mesh in meshes) Destroy(mesh);
             foreach (var material in materials) Destroy(material);
             foreach (var texture in runtimeTextures) Destroy(texture);
+            foreach (var sprite in runtimeSprites) Destroy(sprite);
             meshes.Clear();
             materials.Clear();
             runtimeTextures.Clear();
+            runtimeSprites.Clear();
         }
 
         private void AddWallFace(List<Vector3> v, List<int> t, List<Color> c, List<Vector2> uv,
@@ -1236,7 +1423,10 @@ namespace Darkfall.World
             renderer.sprite = sprite;
             DarkfallRenderMaterials.MakeLit(renderer);
             visual.AddComponent<IsoVisual>().Initialize(root.transform, 0f, 1010);
-            if (index >= 6)
+            // Every gameplay-significant landmark must read as active before contact. Large
+            // landmarks already breathed; extend the same restrained motion to hostile and
+            // luminous small props instead of leaving damaging traps visually frozen.
+            if (index >= 6 || IsLuminousBiomeEvent(index) || IsHostileBiomeEvent(index))
                 visual.AddComponent<BiomeEventAnimator>().Initialize(profile.Id, index);
             var caster = visual.AddComponent<ShadowCaster2D>();
             caster.castsShadows = true;
@@ -1581,8 +1771,9 @@ namespace Darkfall.World
             if (data.HasSemantic(cell, DungeonCellSemantic.EventReserved) && !authoredSetPiece) return false;
             foreach (var feature in data.Architecture)
                 if (Vector2.Distance(position, feature.Position) < 1.6f) return false;
-            if (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 1.25f ||
-                Vector2.Distance(position, data.CellCenter(data.ExitCell)) < 1.25f) return false;
+            if (!authoredSetPiece &&
+                (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 1.25f ||
+                 Vector2.Distance(position, data.CellCenter(data.ExitCell)) < 1.25f)) return false;
             if (blocks && (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 2f ||
                            Vector2.Distance(position, data.CellCenter(data.ExitCell)) < 2f))
                 blocks = false;

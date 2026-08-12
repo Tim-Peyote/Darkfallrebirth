@@ -18,6 +18,7 @@ namespace Darkfall.Core
         {
             { "enemy-melee-v2", 2 }, { "enemy-ranged-v2", 2 }, { "enemy-caster-v2", 1 },
             { "enemy-mimic-v1", 1 }, { "enemy-ash-warden-v1", 2 },
+            { "enemy-ritual-guardian-v1", 2 },
             { "enemy-ember-revenant-v1", 2 }, { "enemy-drowned-sentinel-v1", 2 },
             { "enemy-spore-stalker-v1", 1 }, { "enemy-obsidian-acolyte-v1", 1 }
         };

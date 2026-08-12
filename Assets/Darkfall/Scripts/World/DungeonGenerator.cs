@@ -241,13 +241,12 @@ namespace Darkfall.World
                     var entrances = CountRoomEntrances(draft.Floor, room.bounds);
                     var area = room.bounds.width * room.bounds.height;
                     if (area > largestArea) { largestArea = area; shrineRoom = i; }
-                    if (area >= 68) room.theme = DungeonRoomTheme.Shrine;
-                    else if (entrances <= 1) room.theme = DungeonRoomTheme.Reliquary;
-                    else
-                    {
-                        var score = ArchitectureRoomScore(i, draft.Seed);
-                        room.theme = score % 5 == 0 ? DungeonRoomTheme.Ritual : DungeonRoomTheme.Ossuary;
-                    }
+                    // Start from spatial roles, then place scarce authored scenarios explicitly.
+                    // Treating every ordinary chamber as Ossuary/Ritual made themes visually
+                    // meaningless and allowed repeated encounters in adjacent rooms.
+                    room.theme = entrances <= 1 && area >= 25
+                        ? DungeonRoomTheme.Reliquary
+                        : DungeonRoomTheme.None;
                 }
                 draft.Rooms[i] = room;
             }
@@ -265,6 +264,85 @@ namespace Darkfall.World
                     draft.Rooms[shrineRoom] = room;
                 }
             }
+            EnsureAshenRewardTheme(draft.Rooms, draft.Seed ^ 0x7EAD);
+            EnsureAshenScenarioTheme(draft.Rooms, DungeonRoomTheme.Ritual, draft.Seed ^ 0x51A7E, 42, 5);
+            EnsureAshenScenarioTheme(draft.Rooms, DungeonRoomTheme.Ossuary, draft.Seed ^ 0xE7E17, 36, 5);
+        }
+
+        private static void EnsureAshenRewardTheme(List<DungeonRoom> rooms, int seed)
+        {
+            for (var i = 1; i < rooms.Count - 1; i++)
+                if (rooms[i].theme == DungeonRoomTheme.Reliquary) return;
+
+            // Some repaired layouts have no one-entrance room left. Preserve that topology, but
+            // still assign the smallest suitable internal chamber as a readable reward branch;
+            // never steal the authored chapel or either transition room.
+            var best = -1;
+            var bestScore = int.MaxValue;
+            for (var i = 1; i < rooms.Count - 1; i++)
+            {
+                var room = rooms[i];
+                if (room.theme == DungeonRoomTheme.Shrine) continue;
+                var area = room.bounds.width * room.bounds.height;
+                var score = area * 100 + ArchitectureRoomScore(i, seed) % 97;
+                if (score >= bestScore) continue;
+                best = i;
+                bestScore = score;
+            }
+            if (best < 0) return;
+            var selected = rooms[best];
+            selected.theme = DungeonRoomTheme.Reliquary;
+            rooms[best] = selected;
+        }
+
+        private static void EnsureAshenScenarioTheme(List<DungeonRoom> rooms, DungeonRoomTheme required,
+            int seed, int preferredArea, int minimumSide)
+        {
+            for (var i = 1; i < rooms.Count - 1; i++)
+                if (rooms[i].theme == required) return;
+
+            var best = -1;
+            var bestScore = int.MinValue;
+            for (var i = 1; i < rooms.Count - 1; i++)
+            {
+                var room = rooms[i];
+                // Preserve authored chapel and reward-dead-end roles. Scenario rooms need a
+                // useful combat footprint, so prefer a large multi-entry chamber.
+                if (room.theme == DungeonRoomTheme.Shrine || room.theme == DungeonRoomTheme.Reliquary ||
+                    room.theme == DungeonRoomTheme.Ritual || room.theme == DungeonRoomTheme.Ossuary)
+                    continue;
+                var area = room.bounds.width * room.bounds.height;
+                // The scenario reservation needs a 3x3 mask plus a one-cell combat apron.
+                // Area alone is insufficient: a 4x11 room is large on paper but cannot host it.
+                if (room.bounds.width < minimumSide || room.bounds.height < minimumSide) continue;
+                var separation = MinimumDistanceToMajorTheme(rooms, i);
+                // Scenario rooms need combat space and must not read as one repeated themed block.
+                var preferredBonus = area >= preferredArea ? 100000 : 0;
+                var score = preferredBonus + area * 100 + Mathf.Min(separation, 24) * 180 +
+                            ArchitectureRoomScore(i, seed) % 97;
+                if (score <= bestScore) continue;
+                best = i;
+                bestScore = score;
+            }
+            if (best < 0) return;
+            var selected = rooms[best];
+            selected.theme = required;
+            rooms[best] = selected;
+        }
+
+        private static int MinimumDistanceToMajorTheme(List<DungeonRoom> rooms, int candidate)
+        {
+            var distance = int.MaxValue;
+            var center = rooms[candidate].Center;
+            for (var i = 0; i < rooms.Count; i++)
+            {
+                var theme = rooms[i].theme;
+                if (theme != DungeonRoomTheme.Shrine && theme != DungeonRoomTheme.Ritual &&
+                    theme != DungeonRoomTheme.Ossuary) continue;
+                var other = rooms[i].Center;
+                distance = Mathf.Min(distance, Mathf.Abs(center.x - other.x) + Mathf.Abs(center.y - other.y));
+            }
+            return distance == int.MaxValue ? 24 : distance;
         }
 
         private static int CountRoomEntrances(bool[,] floor, RectInt bounds)
@@ -782,16 +860,26 @@ namespace Darkfall.World
                     }
                 if (!separated) continue;
                 var room = data.Rooms[roomIndex].bounds;
-                var platform = new RectInt(room.xMin + 2, room.yMin + 2, room.width - 4, room.height - 4);
+                // Platforms are authored spaces, not one repeated rectangle stamped into every
+                // room. Large chambers can afford a wider lower-floor apron; compact rooms retain
+                // enough upper/lower floor for a readable landing on both sides of the flight.
+                var platformInset = room.width >= 11 && room.height >= 11 &&
+                                    ArchitectureRoomScore(roomIndex, seed ^ 0x1A71F0) % 2 == 0 ? 3 : 2;
+                var platform = new RectInt(room.xMin + platformInset, room.yMin + platformInset,
+                    room.width - platformInset * 2, room.height - platformInset * 2);
                 var level = ArchitectureRoomScore(roomIndex, seed ^ 0x5EED71) % 4 == 0
                     ? (sbyte)-1 : (sbyte)1;
                 data.SetElevation(platform, level);
                 var vertical = ArchitectureRoomScore(roomIndex, seed ^ 0x71A17) % 2 == 0;
+                var stairWidth = (vertical ? platform.height : platform.width) >= 5 &&
+                                 ArchitectureRoomScore(roomIndex, seed ^ 0x57A175) % 3 == 0 ? 3 : 2;
                 var transition = vertical
                     ? new ArchitectureThreshold(roomIndex,
-                        new Vector2(platform.xMax, platform.yMin + platform.height / 2f), true, true, 2, true)
+                        new Vector2(platform.xMax, platform.yMin + platform.height / 2f), true, true,
+                        stairWidth, true)
                     : new ArchitectureThreshold(roomIndex,
-                        new Vector2(platform.xMin + platform.width / 2f, platform.yMax), false, true, 2, true);
+                        new Vector2(platform.xMin + platform.width / 2f, platform.yMax), false, true,
+                        stairWidth, true);
                 platformTransitions.Add(transition);
                 thresholds.Add(transition);
             }

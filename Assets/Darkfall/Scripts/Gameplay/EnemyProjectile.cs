@@ -1,5 +1,6 @@
 using System;
 using Darkfall.Core;
+using Darkfall.World;
 using UnityEngine;
 
 namespace Darkfall.Gameplay
@@ -13,6 +14,8 @@ namespace Darkfall.Gameplay
         private Action onHit;
         private Color color;
         private ProjectileVisualStyle visualStyle;
+        private float sourceElevation;
+        private bool elevationCaptured;
 
         public static void Spawn(Vector2 position, Vector2 direction, float damage, float speed, Color color, Action onHit)
         {
@@ -32,9 +35,21 @@ namespace Darkfall.Gameplay
         {
             var game = GameManager.Instance;
             if (game == null || game.IsPaused || game.Dungeon == null) return;
+            if (!elevationCaptured)
+            {
+                sourceElevation = game.Dungeon.SurfaceHeight(transform.position);
+                elevationCaptured = true;
+            }
             transform.position += (Vector3)(direction * speed * Time.deltaTime);
+            if (Mathf.Abs(game.Dungeon.SurfaceHeight(transform.position) - sourceElevation) > .30f)
+            {
+                Finish(true);
+                return;
+            }
             var player = game.Player;
-            if (player != null && Vector2.Distance(transform.position, player.transform.position) < .45f)
+            if (player != null &&
+                game.Dungeon.SharesCombatElevation(transform.position, player.transform.position) &&
+                Vector2.Distance(transform.position, player.transform.position) < .45f)
             {
                 player.TakeDamage(damage);
                 onHit?.Invoke();

@@ -208,6 +208,7 @@ namespace Darkfall.Editor
 
             ValidateArchitecture(dungeon, depth, failures);
             ValidateHazards(dungeon, failures);
+            ValidateAshenScenarioContracts(dungeon, depth, failures);
 
             // Exercise representative structural-decor placements. Accepted obstacles must not
             // disconnect any semantic room centre from the arrival room.
@@ -241,6 +242,123 @@ namespace Darkfall.Editor
             return failures;
         }
 
+        private static void ValidateAshenScenarioContracts(DungeonData dungeon, int depth,
+            List<string> failures)
+        {
+            if (depth < 1 || depth > 9) return;
+
+            var treasureVaults = 0;
+            var eliteArenas = 0;
+            var eventRooms = 0;
+            var shrines = 0;
+            var rituals = 0;
+            var ossuaries = 0;
+            for (var i = 1; i < dungeon.Rooms.Count - 1; i++)
+            {
+                var room = dungeon.Rooms[i];
+                var area = room.bounds.width * room.bounds.height;
+                if (room.theme == DungeonRoomTheme.Shrine) { shrines++; if (area < 49) failures.Add("Shrine room is undersized"); }
+                if (room.theme == DungeonRoomTheme.Ritual)
+                {
+                    rituals++;
+                    if (room.bounds.width < 5 || room.bounds.height < 5)
+                        failures.Add("Ritual room cannot contain its combat apron");
+                }
+                if (room.theme == DungeonRoomTheme.Ossuary)
+                {
+                    ossuaries++;
+                    if (room.bounds.width < 5 || room.bounds.height < 5)
+                        failures.Add("Ossuary room cannot contain its combat apron");
+                }
+            }
+            foreach (var setPiece in dungeon.SetPieces)
+            {
+                if (setPiece.RoomIndex < 0 || setPiece.RoomIndex >= dungeon.Rooms.Count)
+                {
+                    failures.Add($"{setPiece.Kind} references invalid room {setPiece.RoomIndex}");
+                    continue;
+                }
+                if (!dungeon.IsFloor(Mathf.FloorToInt(setPiece.Anchor.x),
+                        Mathf.FloorToInt(setPiece.Anchor.y)))
+                    failures.Add($"{setPiece.Kind} anchor is outside carved floor");
+
+                var theme = dungeon.Rooms[setPiece.RoomIndex].theme;
+                switch (setPiece.Kind)
+                {
+                    case DungeonSetPieceKind.TreasureVault:
+                        treasureVaults++;
+                        if (theme != DungeonRoomTheme.Reliquary)
+                            failures.Add("TreasureVault is not bound to a Reliquary room");
+                        break;
+                    case DungeonSetPieceKind.EliteArena:
+                        eliteArenas++;
+                        if (theme != DungeonRoomTheme.Ritual)
+                            failures.Add("EliteArena is not bound to a Ritual room");
+                        break;
+                    case DungeonSetPieceKind.EventRoom:
+                        eventRooms++;
+                        if (theme != DungeonRoomTheme.Ossuary)
+                            failures.Add("EventRoom is not bound to an Ossuary room");
+                        break;
+                }
+            }
+
+            if (treasureVaults == 0) failures.Add("Ashen Catacombs has no TreasureVault");
+            if (eliteArenas != 1) failures.Add($"Ashen Catacombs has {eliteArenas} EliteArena set pieces; expected 1");
+            if (eventRooms != 1) failures.Add($"Ashen Catacombs has {eventRooms} EventRoom set pieces; expected 1");
+            if (shrines != 1) failures.Add($"Ashen Catacombs has {shrines} Shrine themes; expected 1");
+            if (rituals != 1) failures.Add($"Ashen Catacombs has {rituals} Ritual themes; expected 1");
+            if (ossuaries != 1) failures.Add($"Ashen Catacombs has {ossuaries} Ossuary themes; expected 1");
+            ValidateMajorThemeSpacing(dungeon, failures);
+            ValidateMiniSetContracts(dungeon, failures);
+        }
+
+        private static void ValidateMiniSetContracts(DungeonData dungeon, List<string> failures)
+        {
+            var kinds = new HashSet<DungeonMiniSetKind>();
+            for (var i = 0; i < dungeon.MiniSets.Count; i++)
+            {
+                var mini = dungeon.MiniSets[i];
+                if (mini.RoomIndex < 0 || mini.RoomIndex >= dungeon.Rooms.Count)
+                {
+                    failures.Add($"{mini.Kind} mini-set references invalid room {mini.RoomIndex}");
+                    continue;
+                }
+                var room = dungeon.Rooms[mini.RoomIndex].bounds;
+                if (mini.Mask.xMin < room.xMin || mini.Mask.yMin < room.yMin ||
+                    mini.Mask.xMax > room.xMax || mini.Mask.yMax > room.yMax)
+                    failures.Add($"{mini.Kind} mini-set mask leaves its room");
+                for (var other = i + 1; other < dungeon.MiniSets.Count; other++)
+                    if (mini.Mask.Overlaps(dungeon.MiniSets[other].Mask))
+                        failures.Add($"Mini-sets {mini.Kind} and {dungeon.MiniSets[other].Kind} overlap");
+                if (mini.Kind != DungeonMiniSetKind.HazardBridge && !kinds.Add(mini.Kind))
+                    failures.Add($"Duplicate authored mini-set kind {mini.Kind}");
+            }
+        }
+
+        private static void ValidateMajorThemeSpacing(DungeonData dungeon, List<string> failures)
+        {
+            var themed = new List<int>(3);
+            for (var i = 1; i < dungeon.Rooms.Count - 1; i++)
+            {
+                var theme = dungeon.Rooms[i].theme;
+                if (theme == DungeonRoomTheme.Shrine || theme == DungeonRoomTheme.Ritual ||
+                    theme == DungeonRoomTheme.Ossuary) themed.Add(i);
+            }
+            for (var a = 0; a < themed.Count; a++)
+            for (var b = a + 1; b < themed.Count; b++)
+            {
+                var first = dungeon.Rooms[themed[a]];
+                var second = dungeon.Rooms[themed[b]];
+                var distance = Mathf.Abs(first.Center.x - second.Center.x) +
+                               Mathf.Abs(first.Center.y - second.Center.y);
+                // Rooms may share a corridor junction, but their authored 3x3/5x5 centres must
+                // never visually merge into a single repeated scenario cluster.
+                if (distance < 6)
+                    failures.Add($"Major themes {first.theme} and {second.theme} are only {distance} cells apart");
+            }
+        }
+
         private static void ValidateArchitecture(DungeonData dungeon, int depth, List<string> failures)
         {
             var startDoors = 0;
@@ -258,6 +376,17 @@ namespace Darkfall.Editor
                 var secondElevation = dungeon.ElevationLevel(x, y);
                 if (feature.Kind == DungeonArchitectureKind.ElevationStairs && firstElevation == secondElevation)
                     failures.Add("Stairs do not connect two elevations");
+                if (feature.Kind == DungeonArchitectureKind.ElevationStairs)
+                {
+                    var normal = feature.Vertical ? Vector2.right : Vector2.up;
+                    var firstSide = feature.Position - normal * .55f;
+                    var secondSide = feature.Position + normal * .55f;
+                    if (dungeon.SharesCombatElevation(firstSide, secondSide))
+                        failures.Add("Combat can cross between separated stair landings");
+                    if (!dungeon.SharesCombatElevation(firstSide, firstSide +
+                            (feature.Vertical ? Vector2.up : Vector2.right) * .2f))
+                        failures.Add("Combat is blocked between actors on the same stair landing");
+                }
                 if (feature.Kind != DungeonArchitectureKind.ElevationStairs && firstElevation != secondElevation)
                     failures.Add("Gate or door incorrectly bridges an elevation change");
                 if (feature.Kind != DungeonArchitectureKind.ClosedDoor) continue;

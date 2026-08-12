@@ -514,6 +514,9 @@ namespace Darkfall.World
             Vector2 anchor, bool allowHazard = false)
         {
             if (roomIndex < 0 || roomIndex >= Rooms.Count || mask.width <= 0 || mask.height <= 0) return false;
+            var room = Rooms[roomIndex].bounds;
+            if (mask.xMin < room.xMin || mask.yMin < room.yMin || mask.xMax > room.xMax || mask.yMax > room.yMax)
+                return false;
             for (var x = mask.xMin; x < mask.xMax; x++)
             for (var y = mask.yMin; y < mask.yMax; y++)
             {
@@ -651,7 +654,10 @@ namespace Darkfall.World
         {
             // Only the central ramp is walkable; the authored stone cheeks remain solid.
             const float laneWidth = .82f;
-            const float crossingDepth = .52f;
+            // The cheeks run along the complete 1.44-cell flight, not just across the lip. The
+            // old .52 obstacle ended halfway down the artwork and let actors walk through the
+            // stone sides, especially when entering a below-ground stair from its upper landing.
+            const float crossingDepth = 1.44f;
             var totalWidth = Mathf.Max(1.5f, feature.Width);
             var sideWidth = Mathf.Max(.18f, (totalWidth - laneWidth) * .5f);
             if (feature.Vertical)
@@ -755,11 +761,23 @@ namespace Darkfall.World
         public float BoundaryHeight(Vector2 point)
         {
             const float sample = .08f;
-            return Mathf.Max(
-                SurfaceHeight(point + new Vector2(sample, sample)),
-                SurfaceHeight(point + new Vector2(-sample, sample)),
-                SurfaceHeight(point + new Vector2(sample, -sample)),
-                SurfaceHeight(point + new Vector2(-sample, -sample)));
+            var offsets = new[]
+            {
+                new Vector2(sample, sample), new Vector2(-sample, sample),
+                new Vector2(sample, -sample), new Vector2(-sample, -sample)
+            };
+            var foundFloor = false;
+            var height = float.NegativeInfinity;
+            foreach (var offset in offsets)
+            {
+                var probe = point + offset;
+                if (!IsFloor(Mathf.FloorToInt(probe.x), Mathf.FloorToInt(probe.y))) continue;
+                foundFloor = true;
+                height = Mathf.Max(height, SurfaceHeight(probe));
+            }
+            // Void is not an elevation-zero platform. Including it in the maximum kept contour
+            // walls around sunken rooms at the main floor while their actual floor moved down.
+            return foundFloor ? height : 0f;
         }
 
         public void BeginVisibilityUpdate()
@@ -807,6 +825,11 @@ namespace Darkfall.World
 
         public bool HasLineOfSight(Vector2 from, Vector2 to)
         {
+            // Navigation is two-dimensional, combat is not. Floors that overlap in the isometric
+            // projection must not see, aggro or shoot through one another. On a staircase the
+            // sampled surface height changes continuously, so actors can engage only once their
+            // feet are physically near the same part of the flight.
+            if (!SharesCombatElevation(from, to)) return false;
             var distance = Vector2.Distance(from, to);
             var steps = Mathf.Max(1, Mathf.CeilToInt(distance / .16f));
             var previous = from;
@@ -818,6 +841,9 @@ namespace Darkfall.World
             }
             return true;
         }
+
+        public bool SharesCombatElevation(Vector2 first, Vector2 second, float tolerance = .30f) =>
+            Mathf.Abs(SurfaceHeight(first) - SurfaceHeight(second)) <= tolerance;
 
         private static bool TouchesObstacle(Vector2 point, float radius, IReadOnlyList<Rect> obstacles)
         {

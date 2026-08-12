@@ -53,6 +53,15 @@ namespace Darkfall.Gameplay
         public float MaxHealth => maxHealth;
         public string DisplayName => definition?.type ?? name;
 
+        public void OverrideDirectionalSheet(string sheet)
+        {
+            if (string.IsNullOrEmpty(sheet)) return;
+            directionalSheet = sheet;
+            if (spriteRenderer != null)
+                spriteRenderer.sprite = DirectionalSpriteAtlas.Get(sheet, Vector2.down,
+                    CharacterMotion.Idle, 0f) ?? spriteRenderer.sprite;
+        }
+
         public void Initialize(DungeonData data, PlayerController target, int depth, bool isBoss, LegacyEnemy enemyDefinition)
         {
             if (data == null || target == null || enemyDefinition == null)
@@ -135,6 +144,16 @@ namespace Darkfall.Gameplay
             var toPlayer = (Vector2)(player.transform.position - transform.position);
             var distance = toPlayer.magnitude;
             var sightRange = boss ? 13f : ranged ? 10f : 8f;
+            var sameCombatElevation = dungeon.SharesCombatElevation(transform.position,
+                player.transform.position);
+            if (!sameCombatElevation)
+            {
+                // Do not preserve a stale alert after either actor changes floor. This prevents a
+                // whole room below the player from pathing toward an unreachable projected target.
+                alertedUntil = 0f;
+                UpdateIdleBehavior();
+                return;
+            }
             var seesPlayer = distance <= sightRange &&
                              dungeon.HasLineOfSight(transform.position, player.transform.position);
             if (seesPlayer)
@@ -334,9 +353,12 @@ namespace Darkfall.Gameplay
         {
             EnemyController result = null;
             var best = range * range;
+            var dungeon = GameManager.Instance?.Dungeon;
             for (var i = 0; i < Active.Count; i++)
             {
                 if (Active[i] == null) continue;
+                if (dungeon != null && !dungeon.SharesCombatElevation(point, Active[i].transform.position))
+                    continue;
                 var distance = ((Vector2)Active[i].transform.position - point).sqrMagnitude;
                 if (distance >= best) continue;
                 best = distance;
@@ -421,6 +443,9 @@ namespace Darkfall.Gameplay
             foreach (var candidate in Active)
             {
                 if (candidate == null || candidate == source) continue;
+                if (source.dungeon != null &&
+                    !source.dungeon.SharesCombatElevation(source.transform.position, candidate.transform.position))
+                    continue;
                 var distance = ((Vector2)(candidate.transform.position - source.transform.position)).sqrMagnitude;
                 if (distance >= best) continue;
                 best = distance;

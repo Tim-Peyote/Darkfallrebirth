@@ -12,6 +12,8 @@ namespace Darkfall.Gameplay
         private Action<EnemyController> onHit;
         private Color color;
         private ProjectileVisualStyle visualStyle;
+        private float sourceElevation;
+        private bool elevationCaptured;
 
         public static void Spawn(Vector2 position, Vector2 direction, float damage, Color color, Action<EnemyController> onHit = null)
         {
@@ -30,7 +32,17 @@ namespace Darkfall.Gameplay
         {
             var game = GameManager.Instance;
             if (game == null || game.IsPaused || game.Dungeon == null) return;
+            if (!elevationCaptured)
+            {
+                sourceElevation = game.Dungeon.SurfaceHeight(transform.position);
+                elevationCaptured = true;
+            }
             transform.position += (Vector3)(direction * (9f * Time.deltaTime));
+            if (Mathf.Abs(game.Dungeon.SurfaceHeight(transform.position) - sourceElevation) > .30f)
+            {
+                Finish(true);
+                return;
+            }
             var enemy = EnemyController.FindNearest(transform.position, 0.48f);
             if (enemy != null)
             {

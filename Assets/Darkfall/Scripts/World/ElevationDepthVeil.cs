@@ -65,8 +65,7 @@ namespace Darkfall.World
             for (var x = 0; x < dungeon.Width; x++)
             for (var y = 0; y < dungeon.Height; y++)
             {
-                if (!dungeon.IsFloor(x, y) || dungeon.ElevationLevel(x, y) != level ||
-                    IsStairLanding(x, y)) continue;
+                if (!dungeon.IsFloor(x, y) || dungeon.ElevationLevel(x, y) != level) continue;
                 var index = vertices.Count;
                 var logical = new[]
                 {
@@ -108,15 +107,6 @@ namespace Darkfall.World
             // Above all floor surfaces, below facades, actors and interaction objects.
             renderer.sortingOrder = 965;
             layers.Add(new LevelLayer { Level = level, Material = material });
-        }
-
-        private bool IsStairLanding(int x, int y)
-        {
-            var center = new Vector2(x + .5f, y + .5f);
-            foreach (var feature in dungeon.Architecture)
-                if (feature.Kind == DungeonArchitectureKind.ElevationStairs &&
-                    Vector2.Distance(center, feature.Position) < 1.45f) return true;
-            return false;
         }
 
         private static Texture2D CreateFogTexture()
