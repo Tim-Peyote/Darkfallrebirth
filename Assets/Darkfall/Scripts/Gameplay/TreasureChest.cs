@@ -14,6 +14,8 @@ namespace Darkfall.Gameplay
         private SpriteRenderer spriteRenderer;
         private bool resolved;
         private bool guaranteedMimic;
+        private DungeonData dungeon;
+        private int obstacleId;
         public readonly ItemInstance[] Items = new ItemInstance[12];
 
         public static TreasureChest Spawn(Vector2 position, PlayerController target,
@@ -34,6 +36,16 @@ namespace Darkfall.Gameplay
             DarkfallRenderMaterials.MakeLit(chest.spriteRenderer);
             visual.transform.localScale = Vector3.one * 1.35f;
             visual.AddComponent<IsoVisual>().Initialize(chestObject.transform, 0f, 1000);
+            // Gameplay collision follows the chest's floor contact, not its tall transparent
+            // sprite canvas. It remains stable through opening animation and is removed with the
+            // complete chest object when a mimic is spawned.
+            var collider = chestObject.AddComponent<BoxCollider2D>();
+            collider.size = new Vector2(.86f, .48f);
+            collider.offset = new Vector2(0f, .05f);
+            chest.dungeon = GameManager.Instance?.Dungeon;
+            if (chest.dungeon != null)
+                chest.obstacleId = chest.dungeon.AddDynamicObstacle(
+                    new Rect(position.x - .43f, position.y - .19f, .86f, .48f));
             var roll = Random.value;
             var maxItems = roll < .10f ? 0 : roll < .40f ? 1 : roll < .65f ? 2 :
                 roll < .80f ? 3 : roll < .90f ? 4 : roll < .95f ? 5 : Random.Range(6, 10);
@@ -71,7 +83,12 @@ namespace Darkfall.Gameplay
             return chest;
         }
 
-        private void OnDestroy() => Active.Remove(this);
+        private void OnDestroy()
+        {
+            Active.Remove(this);
+            if (obstacleId != 0 && dungeon != null) dungeon.RemoveDynamicObstacle(obstacleId);
+            obstacleId = 0;
+        }
 
         public static void InteractNearest(PlayerController target)
         {

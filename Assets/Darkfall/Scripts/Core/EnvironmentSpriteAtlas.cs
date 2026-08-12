@@ -11,6 +11,8 @@ namespace Darkfall.Core
         private static readonly Sprite[] Flames = new Sprite[4];
         private static Texture2D texture;
         private static Texture2D flameTexture;
+        private static readonly Vector2 FlameCanvas = new Vector2(256f, 341f);
+        private static readonly Vector2 FlamePivotPixels = new Vector2(128f, 61.38f);
         private static readonly Dictionary<string, Sprite[]> BiomeProps = new Dictionary<string, Sprite[]>();
 
         public static Sprite Prop(string biome, int index)
@@ -91,8 +93,13 @@ namespace Darkfall.Core
             {
                 individual.filterMode = FilterMode.Bilinear;
                 individual.wrapMode = TextureWrapMode.Clamp;
-                Flames[frame] = Sprite.Create(individual, new Rect(0, 0, individual.width, individual.height),
-                    new Vector2(.5f, .18f), 360f, 0, SpriteMeshType.Tight);
+                // All frames share an authored 256x341 canvas and the exact same pixel pivot.
+                // FullRect prevents Unity from rebuilding a different tight mesh for every flame,
+                // which made the apparent base and size jump during animation.
+                var pivot = new Vector2(FlamePivotPixels.x / FlameCanvas.x,
+                    FlamePivotPixels.y / FlameCanvas.y);
+                Flames[frame] = Sprite.Create(individual, new Rect(0, 0, FlameCanvas.x, FlameCanvas.y),
+                    pivot, 360f, 0, SpriteMeshType.FullRect);
                 return Flames[frame];
             }
             flameTexture ??= Resources.Load<Texture2D>("Sprites/Environment/fire-flame-4x1-v2");
@@ -101,7 +108,8 @@ namespace Darkfall.Core
             flameTexture.wrapMode = TextureWrapMode.Clamp;
             var cellWidth = flameTexture.width / (float)Flames.Length;
             var rect = new Rect(frame * cellWidth, 0, cellWidth, flameTexture.height);
-            Flames[frame] = Sprite.Create(flameTexture, rect, new Vector2(.5f, .18f), 360f, 0, SpriteMeshType.Tight);
+            Flames[frame] = Sprite.Create(flameTexture, rect, new Vector2(.5f, .18f), 360f, 0,
+                SpriteMeshType.FullRect);
             return Flames[frame];
         }
     }

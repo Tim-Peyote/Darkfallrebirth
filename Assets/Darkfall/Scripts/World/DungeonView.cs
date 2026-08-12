@@ -18,10 +18,24 @@ namespace Darkfall.World
         private Transform lightDecor;
         private Transform clutterDecor;
         private readonly Dictionary<string, Sprite> hazardSprites = new Dictionary<string, Sprite>();
+        private readonly List<DecorFootprint> decorFootprints = new List<DecorFootprint>();
+
+        private readonly struct DecorFootprint
+        {
+            public readonly Vector2 Position;
+            public readonly float Radius;
+
+            public DecorFootprint(Vector2 position, float radius)
+            {
+                Position = position;
+                Radius = radius;
+            }
+        }
 
         public void Build(DungeonData data, int depth = 1)
         {
             Clear();
+            decorFootprints.Clear();
             profile = DungeonVisualProfile.ForDepth(depth);
             gameObject.name = "Dungeon · " + profile.Id;
             DungeonFloorTileResolver.Resolve(data, data.GenerationInfo != null ? data.GenerationInfo.seed : depth);
@@ -80,6 +94,9 @@ namespace Darkfall.World
             // navigation rejected it.
             var blocks = miniSet.Kind != DungeonMiniSetKind.Campfire &&
                          miniSet.Kind != DungeonMiniSetKind.Colonnade;
+            var footprintRadius = miniSet.Kind == DungeonMiniSetKind.Colonnade ? 1.15f :
+                miniSet.Kind == DungeonMiniSetKind.SideChapel ? 1.05f :
+                miniSet.Kind == DungeonMiniSetKind.Campfire ? .48f : .72f;
             if (blocks && !data.TryAddObstaclePreservingRoutes(miniSet.Anchor)) return false;
 
             var root = new GameObject("Mini Set · Authored " + miniSet.Kind);
@@ -126,6 +143,7 @@ namespace Darkfall.World
                 visual.AddComponent<MiniSetCampfireAnimator>().Initialize(renderer);
                 data.AddLightSource(miniSet.Anchor + new Vector2(0, .18f), profile.FireTint, 4.8f, .14f);
             }
+            RegisterDecor(root.transform.position, footprintRadius);
             return true;
         }
 
@@ -1512,6 +1530,9 @@ namespace Darkfall.World
             var offset = new Vector2(((hash / 7) % 3 - 1) * .7f, ((hash / 19) % 3 - 1) * .55f);
             var position = center + offset;
             if (ThemeClearance(data, bounds, position, false) < 2.45f) return false;
+            var eventScale = index >= 6 ? 1.24f + hash % 4 * .06f : .88f + hash % 4 * .045f;
+            var footprintRadius = index >= 6 ? eventScale * .72f : eventScale * .58f;
+            if (!CanPlaceDecor(position, footprintRadius)) return false;
             if (!data.TryAddObstaclePreservingRoutes(position)) return false;
             var sprite = BiomeEventSpriteLibrary.Get(profile.Id, index);
             if (sprite == null) return false;
@@ -1521,7 +1542,6 @@ namespace Darkfall.World
             root.transform.position = position;
             var visual = new GameObject("Projected Event");
             visual.transform.SetParent(root.transform, false);
-            var eventScale = index >= 6 ? 1.24f + hash % 4 * .06f : .88f + hash % 4 * .045f;
             visual.transform.localScale = Vector3.one * eventScale;
             var renderer = visual.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
@@ -1542,6 +1562,7 @@ namespace Darkfall.World
             if (IsHostileBiomeEvent(index))
                 root.AddComponent<BiomeEventHazard>().Initialize(1.25f, 12f + profile.Chapter * .7f,
                     HazardKindForBiome(profile.Id));
+            RegisterDecor(position, footprintRadius);
             BuildBiomeEventComposition(data, bounds, room.theme, position, hash, index);
             return true;
         }
@@ -1881,6 +1902,8 @@ namespace Darkfall.World
             if (blocks && (Vector2.Distance(position, data.CellCenter(data.StartCell)) < 2f ||
                            Vector2.Distance(position, data.CellCenter(data.ExitCell)) < 2f))
                 blocks = false;
+            var footprintRadius = DecorRadius(objectName, scale, blocks);
+            if (!CanPlaceDecor(position, footprintRadius)) return false;
             if (blocks && !data.TryAddObstaclePreservingRoutes(position)) return false;
             var prop = new GameObject(objectName + " " + index);
             prop.transform.SetParent(group, false);
@@ -1896,6 +1919,10 @@ namespace Darkfall.World
             visual.AddComponent<IsoVisual>().Initialize(prop.transform, 0f, 1000);
             if (blocks)
             {
+                var collider = prop.AddComponent<BoxCollider2D>();
+                collider.size = new Vector2(Mathf.Clamp(scale * .82f, .46f, 1.05f),
+                    Mathf.Clamp(scale * .48f, .28f, .62f));
+                collider.offset = new Vector2(0f, .06f);
                 var caster = visual.AddComponent<ShadowCaster2D>();
                 caster.castsShadows = true;
                 caster.selfShadows = false;
@@ -1922,7 +1949,39 @@ namespace Darkfall.World
                 AddFlame(visual.transform, new Vector2(.37f, .13f), .09f, 9);
                 data.AddLightSource(position + new Vector2(0, .2f), profile.FireTint * new Color(1, 1, 1, .62f), 3.6f, .1f);
             }
+            RegisterDecor(position, footprintRadius);
             return true;
+        }
+
+        private static float DecorRadius(string objectName, float scale, bool blocks)
+        {
+            if (objectName.StartsWith("Central Theme", System.StringComparison.Ordinal))
+                return Mathf.Max(.72f, scale * .78f);
+            if (objectName.StartsWith("Wall Theme", System.StringComparison.Ordinal) ||
+                objectName.StartsWith("Corner Theme", System.StringComparison.Ordinal))
+                return Mathf.Max(.62f, scale * .7f);
+            if (objectName.StartsWith("Set Piece", System.StringComparison.Ordinal))
+                return blocks ? Mathf.Max(.55f, scale * .68f) : Mathf.Max(.28f, scale * .48f);
+            if (objectName.StartsWith("Theme Detail", System.StringComparison.Ordinal) ||
+                objectName.StartsWith("Event Satellite", System.StringComparison.Ordinal))
+                return Mathf.Max(.27f, scale * .48f);
+            if (objectName.Contains("Light", System.StringComparison.Ordinal) ||
+                objectName.Contains("Vigil", System.StringComparison.Ordinal))
+                return Mathf.Max(.4f, scale * .52f);
+            return blocks ? Mathf.Max(.54f, scale * .66f) : Mathf.Max(.3f, scale * .48f);
+        }
+
+        private bool CanPlaceDecor(Vector2 position, float radius)
+        {
+            foreach (var footprint in decorFootprints)
+                if (Vector2.Distance(position, footprint.Position) < radius + footprint.Radius)
+                    return false;
+            return true;
+        }
+
+        private void RegisterDecor(Vector2 position, float radius)
+        {
+            decorFootprints.Add(new DecorFootprint(position, radius));
         }
 
         private static Transform CreateGroup(Transform parent, string name)

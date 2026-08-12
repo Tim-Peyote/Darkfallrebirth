@@ -67,8 +67,12 @@ namespace Darkfall.Editor
                 failures += Require(Resources.Load<Texture2D>($"Sprites/Environment/Props/prop-{prop}") != null,
                     $"Individual environment prop is missing: {prop}");
             for (var frame = 0; frame < 4; frame++)
-                failures += Require(Resources.Load<Texture2D>($"Sprites/Environment/Flames/flame-{frame}") != null,
-                    $"Individual flame frame is missing: {frame}");
+            {
+                var flame = Resources.Load<Texture2D>($"Sprites/Environment/Flames/flame-{frame}");
+                failures += Require(flame != null, $"Individual flame frame is missing: {frame}");
+                failures += Require(flame != null && flame.width == 256 && flame.height == 341,
+                    $"Flame frame canvas must remain 256x341: {frame}");
+            }
             failures += Require(DungeonVisualProfile.ForDepth(1).Id != DungeonVisualProfile.ForDepth(11).Id,
                 "Biome profile must change after depth 10");
             failures += Require(DungeonVisualProfile.ForDepth(11).Id != DungeonVisualProfile.ForDepth(21).Id &&
