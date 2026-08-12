@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e772f15cbddc4467b8527f203335d5ff
+guid: 379f2f72efbf7404e8f6e7010def405e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4629276288439420676
-    second: resolved_0
+      213: 1902290518773799825
+    second: colonnade-chromakey-v1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: resolved_0
+      name: colonnade-chromakey-v1_0
       rect:
         serializedVersion: 2
-        x: 48
-        y: 72
-        width: 415
-        height: 368
+        x: 0
+        y: 0
+        width: 1254
+        height: 1254
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cf8fd6c1eb181cfb0800000000000000
-      internalID: -4629276288439420676
+      spriteID: 19b1b17e52b466a10800000000000000
+      internalID: 1902290518773799825
       vertices: []
       indices: 
       edges: []
@@ -160,8 +160,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      resolved_0: -4629276288439420676
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

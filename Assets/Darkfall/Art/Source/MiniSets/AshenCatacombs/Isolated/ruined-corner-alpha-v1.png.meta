@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: e772f15cbddc4467b8527f203335d5ff
+guid: cb5a97acc51444fffa6780268d31436e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4629276288439420676
-    second: resolved_0
+      213: 2935430468321639649
+    second: ruined-corner-alpha-v1_0
+  - first:
+      213: 8306702305265437578
+    second: ruined-corner-alpha-v1_1
+  - first:
+      213: -2808622536682953965
+    second: ruined-corner-alpha-v1_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +132,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: resolved_0
+      name: ruined-corner-alpha-v1_0
       rect:
         serializedVersion: 2
-        x: 48
-        y: 72
-        width: 415
-        height: 368
+        x: 192
+        y: 333
+        width: 877
+        height: 639
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +147,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cf8fd6c1eb181cfb0800000000000000
-      internalID: -4629276288439420676
+      spriteID: 1ec7b27557ebcb820800000000000000
+      internalID: 2935430468321639649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ruined-corner-alpha-v1_1
+      rect:
+        serializedVersion: 2
+        x: 756
+        y: 329
+        width: 16
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8bc3406cb5574370800000000000000
+      internalID: 8306702305265437578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ruined-corner-alpha-v1_2
+      rect:
+        serializedVersion: 2
+        x: 806
+        y: 330
+        width: 17
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3132bd00fa4c509d0800000000000000
+      internalID: -2808622536682953965
       vertices: []
       indices: 
       edges: []
@@ -160,8 +210,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      resolved_0: -4629276288439420676
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

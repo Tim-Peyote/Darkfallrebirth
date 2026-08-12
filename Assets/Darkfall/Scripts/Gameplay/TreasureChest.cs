@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections;
 using Darkfall.Core;
 using Darkfall.World;
 using UnityEngine;
@@ -27,7 +28,7 @@ namespace Darkfall.Gameplay
             var visual = new GameObject("Chest Visual");
             visual.transform.SetParent(chestObject.transform, false);
             chest.spriteRenderer = visual.AddComponent<SpriteRenderer>();
-            chest.spriteRenderer.sprite = GameSpriteAtlas.Chest(false);
+            chest.spriteRenderer.sprite = TreasureChestSpriteLibrary.Closed ?? GameSpriteAtlas.Chest(false);
             chest.spriteRenderer.color = Color.white;
             chest.spriteRenderer.sortingOrder = 11;
             DarkfallRenderMaterials.MakeLit(chest.spriteRenderer);
@@ -112,9 +113,21 @@ namespace Darkfall.Gameplay
                     return true;
                 }
             }
-            spriteRenderer.sprite = GameSpriteAtlas.Chest(true);
+            StartCoroutine(PlayOpening());
             Darkfall.UI.InventoryUI.Instance?.OpenChest(this);
             return true;
+        }
+
+        private IEnumerator PlayOpening()
+        {
+            // Inventory pauses game time; realtime waits keep this short interaction readable.
+            var frame = TreasureChestSpriteLibrary.Opening(0);
+            if (frame != null) spriteRenderer.sprite = frame;
+            yield return new WaitForSecondsRealtime(.085f);
+            frame = TreasureChestSpriteLibrary.Opening(1);
+            if (frame != null) spriteRenderer.sprite = frame;
+            yield return new WaitForSecondsRealtime(.095f);
+            spriteRenderer.sprite = TreasureChestSpriteLibrary.Open ?? GameSpriteAtlas.Chest(true);
         }
 
         /// <summary>Deterministic entry point for the non-destructive release smoke.</summary>

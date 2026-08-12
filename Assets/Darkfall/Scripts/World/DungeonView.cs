@@ -51,6 +51,7 @@ namespace Darkfall.World
             foreach (var miniSet in data.MiniSets)
             {
                 if (miniSet.Kind == DungeonMiniSetKind.HazardBridge) continue;
+                if (profile.Id == "ashen-catacombs" && CreateAuthoredAshenMiniSet(data, miniSet)) continue;
                 var index = miniSet.Kind == DungeonMiniSetKind.StatueNiche ? 6 :
                     miniSet.Kind == DungeonMiniSetKind.RuinedCorner ? 7 :
                     miniSet.Kind == DungeonMiniSetKind.Colonnade ? 6 :
@@ -68,6 +69,64 @@ namespace Darkfall.World
                 else CreateProp(data, index, miniSet.Anchor, miniSet.Mask.width >= 5 ? .78f : .62f,
                     "Mini Set · " + miniSet.Kind, miniSet.Kind != DungeonMiniSetKind.Campfire, structuralDecor);
             }
+        }
+
+        private bool CreateAuthoredAshenMiniSet(DungeonData data, DungeonMiniSet miniSet)
+        {
+            var sprite = MiniSetSpriteLibrary.Get(miniSet.Kind);
+            if (sprite == null) return false;
+            // A colonnade reserves a composed visual mask, but its arch remains traversable.
+            // Treating the anchor as a solid obstacle made the art promise a passage while
+            // navigation rejected it.
+            var blocks = miniSet.Kind != DungeonMiniSetKind.Campfire &&
+                         miniSet.Kind != DungeonMiniSetKind.Colonnade;
+            if (blocks && !data.TryAddObstaclePreservingRoutes(miniSet.Anchor)) return false;
+
+            var root = new GameObject("Mini Set · Authored " + miniSet.Kind);
+            root.transform.SetParent(miniSet.Kind == DungeonMiniSetKind.Campfire ? lightDecor : structuralDecor, false);
+            root.transform.position = miniSet.Anchor;
+            // A niche is wall-mounted art: move its logical anchor onto the north wall line
+            // instead of presenting it as a freestanding monument in the room.
+            if (miniSet.Kind == DungeonMiniSetKind.StatueNiche &&
+                miniSet.RoomIndex >= 0 && miniSet.RoomIndex < data.Rooms.Count)
+            {
+                var room = data.Rooms[miniSet.RoomIndex];
+                root.transform.position = new Vector2(miniSet.Anchor.x, room.bounds.yMax - .12f);
+            }
+            else if (miniSet.Kind == DungeonMiniSetKind.SideChapel &&
+                     miniSet.RoomIndex >= 0 && miniSet.RoomIndex < data.Rooms.Count)
+            {
+                var room = data.Rooms[miniSet.RoomIndex];
+                root.transform.position = new Vector2(miniSet.Anchor.x, room.bounds.yMin + .35f);
+            }
+            var visual = new GameObject("Projected " + miniSet.Kind);
+            visual.transform.SetParent(root.transform, false);
+            var scale = miniSet.Mask.width >= 5 ? .78f : .62f;
+            if (miniSet.Kind == DungeonMiniSetKind.StatueNiche) scale = .34f;
+            else if (miniSet.Kind == DungeonMiniSetKind.Altar) scale = .38f;
+            else if (miniSet.Kind == DungeonMiniSetKind.Campfire) scale = .38f;
+            visual.transform.localScale = Vector3.one * scale;
+            var renderer = visual.AddComponent<SpriteRenderer>();
+            renderer.sprite = sprite;
+            renderer.color = Color.white;
+            DarkfallRenderMaterials.MakeLit(renderer);
+            visual.AddComponent<IsoVisual>().Initialize(root.transform, 0f,
+                miniSet.Kind == DungeonMiniSetKind.StatueNiche ? 1120 : 1004);
+
+            if (blocks)
+            {
+                var caster = visual.AddComponent<ShadowCaster2D>();
+                caster.castsShadows = true;
+                caster.selfShadows = false;
+                caster.alphaCutoff = .18f;
+            }
+            if (miniSet.Kind == DungeonMiniSetKind.Campfire)
+            {
+                DarkfallRenderMaterials.MakeEmissive(renderer);
+                visual.AddComponent<MiniSetCampfireAnimator>().Initialize(renderer);
+                data.AddLightSource(miniSet.Anchor + new Vector2(0, .18f), profile.FireTint, 4.8f, .14f);
+            }
+            return true;
         }
 
         private void BuildSetPieces(DungeonData data)
@@ -378,7 +437,9 @@ namespace Darkfall.World
             var renderer = module.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
             ConfigureHazardOrientation(renderer, hazard.Connections, moduleName);
-            renderer.sortingOrder = data.ElevationLevel(hazard.Cell.x, hazard.Cell.y) > 0 ? 975 : -8;
+            // The crossing is architecture above both the animated hazard and its bank lip.
+            // A negative order let the translucent edge matte and nearby walls paint over it.
+            renderer.sortingOrder = data.ElevationLevel(hazard.Cell.x, hazard.Cell.y) > 0 ? 1085 : 1008;
             DarkfallRenderMaterials.MakeLit(renderer);
             return true;
         }
@@ -411,7 +472,11 @@ namespace Darkfall.World
             // never arbitrarily rotated, so pixel scale and connection width remain stable.
             if (moduleName == "straight" || moduleName == "bridge")
             {
-                renderer.flipX = (mask & (DungeonHazardConnections.South | DungeonHazardConnections.North)) != 0;
+                // Straight hazard art follows the flow; a bridge must use the perpendicular
+                // isometric axis. Mirroring swaps the two screen-space diagonals.
+                var northSouth = (mask & (DungeonHazardConnections.South |
+                                           DungeonHazardConnections.North)) != 0;
+                renderer.flipX = moduleName == "bridge" ? !northSouth : northSouth;
                 return;
             }
             if (moduleName == "end")
@@ -978,11 +1043,6 @@ namespace Darkfall.World
                 CreateArchitectureModule(role, module.Anchor, flip, .985f, moduleIndex++,
                     data.BoundaryHeight(module.Anchor), visualVariant: module.Variant);
             }
-            // The authored corner sprites contain two complete wall shoulders. Layering them over
-            // the already continuous unit walls doubles both facades and creates the turret-like
-            // knots visible at concave room corners. Unit walls now own the joint; corner artwork
-            // remains available for future authored set pieces, where it can replace (not overlap)
-            // the adjacent modules as a single composition.
         }
 
         private static void CornerOrientation(DungeonResolvedWallCorner corner, out bool flipX)

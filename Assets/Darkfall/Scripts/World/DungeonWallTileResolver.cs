@@ -33,7 +33,12 @@ namespace Darkfall.World
                     var unit = units[index];
                     var section = index - runStart;
                     var variant = (byte)(Hash(seed, unit.Fixed, unit.Start, unit.Vertical ? 31 : 47) % 3);
-                    if (variant == previousVariant) variant = (byte)((variant + 1) % 3);
+                    // Both axes meeting at a vertex must use the neutral material grade. Random
+                    // endpoint variants otherwise turn one half of the same masonry corner blue
+                    // and the other warm, making the overlap read as two unrelated walls.
+                    var cornerShoulder = section == 0 || section == length - 1;
+                    if (cornerShoulder) variant = 0;
+                    else if (variant == previousVariant) variant = (byte)((variant + 1) % 3);
                     previousVariant = variant;
                     var kind = DungeonWallModuleKind.Face;
                     // Accents need ordinary wall on both sides; this prevents broken art at a

@@ -622,7 +622,50 @@ namespace Darkfall.Editor
             var output = Path.GetFullPath("work/visual-audit");
             Directory.CreateDirectory(output);
             CaptureBiomeDepth(output, 1);
+            CaptureAshenMiniSetVariants(output);
             Debug.Log("Darkfall Ashen Catacombs audit captured: " + output);
+        }
+
+        private static void CaptureAshenMiniSetVariants(string output)
+        {
+            var wanted = new HashSet<DungeonMiniSetKind>
+            {
+                DungeonMiniSetKind.StatueNiche, DungeonMiniSetKind.Altar,
+                DungeonMiniSetKind.Campfire, DungeonMiniSetKind.Colonnade,
+                DungeonMiniSetKind.SideChapel, DungeonMiniSetKind.HazardBridge
+            };
+            var balance = GameBalance.RuntimeDefault();
+            try
+            {
+                for (var seed = 73001; seed < 73501 && wanted.Count > 0; seed++)
+                {
+                    var dungeon = DungeonGenerator.Generate(balance, 1, seed);
+                    foreach (var miniSet in dungeon.MiniSets)
+                    {
+                        if (!wanted.Remove(miniSet.Kind)) continue;
+                        var root = new GameObject("Mini Set Variant Audit Root");
+                        root.AddComponent<DungeonView>().Build(dungeon, 1);
+                        var ambient = new GameObject("Mini Set Variant Audit Ambient").AddComponent<Light2D>();
+                        ambient.lightType = Light2D.LightType.Global;
+                        ambient.color = new Color(.40f, .39f, .36f);
+                        ambient.intensity = .84f;
+                        ambient.shadowsEnabled = false;
+                        CaptureAuditFrame(output, 1,
+                            $"miniset-target-{miniSet.Kind.ToString().ToLowerInvariant()}-seed-{seed}",
+                            miniSet.Anchor, miniSet.Kind == DungeonMiniSetKind.SideChapel ? 4.2f : 3.2f);
+                        UnityEngine.Object.DestroyImmediate(ambient.gameObject);
+                        UnityEngine.Object.DestroyImmediate(root);
+                        break;
+                    }
+                }
+                if (wanted.Count > 0)
+                    throw new InvalidOperationException("Missing mini-set audit variants: " +
+                                                        string.Join(", ", wanted));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(balance);
+            }
         }
 
         [MenuItem("Darkfall/Capture Elevation Variants Audit")]
@@ -742,6 +785,22 @@ namespace Darkfall.Editor
                 CaptureAuditFrame(output, depth, "elevation", elevationFocus);
                 CaptureAuditFrame(output, depth, "arrival-threshold", dungeon.CellCenter(dungeon.StartCell));
                 CaptureAuditFrame(output, depth, "exit-threshold", dungeon.CellCenter(dungeon.ExitCell));
+                var capturedInnerCorner = false;
+                var capturedOuterCorner = false;
+                foreach (var corner in dungeon.ResolvedWallCorners)
+                {
+                    if (corner.Kind == DungeonWallCornerKind.Inner && !capturedInnerCorner)
+                    {
+                        CaptureAuditFrame(output, depth, "wall-corner-inner", corner.Anchor, 2.4f);
+                        capturedInnerCorner = true;
+                    }
+                    else if (corner.Kind == DungeonWallCornerKind.Outer && !capturedOuterCorner)
+                    {
+                        CaptureAuditFrame(output, depth, "wall-corner-outer", corner.Anchor, 2.4f);
+                        capturedOuterCorner = true;
+                    }
+                    if (capturedInnerCorner && capturedOuterCorner) break;
+                }
                 foreach (var feature in dungeon.Architecture)
                     if (feature.Kind == DungeonArchitectureKind.ElevationStairs)
                     {
@@ -751,6 +810,22 @@ namespace Darkfall.Editor
 
                 if (dungeon.Hazards.Count > 0)
                     CaptureAuditFrame(output, depth, "hazard", dungeon.Hazards[0].Cell + Vector2.one * .5f);
+
+                var miniSetCounters = new Dictionary<DungeonMiniSetKind, int>();
+                foreach (var miniSet in dungeon.MiniSets)
+                {
+                    if (miniSet.Kind != DungeonMiniSetKind.StatueNiche &&
+                        miniSet.Kind != DungeonMiniSetKind.Altar &&
+                        miniSet.Kind != DungeonMiniSetKind.Campfire &&
+                        miniSet.Kind != DungeonMiniSetKind.Colonnade &&
+                        miniSet.Kind != DungeonMiniSetKind.SideChapel &&
+                        miniSet.Kind != DungeonMiniSetKind.HazardBridge) continue;
+                    miniSetCounters.TryGetValue(miniSet.Kind, out var miniSetIndex);
+                    miniSetCounters[miniSet.Kind] = miniSetIndex + 1;
+                    CaptureAuditFrame(output, depth,
+                        $"miniset-{miniSet.Kind.ToString().ToLowerInvariant()}-{miniSetIndex + 1}",
+                        miniSet.Anchor, miniSet.Kind == DungeonMiniSetKind.SideChapel ? 4.2f : 3.2f);
+                }
 
                 Transform firstEvent = null;
                 foreach (var candidate in root.GetComponentsInChildren<Transform>(true))

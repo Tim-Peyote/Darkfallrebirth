@@ -12,7 +12,7 @@ namespace Darkfall.World
             var usedKinds = new HashSet<DungeonMiniSetKind>();
             var roomCount = Mathf.Max(1, dungeon.Rooms.Count - 2);
             var start = StableScore(0, seed ^ 0x4D1A1) % roomCount;
-            for (var offset = 0; offset < roomCount && placed < 6; offset++)
+            for (var offset = 0; offset < roomCount && placed < 8; offset++)
             {
                 var roomIndex = 1 + (start + offset) % roomCount;
                 var room = dungeon.Rooms[roomIndex];
@@ -63,7 +63,8 @@ namespace Darkfall.World
             else
                 pool = new[] { DungeonMiniSetKind.RuinedCorner, DungeonMiniSetKind.RubbleBlock,
                     DungeonMiniSetKind.Campfire, DungeonMiniSetKind.CollapsedWall,
-                    DungeonMiniSetKind.StatueNiche };
+                    DungeonMiniSetKind.StatueNiche, DungeonMiniSetKind.Altar,
+                    DungeonMiniSetKind.Colonnade, DungeonMiniSetKind.SideChapel };
 
             for (var step = 0; step < pool.Length; step++)
             {

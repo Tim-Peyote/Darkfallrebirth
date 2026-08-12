@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: e772f15cbddc4467b8527f203335d5ff
+guid: d5ef0a741f32644aabf1cbe2d5c3282f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4629276288439420676
-    second: resolved_0
+      213: 2639946710831988355
+    second: ritual-seal-states-isometric-alpha-v2_0
+  - first:
+      213: -7315888625533226550
+    second: ritual-seal-states-isometric-alpha-v2_1
+  - first:
+      213: 8755437573720965723
+    second: ritual-seal-states-isometric-alpha-v2_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +132,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: resolved_0
+      name: ritual-seal-states-isometric-alpha-v2_0
       rect:
         serializedVersion: 2
-        x: 48
-        y: 72
-        width: 415
-        height: 368
+        x: 13
+        y: 528
+        width: 404
+        height: 213
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +147,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cf8fd6c1eb181cfb0800000000000000
-      internalID: -4629276288439420676
+      spriteID: 38ef915eb89f2a420800000000000000
+      internalID: 2639946710831988355
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ritual-seal-states-isometric-alpha-v2_1
+      rect:
+        serializedVersion: 2
+        x: 422
+        y: 528
+        width: 405
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac175ca6e0eb87a90800000000000000
+      internalID: -7315888625533226550
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ritual-seal-states-isometric-alpha-v2_2
+      rect:
+        serializedVersion: 2
+        x: 835
+        y: 527
+        width: 408
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b520fb2c510918970800000000000000
+      internalID: 8755437573720965723
       vertices: []
       indices: 
       edges: []
@@ -160,8 +210,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      resolved_0: -4629276288439420676
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
