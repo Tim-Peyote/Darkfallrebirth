@@ -1040,19 +1040,46 @@ namespace Darkfall.World
                     module.Kind == DungeonWallModuleKind.Arcade ? "arcade" :
                     ArchitectureSpriteLibrary.WallRoleForAxis(profile.Id, module.Vertical);
                 var flip = ArchitectureSpriteLibrary.FlipForAxis(profile.Id, role, module.Vertical);
+                var visualVariant = IsCornerShoulder(data.ResolvedWallCorners, module) ? 0 : module.Variant;
+                var cornerTrim = CornerShoulderTrim(data.ResolvedWallCorners, module);
                 CreateArchitectureModule(role, module.Anchor, flip, .985f, moduleIndex++,
-                    data.BoundaryHeight(module.Anchor), visualVariant: module.Variant);
+                    data.BoundaryHeight(module.Anchor), visualVariant: visualVariant,
+                    endpointTrim: cornerTrim);
             }
         }
 
-        private static void CornerOrientation(DungeonResolvedWallCorner corner, out bool flipX)
+        private static bool IsCornerShoulder(IReadOnlyList<DungeonResolvedWallCorner> corners,
+            DungeonResolvedWallModule module)
         {
-            // Corner art is canonical for the south-west floor quadrant. An outer corner follows
-            // its sole floor quadrant; an inner corner follows its sole missing quadrant.
-            var orientation = corner.Kind == DungeonWallCornerKind.Outer
-                ? corner.FloorQuadrants : (byte)(15 ^ corner.FloorQuadrants);
-            flipX = (orientation & (2 | 8)) != 0;
+            foreach (var corner in corners)
+            {
+                var delta = module.Anchor - corner.Anchor;
+                if (module.Vertical && Mathf.Abs(delta.x) < .01f &&
+                    Mathf.Abs(Mathf.Abs(delta.y) - .5f) < .01f) return true;
+                if (!module.Vertical && Mathf.Abs(delta.y) < .01f &&
+                    Mathf.Abs(Mathf.Abs(delta.x) - .5f) < .01f) return true;
+            }
+            return false;
         }
+
+        private static int CornerShoulderTrim(IReadOnlyList<DungeonResolvedWallCorner> corners,
+            DungeonResolvedWallModule module)
+        {
+            foreach (var corner in corners)
+            {
+                var delta = module.Anchor - corner.Anchor;
+                var touches = module.Vertical
+                    ? Mathf.Abs(delta.x) < .01f && Mathf.Abs(Mathf.Abs(delta.y) - .5f) < .01f
+                    : Mathf.Abs(delta.y) < .01f && Mathf.Abs(Mathf.Abs(delta.x) - .5f) < .01f;
+                if (touches)
+                {
+                    var towardsCorner = IsoWorld.Project(corner.Anchor) - IsoWorld.Project(module.Anchor);
+                    return towardsCorner.x < 0f ? -1 : 1;
+                }
+            }
+            return 0;
+        }
+
 
         private static void AddWallWindowObstacle(DungeonData data, Vector2 anchor, bool vertical)
         {
@@ -1197,7 +1224,7 @@ namespace Darkfall.World
 
         private void CreateArchitectureModule(string role, Vector2 anchor, bool flipX, float scale, int index,
             float elevation = 0f, float horizontalScale = -1f, int visualVariant = 0,
-            bool reverseTravel = false)
+            bool reverseTravel = false, int endpointTrim = 0)
         {
             var sprite = ArchitectureSpriteLibrary.Module(profile.Id, role);
             if (sprite == null) return;
@@ -1231,6 +1258,23 @@ namespace Darkfall.World
                 renderSprite = Sprite.Create(sprite.texture, sprite.rect, new Vector2(.5f, .5f),
                     sprite.pixelsPerUnit, 0, SpriteMeshType.FullRect, sprite.border);
                 renderSprite.name = sprite.name + " · centered reverse";
+                runtimeSprites.Add(renderSprite);
+            }
+            else if (endpointTrim != 0)
+            {
+                var sourceTrim = flipX ? -endpointTrim : endpointTrim;
+                var rect = sprite.rect;
+                var pivotPixels = new Vector2(sprite.pivot.x, sprite.pivot.y);
+                if (sourceTrim < 0)
+                {
+                    rect.xMin += 18f;
+                    pivotPixels.x -= 18f;
+                }
+                else rect.xMax -= 18f;
+                var normalizedPivot = new Vector2(pivotPixels.x / rect.width, pivotPixels.y / rect.height);
+                renderSprite = Sprite.Create(sprite.texture, rect, normalizedPivot,
+                    sprite.pixelsPerUnit, 0, SpriteMeshType.FullRect, sprite.border);
+                renderSprite.name = sprite.name + " · trimmed corner shoulder";
                 runtimeSprites.Add(renderSprite);
             }
 

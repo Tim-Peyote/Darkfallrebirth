@@ -118,10 +118,15 @@ namespace Darkfall.Editor
                     failures += Require(Resources.Load<Texture2D>(
                             $"Sprites/Environment/Events/{biome}/event-{eventIndex:00}") != null,
                         $"Biome event module is missing: {biome}/{eventIndex:00}");
-            foreach (var module in architectureModules)
-                failures += Require(Resources.Load<Texture2D>(
-                        $"Sprites/Environment/Architecture/{biome}/{module}-01") != null,
-                    $"Architecture module is missing: {biome}/{module}");
+                foreach (var module in architectureModules)
+                {
+                    failures += Require(Resources.Load<Texture2D>(
+                            $"Sprites/Environment/Architecture/{biome}/{module}-01") != null,
+                        $"Architecture module is missing: {biome}/{module}");
+                    failures += Require(ArchitectureSpriteLibrary.ValidateSocketContract(biome, module,
+                            out var socketError),
+                        $"Architecture socket contract is invalid: {socketError}");
+                }
             }
             var biomeEnemySheets = new[]
             {
@@ -785,21 +790,26 @@ namespace Darkfall.Editor
                 CaptureAuditFrame(output, depth, "elevation", elevationFocus);
                 CaptureAuditFrame(output, depth, "arrival-threshold", dungeon.CellCenter(dungeon.StartCell));
                 CaptureAuditFrame(output, depth, "exit-threshold", dungeon.CellCenter(dungeon.ExitCell));
-                var capturedInnerCorner = false;
-                var capturedOuterCorner = false;
+                var capturedInnerCorner = new bool[4];
+                var capturedOuterCorner = new bool[4];
                 foreach (var corner in dungeon.ResolvedWallCorners)
                 {
-                    if (corner.Kind == DungeonWallCornerKind.Inner && !capturedInnerCorner)
+                    var orientation = corner.Kind == DungeonWallCornerKind.Outer
+                        ? corner.FloorQuadrants : (byte)(15 ^ corner.FloorQuadrants);
+                    var orientationIndex = orientation == 1 ? 0 : orientation == 2 ? 1 :
+                        orientation == 4 ? 2 : 3;
+                    if (corner.Kind == DungeonWallCornerKind.Inner && !capturedInnerCorner[orientationIndex])
                     {
-                        CaptureAuditFrame(output, depth, "wall-corner-inner", corner.Anchor, 2.4f);
-                        capturedInnerCorner = true;
+                        CaptureAuditFrame(output, depth, $"wall-corner-inner-{orientation}", corner.Anchor, 1.35f);
+                        capturedInnerCorner[orientationIndex] = true;
                     }
-                    else if (corner.Kind == DungeonWallCornerKind.Outer && !capturedOuterCorner)
+                    else if (corner.Kind == DungeonWallCornerKind.Outer && !capturedOuterCorner[orientationIndex])
                     {
-                        CaptureAuditFrame(output, depth, "wall-corner-outer", corner.Anchor, 2.4f);
-                        capturedOuterCorner = true;
+                        CaptureAuditFrame(output, depth, $"wall-corner-outer-{orientation}", corner.Anchor, 1.35f);
+                        capturedOuterCorner[orientationIndex] = true;
                     }
-                    if (capturedInnerCorner && capturedOuterCorner) break;
+                    if (System.Array.TrueForAll(capturedInnerCorner, value => value) &&
+                        System.Array.TrueForAll(capturedOuterCorner, value => value)) break;
                 }
                 foreach (var feature in dungeon.Architecture)
                     if (feature.Kind == DungeonArchitectureKind.ElevationStairs)

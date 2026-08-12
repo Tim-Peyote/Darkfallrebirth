@@ -10,6 +10,21 @@ namespace Darkfall.Core
     /// </summary>
     public static class ArchitectureSpriteLibrary
     {
+        public readonly struct ArchitectureSocketContract
+        {
+            public readonly Rect Ink;
+            public readonly float Baseline;
+            public readonly float LeftSocket;
+            public readonly float RightSocket;
+
+            public ArchitectureSocketContract(Rect ink, float baseline, float leftSocket, float rightSocket)
+            {
+                Ink = ink;
+                Baseline = baseline;
+                LeftSocket = leftSocket;
+                RightSocket = rightSocket;
+            }
+        }
         private const string Root = "Sprites/Environment/Architecture/";
         private const float PixelsPerUnit = 230f;
         private const float ReferenceCanvas = 362f;
@@ -27,6 +42,46 @@ namespace Darkfall.Core
             { "obsidian-sanctum/wall-left", new Rect(99, 0, 263, 315) },
             { "obsidian-sanctum/wall-right", new Rect(71, 0, 263, 315) }
         };
+
+        // Socket positions are measured on the authored 362 px canvas. Every value is an actual
+        // connection plane, not a decorative overlap allowance. A validator can therefore reject
+        // an asset before it reaches a generated dungeon.
+        private static readonly Dictionary<string, ArchitectureSocketContract> SocketContracts =
+            new Dictionary<string, ArchitectureSocketContract>
+            {
+                { "ashen-catacombs/wall-left", new ArchitectureSocketContract(new Rect(61, 33, 249, 296), 33, 61, 310) },
+                { "ashen-catacombs/wall-right", new ArchitectureSocketContract(new Rect(45, 36, 248, 295), 36, 45, 293) },
+                { "ashen-catacombs/corner-inner", new ArchitectureSocketContract(new Rect(0, 50, 294, 267), 50, 0, 294) },
+                { "ashen-catacombs/corner-outer", new ArchitectureSocketContract(new Rect(18, 58, 262, 267), 58, 18, 280) }
+            };
+
+        public static bool TryGetSocketContract(string biome, string role, out ArchitectureSocketContract contract) =>
+            SocketContracts.TryGetValue(biome + "/" + role, out contract);
+
+        public static bool ValidateSocketContract(string biome, string role, out string error)
+        {
+            error = null;
+            var sprite = Module(biome, role);
+            if (sprite == null || sprite.texture == null)
+            {
+                error = $"missing sprite {biome}/{role}";
+                return false;
+            }
+            if (!TryGetSocketContract(biome, role, out var contract)) return true;
+            var textureBounds = new Rect(0f, 0f, sprite.texture.width, sprite.texture.height);
+            if (!textureBounds.Contains(contract.Ink.min) || !textureBounds.Contains(contract.Ink.max))
+            {
+                error = $"ink rectangle escapes canvas for {biome}/{role}";
+                return false;
+            }
+            if (contract.LeftSocket >= contract.RightSocket || contract.Baseline < contract.Ink.yMin - .01f ||
+                contract.Baseline > contract.Ink.yMax + .01f)
+            {
+                error = $"invalid socket order or baseline for {biome}/{role}";
+                return false;
+            }
+            return true;
+        }
 
         public static bool HasBiome(string biome) => Module(biome, "wall-left") != null;
 
@@ -62,6 +117,18 @@ namespace Darkfall.Core
             if (sprite == null || sprite.texture == null) return;
 
             var key = biome + "/" + role;
+            if (TryGetSocketContract(biome, role, out var socket) && role.StartsWith("corner-"))
+            {
+                // Corner modules occupy one topology junction. Align the centre of their measured
+                // socket span with the logical anchor and seat the measured plinth on the same
+                // baseline as the straight wall kit.
+                scale = Vector2.one;
+                var pivot = new Vector2(sprite.texture.width * .5f, sprite.texture.height * .08f);
+                var socketCentre = (socket.LeftSocket + socket.RightSocket) * .5f;
+                offset = new Vector2(-(socketCentre - pivot.x) / PixelsPerUnit,
+                    -(socket.Baseline - pivot.y) / PixelsPerUnit);
+                return;
+            }
             var referenceKey = "ashen-catacombs/" + role;
             if (!WallInk.TryGetValue(key, out var ink) || !WallInk.TryGetValue(referenceKey, out var reference))
             {
