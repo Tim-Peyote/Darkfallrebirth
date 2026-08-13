@@ -6,16 +6,20 @@ namespace Darkfall.World
     public sealed class DungeonFlameAnimator : MonoBehaviour
     {
         private SpriteRenderer spriteRenderer;
+        private SpriteRenderer bodyRenderer;
+        private int relativeSortingOrder;
         private int frame;
         private float nextFrame;
         private float frameDuration;
-        private float visibility;
 
         public void Initialize(int sortingOrder)
         {
+            relativeSortingOrder = sortingOrder;
+            bodyRenderer = transform.parent != null ? transform.parent.GetComponent<SpriteRenderer>() : null;
             spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = EnvironmentSpriteAtlas.Flame(0);
-            spriteRenderer.sortingOrder = sortingOrder;
+            spriteRenderer.color = Color.white;
+            RefreshSortingOrder();
             DarkfallRenderMaterials.MakeEmissive(spriteRenderer);
             frameDuration = Random.Range(.075f, .105f);
             frame = Random.Range(0, 4);
@@ -25,23 +29,24 @@ namespace Darkfall.World
         private void Update()
         {
             if (spriteRenderer == null) return;
-            var dungeon = GameManager.Instance?.Dungeon;
-            var projectedOwner = GetComponentInParent<IsoVisual>();
-            var position = projectedOwner != null ? projectedOwner.LogicalPosition : (Vector2)transform.position;
-            var x = Mathf.FloorToInt(position.x);
-            var y = Mathf.FloorToInt(position.y);
-            // A discovered light source must not turn into an inexplicably empty bowl as soon
-            // as it leaves the current visibility polygon. Fog still controls unexplored rooms;
-            // once discovered, the flame and its persistent authored light remain consistent.
-            var targetVisibility = dungeon != null && (dungeon.IsVisible(x, y) || dungeon.IsExplored(x, y))
-                ? 1f
-                : 0f;
-            visibility = Mathf.MoveTowards(visibility, targetVisibility, Time.deltaTime * 7f);
-            spriteRenderer.color = new Color(1, 1, 1, visibility);
+            // The scene fog owns visibility for the entire brazier. Fading this child separately
+            // produced explored bowls with no fire and made duplicated variants appear on screen.
+            // Keep the authored flame opaque and let the common fog/light pass hide the composition.
             if (Time.time < nextFrame) return;
             frame = (frame + 1) % 4;
             spriteRenderer.sprite = EnvironmentSpriteAtlas.Flame(frame);
             nextFrame = Time.time + frameDuration;
+        }
+
+        private void LateUpdate() => RefreshSortingOrder();
+
+        private void RefreshSortingOrder()
+        {
+            if (spriteRenderer == null) return;
+            if (bodyRenderer == null && transform.parent != null)
+                bodyRenderer = transform.parent.GetComponent<SpriteRenderer>();
+            spriteRenderer.sortingLayerID = bodyRenderer != null ? bodyRenderer.sortingLayerID : 0;
+            spriteRenderer.sortingOrder = (bodyRenderer != null ? bodyRenderer.sortingOrder : 0) + relativeSortingOrder;
         }
     }
 }

@@ -973,6 +973,22 @@ namespace Darkfall.Core
                 }
                 break;
             }
+            var brazierFlames = FindObjectsByType<DungeonFlameAnimator>(FindObjectsInactive.Exclude,
+                FindObjectsSortMode.None);
+            if (brazierFlames.Length > 0)
+            {
+                var brazier = brazierFlames[0].GetComponentInParent<IsoVisual>();
+                if (brazier != null)
+                {
+                    Player.transform.position = ClosestWalkableAuditPoint(
+                        brazier.LogicalPosition + new Vector2(-1.1f, -.65f));
+                    Player.SetFacingForVisualAudit((brazier.LogicalPosition - (Vector2)Player.transform.position).normalized);
+                    for (var settle = 0; settle < 36; settle++) yield return null;
+                    CaptureLightingFrame(Path.Combine(output, "30-brazier-flame-a.png"), 2.1f);
+                    for (var animate = 0; animate < 14; animate++) yield return null;
+                    CaptureLightingFrame(Path.Combine(output, "31-brazier-flame-b.png"), 2.1f);
+                }
+            }
             Debug.Log($"DARKFALL_LIGHTING_AUDIT_PASS: {scenarios.Count} frames at {output}");
             RestoreReleaseSmokeSave();
 #if UNITY_EDITOR

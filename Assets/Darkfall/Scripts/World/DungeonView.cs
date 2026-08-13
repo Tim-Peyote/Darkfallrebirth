@@ -8,6 +8,11 @@ namespace Darkfall.World
 {
     public sealed class DungeonView : MonoBehaviour
     {
+        // One physical and visual standard for every Ashen Catacombs brazier. Room decoration,
+        // arena set pieces and the Campfire mini-set must never choose their own scale/body.
+        private const float AshenBrazierScale = .58f;
+        private static readonly Vector2 AshenBrazierFlameOffset = new Vector2(0f, .24f);
+        private const float AshenBrazierFlameScale = .56f;
         private readonly List<Mesh> meshes = new List<Mesh>();
         private readonly List<Material> materials = new List<Material>();
         private readonly List<Texture2D> runtimeTextures = new List<Texture2D>();
@@ -145,16 +150,16 @@ namespace Darkfall.World
             var scale = miniSet.Mask.width >= 5 ? .78f : .62f;
             if (miniSet.Kind == DungeonMiniSetKind.StatueNiche) scale = .34f;
             else if (miniSet.Kind == DungeonMiniSetKind.Altar) scale = .38f;
-            else if (miniSet.Kind == DungeonMiniSetKind.Campfire) scale = .38f;
+            else if (miniSet.Kind == DungeonMiniSetKind.Campfire) scale = AshenBrazierScale;
             visual.transform.localScale = Vector3.one * scale;
             var renderer = visual.AddComponent<SpriteRenderer>();
             // Campfires and room braziers must share one canonical construction. The previous
             // mini-set swapped four complete bowl images, so the metal body changed silhouette
             // every frame while a second, newer brazier existed elsewhere in the same dungeon.
             // Keep one static body and animate only its child flame.
-            renderer.sprite = miniSet.Kind == DungeonMiniSetKind.Campfire
-                ? EnvironmentSpriteAtlas.Prop(profile.Id, 2)
-                : sprite;
+            // `sprite` is also the canonical brazier body for Campfire. Never substitute prop-2:
+            // doing so recreated the second, differently proportioned empty bowl on the map.
+            renderer.sprite = sprite;
             renderer.color = Color.white;
             DarkfallRenderMaterials.MakeLit(renderer);
             visual.AddComponent<IsoVisual>().Initialize(root.transform, 0f,
@@ -169,8 +174,8 @@ namespace Darkfall.World
             }
             if (miniSet.Kind == DungeonMiniSetKind.Campfire)
             {
-                visual.transform.localScale = Vector3.one * .58f;
-                AddFlame(visual.transform, new Vector2(0, .24f), .56f, 9);
+                visual.transform.localScale = Vector3.one * AshenBrazierScale;
+                AddFlame(visual.transform, AshenBrazierFlameOffset, AshenBrazierFlameScale, 9);
                 data.AddLightSource(miniSet.Anchor + new Vector2(0, .18f), profile.FireTint, 4.8f, .14f);
             }
             RegisterDecor(root.transform.position, footprintRadius);
@@ -1971,12 +1976,16 @@ namespace Darkfall.World
             var prop = new GameObject(objectName + " " + index);
             prop.transform.SetParent(group, false);
             prop.transform.position = position;
-            if (profile.Id != "ashen-catacombs" && (index == 0 || index == 8)) scale = .72f;
+            var canonicalAshenBrazier = profile.Id == "ashen-catacombs" && index == 2;
+            if (canonicalAshenBrazier) scale = AshenBrazierScale;
+            else if (profile.Id != "ashen-catacombs" && (index == 0 || index == 8)) scale = .72f;
             var visual = new GameObject("Projected Prop");
             visual.transform.SetParent(prop.transform, false);
             visual.transform.localScale = Vector3.one * scale;
             var renderer = visual.AddComponent<SpriteRenderer>();
-            renderer.sprite = EnvironmentSpriteAtlas.Prop(profile.Id, index);
+            renderer.sprite = canonicalAshenBrazier
+                ? MiniSetSpriteLibrary.Get(DungeonMiniSetKind.Campfire)
+                : EnvironmentSpriteAtlas.Prop(profile.Id, index);
             renderer.color = Color.white;
             DarkfallRenderMaterials.MakeLit(renderer);
             visual.AddComponent<IsoVisual>().Initialize(prop.transform, 0f, 1000);
@@ -1988,7 +1997,12 @@ namespace Darkfall.World
                 caster.alphaCutoff = .22f;
             }
             var customBiomeDecor = profile.Id != "ashen-catacombs";
-            if ((!customBiomeDecor && index == 2) || (customBiomeDecor && index == 0))
+            if (canonicalAshenBrazier)
+            {
+                AddFlame(visual.transform, AshenBrazierFlameOffset, AshenBrazierFlameScale, 9);
+                data.AddLightSource(position + new Vector2(0, .22f), profile.FireTint, 5.8f, .16f);
+            }
+            else if (customBiomeDecor && index == 0)
             {
                 AddFlame(visual.transform, new Vector2(0, .24f), .56f, 9);
                 data.AddLightSource(position + new Vector2(0, .22f), profile.FireTint, 5.8f, .16f);

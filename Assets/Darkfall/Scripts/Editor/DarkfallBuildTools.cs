@@ -78,6 +78,11 @@ namespace Darkfall.Editor
                 failures += Require(flame != null && flame.width == 256 && flame.height == 341,
                     $"Flame frame canvas must remain 256x341: {frame}");
             }
+            var brazierBody = Resources.Load<Texture2D>(
+                "Sprites/Environment/MiniSets/ashen-catacombs/campfire-unlit");
+            failures += Require(brazierBody != null, "Canonical Ashen brazier body is missing");
+            failures += Require(brazierBody != null && brazierBody.width == 512 && brazierBody.height == 512,
+                "Canonical Ashen brazier body must keep its 512x512 canvas");
             foreach (var state in new[] { "closed", "opening-01", "opening-02", "open" })
             {
                 var door = Resources.Load<Texture2D>($"Sprites/Interactables/DungeonDoor/{state}");
