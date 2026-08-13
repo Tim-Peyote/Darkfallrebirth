@@ -39,7 +39,7 @@ namespace Darkfall.Gameplay
             door.killsRequired = 2 + Mathf.Clamp((GameManager.Instance?.Depth ?? 1) / 12, 0, 2);
             door.keyId = $"dungeon_key_{GameManager.Instance?.Depth ?? 1}";
 
-            door.closedRenderer = door.CreateVisual("Animated Door", feature.Vertical, 1.16f);
+            door.closedRenderer = door.CreateVisual("Animated Door", feature.Vertical, .985f);
             door.ApplyLockedTint();
 
             // The contour owns both wall cheeks and the authored door owns its complete frame.
@@ -176,6 +176,28 @@ namespace Darkfall.Gameplay
             }
             return true;
         }
+
+        public static bool ForceOpeningPhaseForVisualAudit(PlayerController target, float normalized)
+        {
+            // The preceding audit deliberately opens every production door. For the frame-by-frame
+            // sequence we must still be able to address that same door and drive it back to Closed.
+            // Gameplay queries continue to use Nearest(), which correctly ignores open doors.
+            var nearest = NearestIncludingOpen(target, out _);
+            if (nearest == null) return false;
+            normalized = Mathf.Clamp01(normalized);
+            nearest.opening = normalized;
+            nearest.openingStarted = false;
+            nearest.open = normalized >= 1f;
+            if (nearest.closedRenderer != null)
+            {
+                nearest.closedRenderer.color = Color.white;
+                nearest.closedRenderer.sprite = normalized < .01f ? DungeonDoorSpriteLibrary.Closed :
+                    normalized < .5f ? DungeonDoorSpriteLibrary.Opening(0) :
+                    normalized < .9f ? DungeonDoorSpriteLibrary.Opening(1) :
+                    DungeonDoorSpriteLibrary.Open;
+            }
+            return true;
+        }
 #endif
 
         private static DungeonDoor Nearest(PlayerController target, out float distance)
@@ -186,6 +208,22 @@ namespace Darkfall.Gameplay
             foreach (var door in Active)
             {
                 if (door == null || door.open) continue;
+                var current = Vector2.Distance(door.transform.position, target.transform.position);
+                if (current >= distance) continue;
+                distance = current;
+                nearest = door;
+            }
+            return nearest;
+        }
+
+        private static DungeonDoor NearestIncludingOpen(PlayerController target, out float distance)
+        {
+            distance = float.MaxValue;
+            DungeonDoor nearest = null;
+            if (target == null) return null;
+            foreach (var door in Active)
+            {
+                if (door == null) continue;
                 var current = Vector2.Distance(door.transform.position, target.transform.position);
                 if (current >= distance) continue;
                 distance = current;

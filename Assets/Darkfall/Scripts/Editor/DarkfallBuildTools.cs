@@ -21,6 +21,11 @@ namespace Darkfall.Editor
         public static void ValidateProject()
         {
             var failures = 0;
+            failures += Require(Mathf.Approximately(IsoWorld.HalfWidth / IsoWorld.HalfHeight, 2f),
+                "Isometric art contract: IsoWorld must remain a 2:1 dimetric projection");
+            failures += Require(Mathf.Abs(Mathf.Atan2(IsoWorld.HalfHeight, IsoWorld.HalfWidth) *
+                                           Mathf.Rad2Deg - 26.565052f) < .001f,
+                "Isometric art contract: projected ground-edge angle changed without updating art");
             failures += Require(File.Exists(MainScene), "Main scene is missing");
             failures += Require(Resources.Load<Texture2D>("Art/Main") != null, "Main menu art is missing");
             failures += Require(Resources.Load<Texture2D>("Art/shop-sanctuary") != null, "Unique shop sanctuary art is missing");
@@ -72,6 +77,13 @@ namespace Darkfall.Editor
                 failures += Require(flame != null, $"Individual flame frame is missing: {frame}");
                 failures += Require(flame != null && flame.width == 256 && flame.height == 341,
                     $"Flame frame canvas must remain 256x341: {frame}");
+            }
+            foreach (var state in new[] { "closed", "opening-01", "opening-02", "open" })
+            {
+                var door = Resources.Load<Texture2D>($"Sprites/Interactables/DungeonDoor/{state}");
+                failures += Require(door != null, $"Dungeon door state is missing: {state}");
+                failures += Require(door != null && door.width == 512 && door.height == 512,
+                    $"Dungeon door state must keep the shared 512x512 canvas: {state}");
             }
             failures += Require(DungeonVisualProfile.ForDepth(1).Id != DungeonVisualProfile.ForDepth(11).Id,
                 "Biome profile must change after depth 10");

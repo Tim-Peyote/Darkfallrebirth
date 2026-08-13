@@ -899,9 +899,15 @@ namespace Darkfall.Core
             scenarios.Add(("01-start-room", Dungeon.CellCenter(Dungeon.StartCell), Vector2.right));
             foreach (var feature in Dungeon.Architecture)
             {
-                if (feature.Kind == DungeonArchitectureKind.ClosedDoor &&
-                    !scenarios.Exists(item => item.name == "02-closed-door"))
-                    scenarios.Add(("02-closed-door", feature.Position - Vector2.right * 1.15f, Vector2.right));
+                if (feature.Kind == DungeonArchitectureKind.ClosedDoor)
+                {
+                    var doorName = feature.Vertical ? "02-closed-door-vertical" : "03-closed-door-horizontal";
+                    if (!scenarios.Exists(item => item.name == doorName))
+                    {
+                        var normal = feature.Vertical ? Vector2.right : Vector2.up;
+                        scenarios.Add((doorName, feature.Position - normal * 1.15f, normal));
+                    }
+                }
                 if (feature.Kind == DungeonArchitectureKind.ElevationStairs &&
                     !scenarios.Exists(item => item.name == "06-stairs-lower"))
                 {
@@ -933,7 +939,22 @@ namespace Darkfall.Core
                 Player.transform.position = ClosestWalkableAuditPoint(scenario.position);
                 Player.SetFacingForVisualAudit(scenario.facing);
                 for (var settle = 0; settle < 50; settle++) yield return null;
-                CaptureLightingFrame(Path.Combine(output, scenario.name + ".png"));
+                CaptureLightingFrame(Path.Combine(output, scenario.name + ".png"),
+                    scenario.name.Contains("door") ? 2.35f : -1f);
+                yield return null;
+            }
+            var openedOrientations = new HashSet<bool>();
+            foreach (var feature in Dungeon.Architecture)
+            {
+                if (feature.Kind != DungeonArchitectureKind.ClosedDoor ||
+                    !openedOrientations.Add(feature.Vertical)) continue;
+                var approach = feature.Vertical ? Vector2.down : Vector2.left;
+                Player.transform.position = ClosestWalkableAuditPoint(feature.Position + approach * 1.1f);
+                Player.SetFacingForVisualAudit(-approach);
+                DungeonDoor.ForceOpenNearestForVisualAudit(Player);
+                for (var settle = 0; settle < 42; settle++) yield return null;
+                CaptureLightingFrame(Path.Combine(output,
+                    feature.Vertical ? "11-open-door-vertical.png" : "12-open-door-horizontal.png"), 2.35f);
                 yield return null;
             }
             foreach (var feature in Dungeon.Architecture)
@@ -942,10 +963,14 @@ namespace Darkfall.Core
                 var approach = feature.Vertical ? Vector2.down : Vector2.left;
                 Player.transform.position = ClosestWalkableAuditPoint(feature.Position + approach * 1.1f);
                 Player.SetFacingForVisualAudit(-approach);
-                DungeonDoor.ForceOpenNearestForVisualAudit(Player);
-                for (var settle = 0; settle < 42; settle++) yield return null;
-                CaptureLightingFrame(Path.Combine(output, "11-open-door.png"));
-                yield return null;
+                foreach (var phase in new (float value, string name)[]
+                         { (0f, "closed"), (.4f, "opening-01"), (.75f, "opening-02"), (1f, "open") })
+                {
+                    DungeonDoor.ForceOpeningPhaseForVisualAudit(Player, phase.value);
+                    for (var settle = 0; settle < 4; settle++) yield return null;
+                    CaptureLightingFrame(Path.Combine(output, $"20-door-sequence-{phase.name}.png"), 2.35f);
+                    yield return null;
+                }
                 break;
             }
             Debug.Log($"DARKFALL_LIGHTING_AUDIT_PASS: {scenarios.Count} frames at {output}");
@@ -969,9 +994,11 @@ namespace Darkfall.Core
             return Dungeon.CellCenter(Dungeon.StartCell);
         }
 
-        private static void CaptureLightingFrame(string path)
+        private static void CaptureLightingFrame(string path, float orthographicSize = -1f)
         {
             var camera = Camera.main;
+            var previousOrthographicSize = camera.orthographicSize;
+            if (orthographicSize > 0f) camera.orthographicSize = orthographicSize;
             var target = new RenderTexture(1920, 1080, 24, RenderTextureFormat.ARGB32);
             var previousTarget = camera.targetTexture;
             var previousActive = RenderTexture.active;
@@ -983,6 +1010,7 @@ namespace Darkfall.Core
             image.Apply();
             File.WriteAllBytes(path, image.EncodeToPNG());
             camera.targetTexture = previousTarget;
+            camera.orthographicSize = previousOrthographicSize;
             RenderTexture.active = previousActive;
             Destroy(image);
             Destroy(target);

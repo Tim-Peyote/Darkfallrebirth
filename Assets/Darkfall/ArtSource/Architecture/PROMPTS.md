@@ -8,7 +8,17 @@ Output one `4 x 3` contact sheet containing exactly twelve isolated modules in t
 2. `arch-open`, `door-closed`, `wall-broken`, `wall-niche`
 3. `column`, `arcade`, `stairs`, `landmark`
 
-Use a fixed `2:1` isometric camera, consistent connecting geometry and ground baseline, real vertical volume, readable textured surfaces, coherent relative scale, generous padding, and a perfectly uniform `#00ff00` chroma background. Do not add outlines, strokes, diagram lines, cell borders, labels, text, UI, grids, frames, separators, cast shadows, or silhouette glow. Use crisp high-resolution hand-painted pixel art with upper-left lighting and no blur.
+Use the mandatory projection in `ISOMETRIC_ART_CONTRACT.md`; do not infer projection from a concept
+reference. It is a fixed `2:1` dimetric camera: floor edges run only at `+26.565°` or `-26.565°`,
+screen verticals remain exactly vertical, and one logical diamond is `1.44 x 0.72` world units.
+Match the measured wall socket, ground baseline and pivot instead of hiding joins with overlap.
+Use real vertical volume, readable textured surfaces, coherent relative scale, generous padding, and
+a perfectly uniform `#00ff00` chroma background. Do not add outlines, strokes, diagram lines, cell
+borders, labels, text, UI, grids, frames, separators, baked floor, cast shadows, or silhouette glow.
+Use crisp high-resolution hand-painted pixel art with upper-left lighting and no blur.
+
+Before runtime export, every module must pass the overlay and close Game-view acceptance gate in
+`ISOMETRIC_ART_CONTRACT.md`. A standalone contact sheet is not proof of a valid tile.
 
 Biome material clauses:
 

@@ -9,7 +9,7 @@ namespace Darkfall.Gameplay
         private const string Root = "Sprites/Interactables/DungeonDoor/";
         // The arch is a landmark module: its crown must read above the ordinary wall cap while
         // the low side wings still overlap the neighbouring wall sockets.
-        private const float PixelsPerUnit = 360f;
+        private const float PixelsPerUnit = 230f;
         private static readonly Dictionary<string, Sprite> Cache = new Dictionary<string, Sprite>();
 
         public static Sprite Closed => Load("closed");
@@ -25,10 +25,10 @@ namespace Darkfall.Gameplay
             texture.wrapMode = TextureWrapMode.Clamp;
             // Every state is authored on the same square canvas. FullRect prevents Unity from
             // changing the renderer geometry as the transparent doorway grows between frames.
-            // The authored canvases keep the masonry baseline at 18 px. Anchoring the sprite
-            // there makes the plinth meet the dungeon floor instead of sinking the arch into it.
+            // The post-projection pass seats the centre of the threshold baseline at 89.458 px.
+            // Side sockets rise/fall from that point at the exact 1:2 dimetric slope.
             var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-                new Vector2(.5f, 18f / 512f), PixelsPerUnit, 0, SpriteMeshType.FullRect);
+                new Vector2(.5f, 89.458333f / 512f), PixelsPerUnit, 0, SpriteMeshType.FullRect);
             sprite.name = "Dungeon Door · " + name;
             Cache[name] = sprite;
             return sprite;

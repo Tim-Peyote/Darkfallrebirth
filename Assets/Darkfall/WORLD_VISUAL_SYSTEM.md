@@ -14,6 +14,13 @@
 
 ## Implemented architecture
 
+### Mandatory projection contract
+
+All world art now follows `ArtSource/Architecture/ISOMETRIC_ART_CONTRACT.md` and its machine-readable
+JSON companion. `IsoWorld`, not external concept art, is the sole projection authority: a 2:1
+dimetric diamond with screen-space ground edges at ±26.565 degrees. New architecture is rejected
+until its sockets, baseline, animation stability and both in-game orientations have been checked.
+
 ### Biome profiles
 
 `DungeonVisualProfile.ForDepth` chooses a chapter profile every ten depths. A profile owns:

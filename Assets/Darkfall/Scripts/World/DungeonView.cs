@@ -1211,17 +1211,21 @@ namespace Darkfall.World
         {
             foreach (var feature in data.Architecture)
             {
-                // Floor-to-floor thresholds (including closed doors) are already open in the
-                // contour. Removing their neighbouring contour modules cuts false side passages
-                // beside the jambs. Only an elevation stair replaces its platform guardrail.
-                if (feature.Kind != DungeonArchitectureKind.ElevationStairs) continue;
+                // Authored doors and stairs own the complete threshold socket. Painting an
+                // ordinary wall module behind either one clips the arch and doubles its cap and
+                // plinth. Open gates own no art and therefore need no module replacement.
+                if (feature.Kind != DungeonArchitectureKind.ElevationStairs &&
+                    feature.Kind != DungeonArchitectureKind.ClosedDoor) continue;
                 var normalDistance = feature.Vertical
                     ? Mathf.Abs(point.x - feature.Position.x)
                     : Mathf.Abs(point.y - feature.Position.y);
                 var tangentDistance = feature.Vertical
                     ? Mathf.Abs(point.y - feature.Position.y)
                     : Mathf.Abs(point.x - feature.Position.x);
-                if (normalDistance <= .62f && tangentDistance <= feature.Width * .5f + .12f) return true;
+                var normalTolerance = feature.Kind == DungeonArchitectureKind.ClosedDoor ? .08f : .62f;
+                var tangentPadding = feature.Kind == DungeonArchitectureKind.ClosedDoor ? .05f : .12f;
+                if (normalDistance <= normalTolerance &&
+                    tangentDistance <= feature.Width * .5f + tangentPadding) return true;
             }
             return false;
         }

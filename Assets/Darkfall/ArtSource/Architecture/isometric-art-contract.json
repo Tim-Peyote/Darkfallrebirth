@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "authority": "Assets/Darkfall/Scripts/World/IsoWorld.cs",
+  "projection": {
+    "kind": "2:1-dimetric",
+    "logicalXBasis": [0.72, -0.36],
+    "logicalYBasis": [-0.72, -0.36],
+    "cellDiamondWorld": [1.44, 0.72],
+    "diamondRatio": 2.0,
+    "groundEdgeAnglesDegrees": [-26.565051, 26.565051],
+    "screenVerticalDegrees": 90.0,
+    "wallHeightWorld": 0.82
+  },
+  "architecture": {
+    "canonicalCanvasPixels": [362, 362],
+    "pixelsPerUnit": 230,
+    "pivotNormalized": [0.5, 0.08],
+    "lightingDirection": "upper-left",
+    "projectionMayComeFromConceptReference": false
+  },
+  "door": {
+    "animationStates": ["closed", "opening-01", "opening-02", "open"],
+    "sharedCanvasPixels": [512, 512],
+    "sharedBaselinePixels": 18,
+    "immutableMasonryAcrossFrames": true,
+    "sidePylonCapMatchesStraightWall": true,
+    "trueAlphaOpening": true,
+    "bakedFloorAllowed": false,
+    "continuousWallBehindThresholdAllowed": false,
+    "requiredCloseGameViewOrientations": 2
+  }
+}
