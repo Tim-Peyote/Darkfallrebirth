@@ -420,6 +420,26 @@
       "requiredClass": "warrior"
     },
     {
+      "name": "Гримуар",
+      "icon": "GRM",
+      "color": "#7d55a6",
+      "type": "focus",
+      "slot": "offhand",
+      "baseId": "grimoire",
+      "description": "Магический фокус для второй руки. Усиливает жезлы и заклинания.",
+      "requiredClass": "mage"
+    },
+    {
+      "name": "Чародейская сфера",
+      "icon": "ORB",
+      "color": "#3f86b8",
+      "type": "focus",
+      "slot": "offhand",
+      "baseId": "orb",
+      "description": "Одноручный фокус, повышающий силу и точность магии.",
+      "requiredClass": "mage"
+    },
+    {
       "name": "Мантия",
       "icon": "RBE",
       "color": "#6c3483",

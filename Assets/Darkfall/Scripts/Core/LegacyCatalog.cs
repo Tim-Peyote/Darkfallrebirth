@@ -96,8 +96,8 @@ namespace Darkfall.Core
             var asset = Resources.Load<TextAsset>("Data/legacy-catalog");
             if (asset == null) throw new InvalidOperationException("Legacy catalog is missing.");
             var parsed = JsonUtility.FromJson<LegacyCatalogData>(asset.text);
-            if (parsed?.items == null || parsed.items.Length != 46)
-                throw new InvalidOperationException("Legacy catalog failed parity validation: expected 46 base items.");
+            if (parsed?.items == null || parsed.items.Length != 48)
+                throw new InvalidOperationException("Legacy catalog failed parity validation: expected 48 base items.");
             return parsed;
         }
 

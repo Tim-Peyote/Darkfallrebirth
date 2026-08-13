@@ -735,6 +735,10 @@ namespace Darkfall.Core
                 "first floor did not spawn the expected active creep population");
             Check(FindFirstObjectByType<RitualArenaTrap>() != null,
                 "Ritual arena did not create its authored trap scenario");
+            var validationTrap = FindFirstObjectByType<RitualArenaTrap>();
+            Check(validationTrap != null && validationTrap.TriggerDistance > validationTrap.StrikeDistance &&
+                  validationTrap.StrikeDistance > .5f,
+                "ritual trap warning and strike footprints are invalid");
             Check(FindFirstObjectByType<OssuaryEventScenario>() != null,
                 "Ossuary EventRoom did not create its authored altar scenario");
             Check(FindFirstObjectByType<CatacombShrineScenario>() != null,
@@ -797,14 +801,22 @@ namespace Darkfall.Core
                 var validationChest = TreasureChest.Spawn(Player.transform.position, Player);
                 validationChest.Items[0] = InventorySystem.CreateFromDefinition(
                     LegacyCatalog.Item("potion"), Depth);
-                Check(validationChest.OpenForValidation() && InventoryUI.Instance != null && InventoryUI.Instance.IsOpen,
-                    "ordinary chest did not open the inventory transfer view");
+                Check(validationChest.OpenForValidation(), "ordinary chest did not begin opening");
+                yield return new WaitForSecondsRealtime(.34f);
+                Check(InventoryUI.Instance != null && InventoryUI.Instance.IsOpen,
+                    "ordinary chest did not open the inventory transfer view after its animation");
+                Check(validationChest != null && validationChest.gameObject.activeInHierarchy &&
+                      validationChest.HasVisibleSprite && !validationChest.HasInvalidWorldCollider,
+                    "ordinary chest disappeared after opening or owns a projected-space collider");
                 var validationBackpackSlot = Array.FindIndex(Inventory.Slots, slot => slot == null);
                 Check(validationBackpackSlot >= 0 && validationChest.TakeTo(0, validationBackpackSlot) &&
                       Inventory.Slots[validationBackpackSlot]?.baseId == "potion" && Inventory.Count("potion") == 1,
                     "ordinary chest item did not transfer to the requested empty backpack slot");
                 InventoryUI.Instance?.Close();
                 Check(!IsPaused, "closing the chest inventory did not resume the run");
+                yield return new WaitForSecondsRealtime(.22f);
+                Check(validationChest != null && validationChest.IsClosedAfterAnimation,
+                    "ordinary chest did not play its reverse animation after the inventory closed");
             }
 
             if (Dungeon != null && Dungeon.Rooms.Count > 1)
@@ -909,6 +921,12 @@ namespace Darkfall.Core
             if (Dungeon.LightSources.Count > 0)
                 scenarios.Add(("05-authored-light", Dungeon.LightSources[0].Position + Vector2.left * 1.4f,
                     Vector2.right));
+            if (Dungeon.TryGetSetPiece(DungeonSetPieceKind.Shrine, out var shrineAudit))
+                scenarios.Add(("08-healing-shrine", shrineAudit.Anchor, Vector2.down));
+            if (Dungeon.TryGetSetPiece(DungeonSetPieceKind.TreasureVault, out var vaultAudit))
+                scenarios.Add(("09-treasure-vault", vaultAudit.Anchor + Vector2.down * 1.4f, Vector2.up));
+            if (Dungeon.TryGetSetPiece(DungeonSetPieceKind.EliteArena, out var trapAudit))
+                scenarios.Add(("10-ritual-trap", trapAudit.Anchor + Vector2.down * 1.4f, Vector2.up));
 
             foreach (var scenario in scenarios)
             {
@@ -917,6 +935,18 @@ namespace Darkfall.Core
                 for (var settle = 0; settle < 50; settle++) yield return null;
                 CaptureLightingFrame(Path.Combine(output, scenario.name + ".png"));
                 yield return null;
+            }
+            foreach (var feature in Dungeon.Architecture)
+            {
+                if (feature.Kind != DungeonArchitectureKind.ClosedDoor) continue;
+                var approach = feature.Vertical ? Vector2.down : Vector2.left;
+                Player.transform.position = ClosestWalkableAuditPoint(feature.Position + approach * 1.1f);
+                Player.SetFacingForVisualAudit(-approach);
+                DungeonDoor.ForceOpenNearestForVisualAudit(Player);
+                for (var settle = 0; settle < 42; settle++) yield return null;
+                CaptureLightingFrame(Path.Combine(output, "11-open-door.png"));
+                yield return null;
+                break;
             }
             Debug.Log($"DARKFALL_LIGHTING_AUDIT_PASS: {scenarios.Count} frames at {output}");
             RestoreReleaseSmokeSave();

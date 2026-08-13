@@ -53,11 +53,29 @@ namespace Darkfall.World
             structuralDecor = CreateGroup(decorRoot, "Structural");
             lightDecor = CreateGroup(decorRoot, "Light Sources");
             clutterDecor = CreateGroup(decorRoot, "Clutter");
+            ReserveRuntimeScenarioFootprints(data);
             BuildSetPieces(data);
             BuildMiniSets(data);
             BuildDecor(data);
             BuildBiomeEvents(data);
             data.CompleteGenerationStage(DungeonGenerationStage.TileResolution);
+        }
+
+        private void ReserveRuntimeScenarioFootprints(DungeonData data)
+        {
+            // Runtime scenarios are spawned after DungeonView.Build. Reserve their composition
+            // here so generic room themes and biome events cannot occupy the same floor space.
+            // The missing reservation was why a biome landmark could grow through the healing
+            // shrine even though both placements were individually valid.
+            foreach (var setPiece in data.SetPieces)
+            {
+                if (setPiece.Kind == DungeonSetPieceKind.Shrine)
+                    RegisterDecor(setPiece.Anchor, 1.65f);
+                else if (setPiece.Kind == DungeonSetPieceKind.EventRoom)
+                    RegisterDecor(setPiece.Anchor, 1.35f);
+                else if (setPiece.Kind == DungeonSetPieceKind.EliteArena)
+                    RegisterDecor(setPiece.Anchor, 1.25f);
+            }
         }
 
         private void BuildMiniSets(DungeonData data)
@@ -93,7 +111,8 @@ namespace Darkfall.World
             // Treating the anchor as a solid obstacle made the art promise a passage while
             // navigation rejected it.
             var blocks = miniSet.Kind != DungeonMiniSetKind.Campfire &&
-                         miniSet.Kind != DungeonMiniSetKind.Colonnade;
+                         miniSet.Kind != DungeonMiniSetKind.Colonnade &&
+                         miniSet.Kind != DungeonMiniSetKind.StatueNiche;
             var footprintRadius = miniSet.Kind == DungeonMiniSetKind.Colonnade ? 1.15f :
                 miniSet.Kind == DungeonMiniSetKind.SideChapel ? 1.05f :
                 miniSet.Kind == DungeonMiniSetKind.Campfire ? .48f : .72f;
@@ -108,7 +127,12 @@ namespace Darkfall.World
                 miniSet.RoomIndex >= 0 && miniSet.RoomIndex < data.Rooms.Count)
             {
                 var room = data.Rooms[miniSet.RoomIndex];
-                root.transform.position = new Vector2(miniSet.Anchor.x, room.bounds.yMax - .12f);
+                if (!TryResolveNicheWall(data, room.bounds, miniSet.Anchor, out var wallPosition))
+                {
+                    Destroy(root);
+                    return false;
+                }
+                root.transform.position = wallPosition;
             }
             else if (miniSet.Kind == DungeonMiniSetKind.SideChapel &&
                      miniSet.RoomIndex >= 0 && miniSet.RoomIndex < data.Rooms.Count)
@@ -124,7 +148,13 @@ namespace Darkfall.World
             else if (miniSet.Kind == DungeonMiniSetKind.Campfire) scale = .38f;
             visual.transform.localScale = Vector3.one * scale;
             var renderer = visual.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
+            // Campfires and room braziers must share one canonical construction. The previous
+            // mini-set swapped four complete bowl images, so the metal body changed silhouette
+            // every frame while a second, newer brazier existed elsewhere in the same dungeon.
+            // Keep one static body and animate only its child flame.
+            renderer.sprite = miniSet.Kind == DungeonMiniSetKind.Campfire
+                ? EnvironmentSpriteAtlas.Prop(profile.Id, 2)
+                : sprite;
             renderer.color = Color.white;
             DarkfallRenderMaterials.MakeLit(renderer);
             visual.AddComponent<IsoVisual>().Initialize(root.transform, 0f,
@@ -139,12 +169,41 @@ namespace Darkfall.World
             }
             if (miniSet.Kind == DungeonMiniSetKind.Campfire)
             {
-                DarkfallRenderMaterials.MakeEmissive(renderer);
-                visual.AddComponent<MiniSetCampfireAnimator>().Initialize(renderer);
+                visual.transform.localScale = Vector3.one * .58f;
+                AddFlame(visual.transform, new Vector2(0, .24f), .56f, 9);
                 data.AddLightSource(miniSet.Anchor + new Vector2(0, .18f), profile.FireTint, 4.8f, .14f);
             }
             RegisterDecor(root.transform.position, footprintRadius);
             return true;
+        }
+
+        private static bool TryResolveNicheWall(DungeonData data, RectInt bounds, Vector2 preferred,
+            out Vector2 position)
+        {
+            // The authored niche faces the camera and can only sit on one of the two horizontal
+            // isometric wall planes. A room bound is not itself proof of a wall: an adjoining
+            // corridor may be carved immediately outside it. Require walkable floor on the room
+            // side and empty space on the far side for the complete three-cell frontage.
+            var candidates = new[]
+            {
+                new Vector2(Mathf.Clamp(preferred.x, bounds.xMin + 1.5f, bounds.xMax - 1.5f), bounds.yMax),
+                new Vector2(Mathf.Clamp(preferred.x, bounds.xMin + 1.5f, bounds.xMax - 1.5f), bounds.yMin)
+            };
+            foreach (var candidate in candidates)
+            {
+                var upper = Mathf.Approximately(candidate.y, bounds.yMax);
+                var insideY = upper ? bounds.yMax - 1 : bounds.yMin;
+                var outsideY = upper ? bounds.yMax : bounds.yMin - 1;
+                var centerX = Mathf.FloorToInt(candidate.x);
+                var valid = true;
+                for (var dx = -1; dx <= 1; dx++)
+                    valid &= data.IsFloor(centerX + dx, insideY) && !data.IsFloor(centerX + dx, outsideY);
+                if (!valid) continue;
+                position = new Vector2(centerX + .5f, candidate.y + (upper ? -.12f : .12f));
+                return true;
+            }
+            position = default;
+            return false;
         }
 
         private void BuildSetPieces(DungeonData data)
@@ -197,11 +256,11 @@ namespace Darkfall.World
                     case DungeonSetPieceKind.TreasureVault:
                         // The runtime chest owns the centre; authored storage frames it without
                         // competing with the interactable or closing the room's only route.
-                        CreateProp(data, 4, setPiece.Anchor + Vector2.left * 1.02f, .54f,
+                        CreateProp(data, 4, setPiece.Anchor + Vector2.left * 1.28f, .88f,
                             label + " Stores", true, structuralDecor);
-                        CreateProp(data, 4, setPiece.Anchor + Vector2.right * 1.02f, .54f,
+                        CreateProp(data, 4, setPiece.Anchor + Vector2.right * 1.28f, .88f,
                             label + " Stores", true, structuralDecor);
-                        CreateProp(data, 10, setPiece.Anchor + Vector2.up * .94f, .48f,
+                        CreateProp(data, 10, setPiece.Anchor + Vector2.up * 1.22f, .82f,
                             label + " Ledger", true, structuralDecor);
                         break;
                     case DungeonSetPieceKind.MimicLair:
@@ -1919,10 +1978,6 @@ namespace Darkfall.World
             visual.AddComponent<IsoVisual>().Initialize(prop.transform, 0f, 1000);
             if (blocks)
             {
-                var collider = prop.AddComponent<BoxCollider2D>();
-                collider.size = new Vector2(Mathf.Clamp(scale * .82f, .46f, 1.05f),
-                    Mathf.Clamp(scale * .48f, .28f, .62f));
-                collider.offset = new Vector2(0f, .06f);
                 var caster = visual.AddComponent<ShadowCaster2D>();
                 caster.castsShadows = true;
                 caster.selfShadows = false;

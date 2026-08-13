@@ -13,7 +13,7 @@ namespace Darkfall.UI
     public sealed class InventoryUI : MonoBehaviour
     {
         private static readonly string[] EquipmentNames =
-            { "ГОЛОВА", "ОРУЖИЕ I", "БРОНЯ", "ОРУЖИЕ II", "АМУЛЕТ I", "ПЕРЧАТКИ", "АМУЛЕТ II", "ПОЯС", "БОТИНКИ" };
+            { "ГОЛОВА", "ОСНОВНАЯ\nРУКА", "БРОНЯ", "ВТОРАЯ\nРУКА", "АМУЛЕТ", "ПЕРЧАТКИ", "КОЛЬЦО I", "ПОЯС", "БОТИНКИ", "КОЛЬЦО II" };
         private static readonly string[] CharacterStatLabels =
             { "ЗДОРОВЬЕ", "УРОН", "ЗАЩИТА", "ШАНС КРИТА", "СОПР. ОГНЮ", "СОПР. ЛЬДУ" };
 
@@ -72,13 +72,11 @@ namespace Darkfall.UI
         public void Toggle()
         {
             SetVisible(!visible);
-            if (!visible) chest = null;
         }
 
         public void Close()
         {
             if (!visible) return;
-            chest = null;
             SetVisible(false);
         }
 
@@ -97,13 +95,20 @@ namespace Darkfall.UI
             }
             // A player can close the inventory while the pointer is still held. Standalone
             // builds do not always dispatch OnEndDrag when the whole panel is disabled.
-            if (!value) InventorySlotInteraction.CancelActiveDrag();
+            TreasureChest closingChest = null;
+            if (!value)
+            {
+                InventorySlotInteraction.CancelActiveDrag();
+                closingChest = chest;
+                chest = null;
+            }
             visible = value;
             root.SetActive(value);
             if (!value && contextLayer != null) contextLayer.SetActive(false);
             game.PauseForModal(value);
             game.Audio.PlayEffect(value ? "Inventory_open" : "Inventory_close");
             if (value) Refresh();
+            closingChest?.OnInventoryClosed();
         }
 
         public void Refresh()
@@ -185,6 +190,8 @@ namespace Darkfall.UI
                 var index = i;
                 var item = game.Inventory.Slots[i];
                 var slot = CreateSlot(backpackGrid, item, item == null ? "" : Glyph(item.kind), item?.quantity ?? 0);
+                if (item != null && !InventorySystem.IsClassCompatible(item, game.Player))
+                    MarkUnavailable(slot, "ЧУЖОЙ\nКЛАСС");
                 if (index == selectedIndex)
                 {
                     var outline = slot.GetComponent<Outline>();
@@ -208,20 +215,25 @@ namespace Darkfall.UI
             Clear(equipmentGrid);
             var positions = new[]
             {
-                new Vector2(0, 238), new Vector2(-185, 112), new Vector2(185, 112),
-                new Vector2(-185, -8), new Vector2(185, -8), new Vector2(-185, -128),
-                new Vector2(185, -128), new Vector2(-88, -258), new Vector2(88, -258)
+                new Vector2(0, 264), new Vector2(-190, 104), new Vector2(190, -20),
+                new Vector2(190, 104), new Vector2(0, 154), new Vector2(-190, -20),
+                new Vector2(-190, -144), new Vector2(-92, -294), new Vector2(92, -294),
+                new Vector2(190, -144)
             };
             for (var i = 0; i < game.Inventory.Equipment.Length; i++)
             {
                 var index = i;
                 var item = game.Inventory.Equipment[i];
-                var slot = CreateSlot(equipmentGrid, item, item == null ? EquipmentNames[i] : Glyph(item.kind), 0, 86);
+                var blocked = i == (int)EquipmentSlot.OffHand && game.Inventory.IsOffHandBlocked;
+                var slot = CreateSlot(equipmentGrid, item, blocked ? "ЗАНЯТО\nДВУРУЧНЫМ" : item == null ? EquipmentNames[i] : Glyph(item.kind), 0, 86);
                 SetRect(slot.GetComponent<RectTransform>(), new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(78, 78), positions[i] * .88f);
+                if (blocked) MarkUnavailable(slot, "");
                 slot.AddComponent<InventorySlotInteraction>().Configure(InventoryDragArea.Equipment, index, item,
                     () =>
                     {
-                        if (game.Inventory.Equipment[index] == null) details.text = EquipmentNames[index] + "\nПустой слот экипировки";
+                        if (index == (int)EquipmentSlot.OffHand && game.Inventory.IsOffHandBlocked)
+                            details.text = "ВТОРАЯ РУКА\nЗаблокирована двуручным оружием.";
+                        else if (game.Inventory.Equipment[index] == null) details.text = EquipmentNames[index] + "\nПустой слот экипировки";
                         else ShowDetails(game.Inventory.Equipment[index]);
                     },
                     () => { game.Inventory.Unequip(index); Refresh(); },
@@ -316,7 +328,14 @@ namespace Darkfall.UI
 
             if (!changed)
             {
-                GameManager.Instance.ShowMessage("Сюда нельзя поместить этот предмет");
+                if (sourceArea == InventoryDragArea.Backpack && targetArea == InventoryDragArea.Equipment)
+                {
+                    var source = game.Inventory.Slots[sourceIndex];
+                    var reason = game.Inventory.GetEquipFailure(source, targetIndex, game.Player);
+                    if (!string.IsNullOrEmpty(reason)) GameManager.Instance.ShowMessage(reason);
+                    else GameManager.Instance.ShowMessage("Сюда нельзя поместить этот предмет");
+                }
+                else GameManager.Instance.ShowMessage("Сюда нельзя поместить этот предмет");
                 return;
             }
             Refresh();
@@ -429,9 +448,15 @@ namespace Darkfall.UI
             AddStat(ref stats, "Лёд", item.ice);
             var affixes = item.affixes == null || item.affixes.Length == 0 ? "" : "\n" + string.Join("\n", item.affixes);
             var rarityColor = ColorUtility.ToHtmlStringRGB(item.Color);
+            var grip = InventorySystem.GripName(item);
+            var classLine = "";
+            if (!string.IsNullOrEmpty(item.requiredClass))
+                classLine = InventorySystem.IsClassCompatible(item, game.Player)
+                    ? $"\nКласс: {LocalizedClass(item.requiredClass)}"
+                    : $"\n<color=#E45F55><b>НЕ ДЛЯ ВАШЕГО КЛАССА</b> · {LocalizedClass(item.requiredClass)}</color>";
             details.text = $"<color=#{rarityColor}><b>{item.name}</b></color>\n" +
-                           $"Уровень {item.itemLevel}  •  {RarityName(item.rarity)}  •  {KindName(item.kind)}\n\n{item.description}" +
-                           (string.IsNullOrEmpty(item.requiredClass) ? "" : $"\nКласс: {item.requiredClass}") +
+                           $"Уровень {item.itemLevel}  •  {RarityName(item.rarity)}  •  {KindName(item.kind)}" +
+                           (string.IsNullOrEmpty(grip) ? "" : $"  •  {grip}") + $"\n\n{item.description}" + classLine +
                            (string.IsNullOrEmpty(stats) ? "" : "\n\n<color=#D7BC82>ХАРАКТЕРИСТИКИ</color>\n" + stats.TrimEnd()) + affixes +
                            (item.quantity > 1 ? $"\nКоличество: {item.quantity}" : "");
             details.color = new Color(.88f, .86f, .81f);
@@ -489,6 +514,18 @@ namespace Darkfall.UI
             return slot;
         }
 
+        private void MarkUnavailable(GameObject slot, string badge)
+        {
+            var image = slot.GetComponent<Image>();
+            if (image != null) image.color *= new Color(.52f, .42f, .42f, 1f);
+            var outline = slot.GetComponent<Outline>();
+            if (outline != null) outline.effectColor = new Color(.65f, .18f, .15f, .92f);
+            if (string.IsNullOrEmpty(badge)) return;
+            var warning = AddTextAt(slot.transform, badge, 9, new Vector2(0, -25), new Vector2(68, 28), TextAnchor.MiddleCenter);
+            warning.color = new Color(1f, .45f, .38f, .95f);
+            warning.font = boldFont;
+        }
+
         private void Build()
         {
             root = Panel("Inventory Overlay", transform, new Color(.004f, .006f, .008f, .92f));
@@ -530,7 +567,7 @@ namespace Darkfall.UI
             equipmentHero.preserveAspect = true;
             equipmentHero.color = new Color(.94f, .91f, .84f, .92f);
             equipmentHero.raycastTarget = false;
-            SetRect(equipmentHero.rectTransform, new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(235, 345), new Vector2(0, -12));
+            SetRect(equipmentHero.rectTransform, new Vector2(.5f,.5f), new Vector2(.5f,.5f), new Vector2(225, 330), new Vector2(0, -34));
             equipmentGrid = new GameObject("Equipment Slots", typeof(RectTransform)).GetComponent<RectTransform>();
             equipmentGrid.SetParent(equipmentPanel.transform, false);
             Stretch(equipmentGrid);
@@ -723,7 +760,8 @@ namespace Darkfall.UI
         {
             ItemKind.Weapon => "⚔", ItemKind.Shield => "◈", ItemKind.Armor => "◆",
             ItemKind.Head => "⌂", ItemKind.Gloves => "✋", ItemKind.Belt => "═",
-            ItemKind.Boots => "∩", ItemKind.Accessory => "✦", ItemKind.Scroll => "▧",
+            ItemKind.Boots => "∩", ItemKind.Accessory => "✦", ItemKind.Amulet => "✦", ItemKind.Ring => "◌",
+            ItemKind.Focus => "▣", ItemKind.Scroll => "▧",
             ItemKind.Potion => "♥", ItemKind.Gold => "●", _ => "?"
         };
 
@@ -737,8 +775,14 @@ namespace Darkfall.UI
         {
             ItemKind.Weapon => "Оружие", ItemKind.Shield => "Щит", ItemKind.Armor => "Броня",
             ItemKind.Head => "Головной убор", ItemKind.Gloves => "Перчатки", ItemKind.Belt => "Пояс",
-            ItemKind.Boots => "Ботинки", ItemKind.Accessory => "Украшение", ItemKind.Scroll => "Свиток",
+            ItemKind.Boots => "Ботинки", ItemKind.Accessory => "Украшение", ItemKind.Amulet => "Амулет",
+            ItemKind.Ring => "Кольцо", ItemKind.Focus => "Магический фокус", ItemKind.Scroll => "Свиток",
             ItemKind.Potion => "Зелье", ItemKind.Gold => "Золото", _ => kind.ToString()
+        };
+
+        private static string LocalizedClass(string value) => value?.ToLowerInvariant() switch
+        {
+            "mage" => "Маг", "warrior" => "Воин", "rogue" => "Разбойник", _ => value
         };
 
         private static void Stretch(RectTransform rect)

@@ -20,15 +20,14 @@ namespace Darkfall.World
                 DungeonMiniSetKind.RuinedCorner => "ruined-corner",
                 DungeonMiniSetKind.RubbleBlock => "rubble-block",
                 DungeonMiniSetKind.CollapsedWall => "ruined-corner",
-                DungeonMiniSetKind.Campfire => "campfire-01",
+                // The runtime assembles campfires from the canonical static brazier body and a
+                // separate flame renderer. Do not return the retired full-body animation here.
+                DungeonMiniSetKind.Campfire => "campfire-unlit",
                 DungeonMiniSetKind.Altar => "altar",
                 _ => null
             };
             return string.IsNullOrEmpty(name) ? null : Load(name);
         }
-
-        public static Sprite CampfireFrame(int frame) => Load("campfire-0" + (Mathf.Abs(frame) % 4 + 1));
-        public static Sprite CampfireUnlit => Load("campfire-unlit");
 
         private static Sprite Load(string name)
         {
@@ -41,35 +40,6 @@ namespace Darkfall.World
                 new Vector2(.5f, .035f), 180f, 0, SpriteMeshType.Tight);
             Cache[name] = sprite;
             return sprite;
-        }
-    }
-
-    public sealed class MiniSetCampfireAnimator : MonoBehaviour
-    {
-        private SpriteRenderer spriteRenderer;
-        private int frame;
-        private float nextFrame;
-        private float frameDuration;
-        private Vector3 baseScale;
-
-        public void Initialize(SpriteRenderer target)
-        {
-            spriteRenderer = target;
-            frame = Random.Range(0, 4);
-            frameDuration = Random.Range(.09f, .125f);
-            baseScale = transform.localScale;
-            nextFrame = Time.unscaledTime + Random.Range(0f, frameDuration);
-            if (spriteRenderer != null) spriteRenderer.sprite = MiniSetSpriteLibrary.CampfireFrame(frame);
-        }
-
-        private void Update()
-        {
-            if (spriteRenderer == null || Time.unscaledTime < nextFrame) return;
-            frame = (frame + 1) % 4;
-            spriteRenderer.sprite = MiniSetSpriteLibrary.CampfireFrame(frame);
-            var breathe = 1f + Mathf.Sin((Time.unscaledTime + GetInstanceID() * .013f) * 11f) * .012f;
-            transform.localScale = baseScale * breathe;
-            nextFrame = Time.unscaledTime + frameDuration;
         }
     }
 }

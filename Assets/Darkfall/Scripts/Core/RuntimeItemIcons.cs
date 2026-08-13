@@ -37,7 +37,10 @@ namespace Darkfall.Core
                 case ItemKind.Gloves:
                 case ItemKind.Belt:
                 case ItemKind.Boots: DrawArmor(pixels, item.kind, primary); break;
-                case ItemKind.Accessory: DrawAccessory(pixels, item.baseId, primary); break;
+                case ItemKind.Accessory:
+                case ItemKind.Amulet:
+                case ItemKind.Ring: DrawAccessory(pixels, item.baseId, primary); break;
+                case ItemKind.Focus: DrawScroll(pixels, item.baseId, primary); break;
                 case ItemKind.Potion: DrawPotion(pixels, primary); break;
                 case ItemKind.Scroll: DrawScroll(pixels, item.baseId, primary); break;
                 case ItemKind.Gold: DrawPouch(pixels); break;

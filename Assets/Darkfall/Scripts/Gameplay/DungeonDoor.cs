@@ -16,9 +16,6 @@ namespace Darkfall.Gameplay
         private DungeonData dungeon;
         private DungeonDoorLockKind lockKind;
         private SpriteRenderer closedRenderer;
-        private SpriteRenderer openRenderer;
-        private Transform closedVisual;
-        private Vector3 closedScale;
         private int obstacleId;
         private int killsAtSpawn;
         private int killsRequired;
@@ -42,13 +39,7 @@ namespace Darkfall.Gameplay
             door.killsRequired = 2 + Mathf.Clamp((GameManager.Instance?.Depth ?? 1) / 12, 0, 2);
             door.keyId = $"dungeon_key_{GameManager.Instance?.Depth ?? 1}";
 
-            // The former arcade sprite is a double wall lancet, not an open door. An opened door
-            // is therefore a clear threshold between its jamb wings until a dedicated animated
-            // open-leaf module is authored for the biome.
-            door.openRenderer = null;
-            door.closedRenderer = door.CreateVisual("Closed Door", biome, "door-closed", feature.Vertical, 1.16f);
-            door.closedVisual = door.closedRenderer.transform;
-            door.closedScale = door.closedVisual.localScale;
+            door.closedRenderer = door.CreateVisual("Animated Door", feature.Vertical, 1.16f);
             door.ApplyLockedTint();
 
             // The contour owns both wall cheeks and the authored door owns its complete frame.
@@ -63,16 +54,13 @@ namespace Darkfall.Gameplay
             Active.Add(door);
         }
 
-        private SpriteRenderer CreateVisual(string objectName, string biome, string role, bool flipX, float scale)
+        private SpriteRenderer CreateVisual(string objectName, bool flipX, float scale)
         {
             var visual = new GameObject(objectName);
             visual.transform.SetParent(transform, false);
             var renderer = visual.AddComponent<SpriteRenderer>();
-            renderer.sprite = ArchitectureSpriteLibrary.Module(biome, role);
-            ArchitectureSpriteLibrary.Placement(biome, role, renderer.sprite, out var moduleScale,
-                out var moduleOffset);
-            visual.transform.localPosition = moduleOffset * scale;
-            visual.transform.localScale = new Vector3(scale * moduleScale.x, scale * moduleScale.y, 1f);
+            renderer.sprite = DungeonDoorSpriteLibrary.Closed;
+            visual.transform.localScale = Vector3.one * scale;
             renderer.flipX = flipX;
             renderer.color = Color.white;
             DarkfallRenderMaterials.MakeLit(renderer);
@@ -101,27 +89,14 @@ namespace Darkfall.Gameplay
                 return;
             }
 
-            opening = Mathf.MoveTowards(opening, 1f, Time.deltaTime / .52f);
-            var eased = opening * opening * (3f - 2f * opening);
-            if (closedVisual != null)
-            {
-                var scale = closedVisual.localScale;
-                scale.x = Mathf.Lerp(closedScale.x, .08f, eased);
-                closedVisual.localScale = scale;
-            }
+            opening = Mathf.MoveTowards(opening, 1f, Time.deltaTime / .48f);
             if (closedRenderer != null)
             {
-                var color = closedRenderer.color;
-                color.a = 1f - eased;
-                closedRenderer.color = color;
+                if (opening < .34f) closedRenderer.sprite = DungeonDoorSpriteLibrary.Opening(0);
+                else if (opening < .72f) closedRenderer.sprite = DungeonDoorSpriteLibrary.Opening(1);
+                else closedRenderer.sprite = DungeonDoorSpriteLibrary.Open;
             }
-            if (openRenderer != null)
-            {
-                var color = openRenderer.color;
-                color.a = eased;
-                openRenderer.color = color;
-            }
-            if (opening >= .55f && obstacleId != 0)
+            if (opening >= .72f && obstacleId != 0)
             {
                 dungeon.RemoveDynamicObstacle(obstacleId);
                 obstacleId = 0;
@@ -180,6 +155,28 @@ namespace Darkfall.Gameplay
             var nearest = Nearest(target, out var distance);
             return nearest != null && distance <= InteractionDistance ? nearest.InteractionHint() : "";
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        public static bool ForceOpenNearestForVisualAudit(PlayerController target)
+        {
+            var nearest = Nearest(target, out _);
+            if (nearest == null) return false;
+            nearest.opening = 1f;
+            nearest.openingStarted = false;
+            nearest.open = true;
+            if (nearest.closedRenderer != null)
+            {
+                nearest.closedRenderer.sprite = DungeonDoorSpriteLibrary.Open;
+                nearest.closedRenderer.color = Color.white;
+            }
+            if (nearest.obstacleId != 0)
+            {
+                nearest.dungeon.RemoveDynamicObstacle(nearest.obstacleId);
+                nearest.obstacleId = 0;
+            }
+            return true;
+        }
+#endif
 
         private static DungeonDoor Nearest(PlayerController target, out float distance)
         {

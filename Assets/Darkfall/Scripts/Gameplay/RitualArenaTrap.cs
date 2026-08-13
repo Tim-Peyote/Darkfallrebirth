@@ -11,10 +11,10 @@ namespace Darkfall.Gameplay
     /// </summary>
     public sealed class RitualArenaTrap : MonoBehaviour
     {
-        private const float TriggerRadius = 2.65f;
+        private const float TriggerRadius = 1.28f;
         private const float StrikeRadius = 1.05f;
-        private const float TelegraphSeconds = 1.15f;
-        private const float CooldownSeconds = 3.8f;
+        private const float TelegraphSeconds = .42f;
+        private const float CooldownSeconds = 4.4f;
 
         private static readonly Color WarningColor = new Color(1f, .31f, .055f, 1f);
         private DungeonData dungeon;
@@ -25,6 +25,8 @@ namespace Darkfall.Gameplay
         private readonly List<EnemyController> guardians = new List<EnemyController>(4);
         private bool rewardReleased;
         private RitualSealVisual floorMark;
+        internal float TriggerDistance => TriggerRadius;
+        internal float StrikeDistance => StrikeRadius;
 
         public void Initialize(DungeonData source, PlayerController target, int depth)
         {
@@ -115,9 +117,11 @@ namespace Darkfall.Gameplay
         private bool isArmed;
         private bool isResolved;
         private float phase;
+        private Vector2 logicalAnchor;
 
         public void Initialize(Vector2 logicalPosition)
         {
+            logicalAnchor = logicalPosition;
             dormant = Load("dormant");
             armed = Load("armed");
             resolved = Load("resolved");
@@ -129,6 +133,7 @@ namespace Darkfall.Gameplay
             // The source is already authored in the project's 2:1 isometric floor plane.
             // Uniform scaling preserves that projection; never squash it again in code.
             transform.localScale = Vector3.one * .7f;
+            renderer.color = new Color(.34f, .31f, .29f, .24f);
         }
 
         public void SetArmed(bool value)
@@ -153,11 +158,14 @@ namespace Darkfall.Gameplay
         private void Update()
         {
             if (renderer == null || isResolved) return;
-            phase += Time.deltaTime * (isArmed ? 7.5f : 1.7f);
-            var pulse = Mathf.Sin(phase) * (isArmed ? .035f : .012f);
-            transform.localScale = Vector3.one * (.7f + pulse);
-            var brightness = isArmed ? .9f + Mathf.Sin(phase) * .1f : .78f + Mathf.Sin(phase) * .035f;
-            renderer.color = new Color(brightness, brightness, brightness, isArmed ? 1f : .88f);
+            phase += Time.deltaTime * (isArmed ? 12f : .8f);
+            transform.localScale = Vector3.one * .7f;
+            if (isArmed)
+            {
+                var brightness = .9f + Mathf.Sin(phase) * .1f;
+                renderer.color = new Color(1f, brightness * .48f, brightness * .18f, .96f);
+            }
+            else renderer.color = new Color(.34f, .31f, .29f, .24f);
         }
 
         private static Sprite Load(string state)

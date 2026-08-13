@@ -8,7 +8,7 @@ namespace Darkfall.Core
         private static readonly HashSet<string> MappedIds = new HashSet<string>
         {
             "sword", "axe", "staff", "wand", "dagger", "crossbow", "shield",
-            "robe", "leather", "plate", "helmet", "hood", "cap", "gloves", "belt", "boots", "amulet", "ring",
+            "grimoire", "orb", "robe", "leather", "plate", "helmet", "hood", "cap", "gloves", "belt", "boots", "amulet", "ring",
             "potion", "speed_potion", "strength_potion", "defense_potion", "regen_potion", "combo_potion",
             "purification_potion", "mystery_potion", "gold_pouch",
             "scroll_werewolf", "scroll_stone", "scroll_fire_explosion", "scroll_ice_storm", "scroll_lightning",
@@ -23,7 +23,8 @@ namespace Darkfall.Core
         {
             if (!HasMapping(baseId)) return null;
             if (Cache.TryGetValue(baseId, out var cached)) return cached;
-            var texture = Resources.Load<Texture2D>("Sprites/Items/Individual/" + baseId);
+            var resourceId = baseId == "grimoire" ? "scroll_barrier" : baseId == "orb" ? "amulet" : baseId;
+            var texture = Resources.Load<Texture2D>("Sprites/Items/Individual/" + resourceId);
             if (texture == null)
             {
                 Cache[baseId] = null;

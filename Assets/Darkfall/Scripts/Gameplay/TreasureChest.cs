@@ -9,14 +9,26 @@ namespace Darkfall.Gameplay
     public sealed class TreasureChest : MonoBehaviour
     {
         public const float MimicChance = .02f;
+        // Interaction is measured in the logical dungeon plane. The rendered child is projected
+        // into isometric screen space, so neither its transform nor a Unity physics collider may
+        // be used for this distance.
+        private const float InteractionReach = 1.35f;
         private static readonly List<TreasureChest> Active = new List<TreasureChest>();
         private PlayerController player;
         private SpriteRenderer spriteRenderer;
         private bool resolved;
         private bool guaranteedMimic;
-        private DungeonData dungeon;
-        private int obstacleId;
+        private Coroutine animationRoutine;
+        private ChestState state = ChestState.Closed;
         public readonly ItemInstance[] Items = new ItemInstance[12];
+
+        private enum ChestState
+        {
+            Closed,
+            Opening,
+            Open,
+            Closing
+        }
 
         public static TreasureChest Spawn(Vector2 position, PlayerController target,
             bool guaranteedReward = false, bool guaranteedMimic = false)
@@ -34,18 +46,14 @@ namespace Darkfall.Gameplay
             chest.spriteRenderer.color = Color.white;
             chest.spriteRenderer.sortingOrder = 11;
             DarkfallRenderMaterials.MakeLit(chest.spriteRenderer);
-            visual.transform.localScale = Vector3.one * 1.35f;
+            // Authored to one floor-tile footprint. Keep the character readable behind it and
+            // never compensate a bad source crop by scaling the complete chest at runtime.
+            visual.transform.localScale = Vector3.one * 1.1f;
             visual.AddComponent<IsoVisual>().Initialize(chestObject.transform, 0f, 1000);
-            // Gameplay collision follows the chest's floor contact, not its tall transparent
-            // sprite canvas. It remains stable through opening animation and is removed with the
-            // complete chest object when a mimic is spawned.
-            var collider = chestObject.AddComponent<BoxCollider2D>();
-            collider.size = new Vector2(.86f, .48f);
-            collider.offset = new Vector2(0f, .05f);
-            chest.dungeon = GameManager.Instance?.Dungeon;
-            if (chest.dungeon != null)
-                chest.obstacleId = chest.dungeon.AddDynamicObstacle(
-                    new Rect(position.x - .43f, position.y - .19f, .86f, .48f));
+            // Chests deliberately do not become navigation obstacles. Enemies currently steer
+            // directly rather than pathfinding around temporary props; registering the chest as
+            // an obstacle made whole packs freeze behind it. Interaction still uses this owner's
+            // logical position while the child is projected only for rendering.
             var roll = Random.value;
             var maxItems = roll < .10f ? 0 : roll < .40f ? 1 : roll < .65f ? 2 :
                 roll < .80f ? 3 : roll < .90f ? 4 : roll < .95f ? 5 : Random.Range(6, 10);
@@ -86,16 +94,15 @@ namespace Darkfall.Gameplay
         private void OnDestroy()
         {
             Active.Remove(this);
-            if (obstacleId != 0 && dungeon != null) dungeon.RemoveDynamicObstacle(obstacleId);
-            obstacleId = 0;
         }
 
         public static void InteractNearest(PlayerController target)
         {
             TreasureChest nearest = null;
-            var distance = 1.35f;
+            var distance = InteractionReach;
             foreach (var chest in Active)
             {
+                if (chest == null) continue;
                 var current = Vector2.Distance(chest.transform.position, target.transform.position);
                 if (current < distance) { distance = current; nearest = chest; }
             }
@@ -107,7 +114,9 @@ namespace Darkfall.Gameplay
             if (target == null) return float.MaxValue;
             var best = float.MaxValue;
             foreach (var chest in Active)
-                if (chest != null) best = Mathf.Min(best, Vector2.Distance(chest.transform.position, target.transform.position));
+                if (chest != null)
+                    best = Mathf.Min(best,
+                        Vector2.Distance(chest.transform.position, target.transform.position));
             return best;
         }
 
@@ -130,25 +139,63 @@ namespace Darkfall.Gameplay
                     return true;
                 }
             }
-            StartCoroutine(PlayOpening());
-            Darkfall.UI.InventoryUI.Instance?.OpenChest(this);
+            if (state != ChestState.Closed) return false;
+            state = ChestState.Opening;
+            animationRoutine = StartCoroutine(PlayOpeningThenShowInventory());
             return true;
         }
 
-        private IEnumerator PlayOpening()
+        private IEnumerator PlayOpeningThenShowInventory()
         {
-            // Inventory pauses game time; realtime waits keep this short interaction readable.
+            // Do not pause the game or cover the chest until the complete opening motion has
+            // been shown. Realtime waits also keep this deterministic if another modal changed
+            // time scale during the transition.
             var frame = TreasureChestSpriteLibrary.Opening(0);
             if (frame != null) spriteRenderer.sprite = frame;
-            yield return new WaitForSecondsRealtime(.085f);
+            yield return new WaitForSecondsRealtime(.11f);
             frame = TreasureChestSpriteLibrary.Opening(1);
             if (frame != null) spriteRenderer.sprite = frame;
-            yield return new WaitForSecondsRealtime(.095f);
+            yield return new WaitForSecondsRealtime(.12f);
             spriteRenderer.sprite = TreasureChestSpriteLibrary.Open ?? GameSpriteAtlas.Chest(true);
+            yield return new WaitForSecondsRealtime(.08f);
+
+            state = ChestState.Open;
+            animationRoutine = null;
+            Darkfall.UI.InventoryUI.Instance?.OpenChest(this);
+        }
+
+        public void OnInventoryClosed()
+        {
+            if (state != ChestState.Open) return;
+            state = ChestState.Closing;
+            if (animationRoutine != null) StopCoroutine(animationRoutine);
+            animationRoutine = StartCoroutine(PlayClosing());
+        }
+
+        private IEnumerator PlayClosing()
+        {
+            // Closing starts as soon as the chest panel disappears and mirrors the authored
+            // opening frames instead of snapping directly to the closed sprite.
+            var frame = TreasureChestSpriteLibrary.Opening(1);
+            if (frame != null) spriteRenderer.sprite = frame;
+            yield return new WaitForSecondsRealtime(.09f);
+            frame = TreasureChestSpriteLibrary.Opening(0);
+            if (frame != null) spriteRenderer.sprite = frame;
+            yield return new WaitForSecondsRealtime(.10f);
+            spriteRenderer.sprite = TreasureChestSpriteLibrary.Closed ?? GameSpriteAtlas.Chest(false);
+            state = ChestState.Closed;
+            animationRoutine = null;
         }
 
         /// <summary>Deterministic entry point for the non-destructive release smoke.</summary>
         internal bool OpenForValidation() => Open(false, true);
+        internal bool HasInvalidWorldCollider => GetComponent<Collider2D>() != null;
+        internal bool HasVisibleSprite => spriteRenderer != null && spriteRenderer.sprite != null &&
+                                          spriteRenderer.enabled && spriteRenderer.color.a > .01f;
+        internal bool IsClosedAfterAnimation => state == ChestState.Closed &&
+                                                spriteRenderer != null &&
+                                                spriteRenderer.sprite == (TreasureChestSpriteLibrary.Closed ??
+                                                                          GameSpriteAtlas.Chest(false));
 
         public void Take(int index)
         {

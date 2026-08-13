@@ -140,13 +140,13 @@ namespace Darkfall.Editor
             foreach (var sheet in biomeEnemySheets)
                 failures += ValidateDirectionalSheet(sheet, "Biome enemy");
             failures += Require(LegacyCatalog.Data.bosses?.Length == 3, "Legacy parity: expected 3 bosses");
-            failures += Require(LegacyCatalog.Data.items?.Length == 46, "Legacy parity: expected 46 base items");
+            failures += Require(LegacyCatalog.Data.items?.Length == 48, "Equipment expansion: expected 48 base items");
             foreach (var item in LegacyCatalog.Items)
             {
                 failures += Require(ItemSpriteAtlas.HasMapping(item.baseId),
                     $"Item art mapping is missing: {item.baseId}");
-                failures += Require(Resources.Load<Texture2D>("Sprites/Items/Individual/" + item.baseId) != null,
-                    $"Individual item sprite is missing: {item.baseId}");
+                failures += Require(ItemSpriteAtlas.Get(item.baseId) != null,
+                    $"Runtime item sprite is missing: {item.baseId}");
             }
             failures += Require(Resources.Load<Texture2D>("Sprites/Items/Individual/gold_pouch") != null,
                 "Individual gold pouch sprite is missing");
@@ -154,7 +154,7 @@ namespace Darkfall.Editor
             failures += Require(LegacyCatalog.Data.shop?.Length == 8, "Legacy parity: expected 8 shop upgrades");
             var inventory = new InventorySystem();
             failures += Require(inventory.Slots.Length == 42, "Legacy parity: backpack must contain 42 slots");
-            failures += Require(inventory.Equipment.Length == 9, "Legacy parity: equipment must contain 9 slots");
+            failures += Require(inventory.Equipment.Length == 10, "Equipment model: expected 10 semantic slots");
             failures += Require(inventory.QuickSlots.Length == 3, "Legacy parity: expected 3 quick slots");
             var interactionInventory = new InventorySystem();
             interactionInventory.Slots[0] = new ItemInstance
@@ -179,6 +179,22 @@ namespace Darkfall.Editor
                                 interactionInventory.Slots[1]?.id == "test_potion" &&
                                 interactionInventory.Equipment[2] == null,
                 "Inventory interaction: invalid consumable drop changed inventory state");
+            var handInventory = new InventorySystem();
+            handInventory.Slots[0] = new ItemInstance
+                { id = "test_staff", baseId = "staff", name = "Test staff", kind = ItemKind.Weapon, weaponGrip = WeaponGrip.TwoHanded };
+            handInventory.Slots[1] = new ItemInstance
+                { id = "test_focus", baseId = "grimoire", name = "Test focus", kind = ItemKind.Focus };
+            failures += Require(handInventory.MoveBackpackToEquipment(0, (int)EquipmentSlot.MainHand, null) && handInventory.IsOffHandBlocked,
+                "Equipment hands: two-handed weapon did not block off-hand");
+            failures += Require(!handInventory.MoveBackpackToEquipment(1, (int)EquipmentSlot.OffHand, null) &&
+                                handInventory.Slots[1]?.id == "test_focus",
+                "Equipment hands: off-hand accepted an item while blocked by two-handed weapon");
+            var jewelryInventory = new InventorySystem();
+            jewelryInventory.Slots[0] = new ItemInstance { id = "test_ring", baseId = "ring", name = "Test ring", kind = ItemKind.Ring };
+            jewelryInventory.Slots[1] = new ItemInstance { id = "test_amulet", baseId = "amulet", name = "Test amulet", kind = ItemKind.Amulet };
+            failures += Require(jewelryInventory.MoveBackpackToEquipment(0, (int)EquipmentSlot.RingRight, null) &&
+                                jewelryInventory.MoveBackpackToEquipment(1, (int)EquipmentSlot.Amulet, null),
+                "Equipment jewelry: ring and amulet semantic slots failed");
             interactionInventory.SwapBackpack(1, 3);
             failures += Require(interactionInventory.Slots[3]?.id == "test_potion",
                 "Inventory interaction: backpack drag swap failed");
@@ -1084,7 +1100,7 @@ namespace Darkfall.Editor
                 failures += Require(item.quantity > 0, $"Loot depth {depth}: {item.baseId} has invalid quantity");
                 failures += Require(item.itemLevel > 0 && item.power > 0 && float.IsFinite(item.power),
                     $"Loot depth {depth}: {item.baseId} has invalid progression values");
-                failures += Require(Resources.Load<Texture2D>("Sprites/Items/Individual/" + item.baseId) != null,
+                failures += Require(ItemSpriteAtlas.Get(item.baseId) != null,
                     $"Loot depth {depth}: generated item art is missing for {item.baseId}");
                 var bag = new InventorySystem();
                 failures += Require(bag.Add(item) && bag.Count(item.baseId) == item.quantity,

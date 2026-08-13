@@ -61,6 +61,7 @@ namespace Darkfall.Gameplay
 
     internal sealed class CatacombShrineVisual : MonoBehaviour
     {
+        private const float BaseScale = .62f;
         private SpriteRenderer spriteRenderer;
         private Sprite dormant;
         private Sprite active;
@@ -79,7 +80,7 @@ namespace Darkfall.Gameplay
             spriteRenderer.sprite = dormant;
             spriteRenderer.sortingOrder = IsoWorld.SortingOrder(logicalPosition, 1016);
             DarkfallRenderMaterials.MakeLit(spriteRenderer);
-            transform.localScale = Vector3.one * .34f;
+            transform.localScale = Vector3.one * BaseScale;
         }
 
         public void Activate()
@@ -97,7 +98,7 @@ namespace Darkfall.Gameplay
                 spriteRenderer.sprite = consumed;
                 spriteRenderer.color = new Color(.68f, .68f, .66f, .96f);
             }
-            transform.localScale = Vector3.one * .34f;
+            transform.localScale = Vector3.one * BaseScale;
         }
 
         private void Update()
@@ -105,7 +106,7 @@ namespace Darkfall.Gameplay
             if (spriteRenderer == null || spent) return;
             phase += Time.deltaTime * (blessing ? 7.2f : 1.1f);
             var wave = Mathf.Sin(phase);
-            transform.localScale = Vector3.one * (.34f + wave * (blessing ? .008f : .002f));
+            transform.localScale = Vector3.one * (BaseScale + wave * (blessing ? .008f : .002f));
             var value = blessing ? .96f + wave * .04f : .82f + wave * .02f;
             spriteRenderer.color = new Color(value, value, value, blessing ? 1f : .95f);
         }

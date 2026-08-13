@@ -5,7 +5,13 @@ using UnityEngine;
 
 namespace Darkfall.Gameplay
 {
-    public enum ItemKind { Weapon, Shield, Armor, Head, Gloves, Belt, Boots, Accessory, Potion, Scroll, Gold }
+    public enum ItemKind { Weapon, Shield, Armor, Head, Gloves, Belt, Boots, Accessory, Potion, Scroll, Gold, Ring, Amulet, Focus }
+    public enum WeaponGrip { None, OneHanded, TwoHanded }
+    public enum EquipmentSlot
+    {
+        Head = 0, MainHand = 1, Armor = 2, OffHand = 3, Amulet = 4,
+        Gloves = 5, RingLeft = 6, Belt = 7, Boots = 8, RingRight = 9
+    }
     public enum ItemRarity { Common, Rare, Epic, Legendary }
 
     [Serializable]
@@ -20,6 +26,7 @@ namespace Darkfall.Gameplay
         public string requiredClass;
         public ItemKind kind;
         public ItemRarity rarity;
+        public WeaponGrip weaponGrip;
         public float power;
         public int itemLevel = 1;
         public int quantity = 1;
@@ -40,12 +47,14 @@ namespace Darkfall.Gameplay
         private static int failedRareRolls;
         public const int Capacity = 42;
         public readonly ItemInstance[] Slots = new ItemInstance[Capacity];
-        public readonly ItemInstance[] Equipment = new ItemInstance[9];
+        public const int EquipmentCapacity = 10;
+        public readonly ItemInstance[] Equipment = new ItemInstance[EquipmentCapacity];
         // The original game stores the consumable base type, not a concrete stack.
         public readonly string[] QuickSlots = new string[3];
         public ItemInstance Weapon => Equipment[1];
         public ItemInstance Armor => Equipment[2];
         public ItemInstance Amulet => Equipment[4];
+        public bool IsOffHandBlocked => IsTwoHanded(Equipment[(int)EquipmentSlot.MainHand]);
         public event Action Changed;
 
         public bool Add(ItemInstance item)
@@ -176,16 +185,27 @@ namespace Darkfall.Gameplay
         {
             if (backpackIndex < 0 || backpackIndex >= Slots.Length || equipmentIndex < 0 || equipmentIndex >= Equipment.Length) return false;
             var item = Slots[backpackIndex];
-            if (item == null || !CanEquipInSlot(item, equipmentIndex)) return false;
-            if (!string.IsNullOrEmpty(item.requiredClass) &&
-                !string.Equals(item.requiredClass, player.Hero.heroClass.ToString(), StringComparison.OrdinalIgnoreCase))
+            var failure = GetEquipFailure(item, equipmentIndex, player);
+            if (!string.IsNullOrEmpty(failure)) { ShowEquipFailure(failure); return false; }
+
+            var displaced = new List<ItemInstance>();
+            if (Equipment[equipmentIndex] != null) displaced.Add(Equipment[equipmentIndex]);
+            if (equipmentIndex == (int)EquipmentSlot.MainHand && IsTwoHanded(item) &&
+                Equipment[(int)EquipmentSlot.OffHand] != null)
+                displaced.Add(Equipment[(int)EquipmentSlot.OffHand]);
+
+            var destinations = FreeBackpackDestinations(backpackIndex, displaced.Count);
+            if (destinations.Count < displaced.Count)
             {
-                GameManager.Instance.ShowMessage($"Предмет предназначен для класса: {item.requiredClass}");
+                ShowEquipFailure("Освободите место в рюкзаке: двуручное оружие снимает предмет из второй руки.");
                 return false;
             }
-            var previous = Equipment[equipmentIndex];
+
+            Slots[backpackIndex] = null;
             Equipment[equipmentIndex] = item;
-            Slots[backpackIndex] = previous;
+            if (equipmentIndex == (int)EquipmentSlot.MainHand && IsTwoHanded(item))
+                Equipment[(int)EquipmentSlot.OffHand] = null;
+            for (var i = 0; i < displaced.Count; i++) Slots[destinations[i]] = displaced[i];
             Changed?.Invoke();
             return true;
         }
@@ -196,7 +216,13 @@ namespace Darkfall.Gameplay
             var equipped = Equipment[equipmentIndex];
             if (equipped == null) return false;
             var backpackItem = Slots[backpackIndex];
-            if (backpackItem != null && !CanEquipInSlot(backpackItem, equipmentIndex)) return false;
+            if (backpackItem != null && !string.IsNullOrEmpty(GetEquipFailure(backpackItem, equipmentIndex, null))) return false;
+            if (backpackItem != null && equipmentIndex == (int)EquipmentSlot.MainHand && IsTwoHanded(backpackItem) &&
+                Equipment[(int)EquipmentSlot.OffHand] != null)
+            {
+                ShowEquipFailure("Сначала освободите вторую руку для двуручного оружия.");
+                return false;
+            }
             Equipment[equipmentIndex] = backpackItem;
             Slots[backpackIndex] = equipped;
             Changed?.Invoke();
@@ -208,6 +234,8 @@ namespace Darkfall.Gameplay
             if (first < 0 || first >= Equipment.Length || second < 0 || second >= Equipment.Length || first == second) return false;
             if (Equipment[first] != null && !CanEquipInSlot(Equipment[first], second)) return false;
             if (Equipment[second] != null && !CanEquipInSlot(Equipment[second], first)) return false;
+            if ((second == (int)EquipmentSlot.OffHand && IsTwoHanded(Equipment[(int)EquipmentSlot.MainHand])) ||
+                (first == (int)EquipmentSlot.OffHand && IsTwoHanded(Equipment[second]))) return false;
             (Equipment[first], Equipment[second]) = (Equipment[second], Equipment[first]);
             Changed?.Invoke();
             return true;
@@ -272,17 +300,9 @@ namespace Darkfall.Gameplay
         private void Equip(int index, PlayerController player)
         {
             var item = Slots[index];
-            if (!string.IsNullOrEmpty(item.requiredClass) &&
-                !string.Equals(item.requiredClass, player.Hero.heroClass.ToString(), StringComparison.OrdinalIgnoreCase))
-            {
-                GameManager.Instance.ShowMessage($"Предмет предназначен для класса: {item.requiredClass}");
-                return;
-            }
             var equipmentIndex = FindEquipmentSlot(item);
             if (equipmentIndex < 0) return;
-            var previous = Equipment[equipmentIndex];
-            Equipment[equipmentIndex] = item;
-            Slots[index] = previous;
+            MoveBackpackToEquipment(index, equipmentIndex, player);
         }
 
         public static ItemInstance GenerateLoot(int depth)
@@ -322,6 +342,7 @@ namespace Darkfall.Gameplay
                 description = definition.description,
                 icon = definition.icon,
                 requiredClass = definition.requiredClass,
+                weaponGrip = GripFor(definition.baseId),
                 rarity = rarity,
                 itemLevel = Mathf.Max(1, depth + UnityEngine.Random.Range(-1, 2)),
                 power = (3 + depth * 0.6f) * multiplier
@@ -344,6 +365,7 @@ namespace Darkfall.Gameplay
                 description = definition.description,
                 icon = definition.icon,
                 requiredClass = definition.requiredClass,
+                weaponGrip = GripFor(definition.baseId),
                 rarity = ItemRarity.Common,
                 itemLevel = Mathf.Max(1, depth),
                 quantity = Mathf.Max(1, quantity),
@@ -376,14 +398,20 @@ namespace Darkfall.Gameplay
             var level = item.itemLevel;
             switch (item.kind)
             {
-                case ItemKind.Weapon: item.damage = 8 + level * 2; item.attackRadius = level * .35f; break;
+                case ItemKind.Weapon:
+                    item.damage = (IsTwoHanded(item) ? 11 : 7) + level * (IsTwoHanded(item) ? 2.5f : 1.65f);
+                    item.attackRadius = level * (IsTwoHanded(item) ? .45f : .28f);
+                    break;
                 case ItemKind.Shield: item.defense = 6 + level * 1.5f; item.maxHp = 15 + level * 2; break;
                 case ItemKind.Armor: item.defense = 4 + level; item.maxHp = 10 + level * 2; break;
                 case ItemKind.Head: item.defense = 2 + level * .8f; item.maxHp = 8 + level * 1.5f; break;
                 case ItemKind.Gloves: item.attackSpeed = 3 + level; item.crit = 1 + level * .35f; break;
                 case ItemKind.Belt: item.maxHp = 8 + level * 2; item.moveSpeed = 2 + level * .7f; break;
                 case ItemKind.Boots: item.moveSpeed = 4 + level; item.defense = 1 + level * .5f; break;
-                case ItemKind.Accessory: item.moveSpeed = 2 + level * .6f; item.crit = 2 + level * .5f; break;
+                case ItemKind.Accessory:
+                case ItemKind.Amulet: item.maxHp = 5 + level * 1.2f; item.moveSpeed = 1 + level * .35f; break;
+                case ItemKind.Ring: item.crit = 1.5f + level * .4f; item.attackSpeed = 1 + level * .35f; break;
+                case ItemKind.Focus: item.damage = 3 + level * .8f; item.crit = 1 + level * .3f; break;
             }
         }
 
@@ -425,7 +453,9 @@ namespace Darkfall.Gameplay
             {
                 "weapon" => ItemKind.Weapon, "shield" => ItemKind.Shield, "armor" => ItemKind.Armor,
                 "head" => ItemKind.Head, "gloves" => ItemKind.Gloves, "belt" => ItemKind.Belt,
-                "boots" => ItemKind.Boots, "accessory" => ItemKind.Accessory, _ => ItemKind.Gold
+                "boots" => ItemKind.Boots, "focus" => ItemKind.Focus,
+                "accessory" => item.baseId == "ring" ? ItemKind.Ring : item.baseId == "amulet" ? ItemKind.Amulet : ItemKind.Accessory,
+                _ => ItemKind.Gold
             };
         }
 
@@ -433,30 +463,109 @@ namespace Darkfall.Gameplay
         {
             int[] candidates = item.kind switch
             {
-                ItemKind.Head => new[] { 0 }, ItemKind.Weapon => new[] { 1, 3 }, ItemKind.Shield => new[] { 3 },
-                ItemKind.Armor => new[] { 2 }, ItemKind.Accessory => new[] { 4, 6 }, ItemKind.Gloves => new[] { 5 },
+                ItemKind.Head => new[] { 0 },
+                ItemKind.Weapon => IsTwoHanded(item) ? new[] { 1 } : new[] { 1, 3 },
+                ItemKind.Shield => new[] { 3 }, ItemKind.Focus => new[] { 3 },
+                ItemKind.Armor => new[] { 2 }, ItemKind.Amulet => new[] { 4 },
+                ItemKind.Accessory => item.baseId == "ring" ? new[] { 6, 9 } : new[] { 4 },
+                ItemKind.Ring => new[] { 6, 9 }, ItemKind.Gloves => new[] { 5 },
                 ItemKind.Belt => new[] { 7 }, ItemKind.Boots => new[] { 8 }, _ => Array.Empty<int>()
             };
-            foreach (var candidate in candidates) if (Equipment[candidate] == null) return candidate;
+            foreach (var candidate in candidates)
+                if (Equipment[candidate] == null && string.IsNullOrEmpty(GetEquipFailure(item, candidate, null))) return candidate;
             return candidates.Length > 0 ? candidates[0] : -1;
         }
 
-        private static bool CanEquipInSlot(ItemInstance item, int equipmentIndex)
+        public static bool CanEquipInSlot(ItemInstance item, int equipmentIndex)
         {
             if (item == null) return true;
             return item.kind switch
             {
                 ItemKind.Head => equipmentIndex == 0,
-                ItemKind.Weapon => equipmentIndex == 1 || equipmentIndex == 3,
+                ItemKind.Weapon => equipmentIndex == 1 || (!IsTwoHanded(item) && equipmentIndex == 3),
                 ItemKind.Shield => equipmentIndex == 3,
+                ItemKind.Focus => equipmentIndex == 3,
                 ItemKind.Armor => equipmentIndex == 2,
-                ItemKind.Accessory => equipmentIndex == 4 || equipmentIndex == 6,
+                ItemKind.Amulet => equipmentIndex == 4,
+                ItemKind.Ring => equipmentIndex == 6 || equipmentIndex == 9,
+                ItemKind.Accessory => item.baseId == "ring" ? equipmentIndex == 6 || equipmentIndex == 9 : equipmentIndex == 4,
                 ItemKind.Gloves => equipmentIndex == 5,
                 ItemKind.Belt => equipmentIndex == 7,
                 ItemKind.Boots => equipmentIndex == 8,
                 _ => false
             };
         }
+
+        public string GetEquipFailure(ItemInstance item, int equipmentIndex, PlayerController player)
+        {
+            if (item == null) return "В этом слоте нет предмета.";
+            NormalizeLegacyItem(item);
+            if (!CanEquipInSlot(item, equipmentIndex))
+                return IsTwoHanded(item) && equipmentIndex == (int)EquipmentSlot.OffHand
+                    ? "Двуручное оружие можно взять только в основную руку."
+                    : "Тип предмета не подходит для этого слота.";
+            if (!IsClassCompatible(item, player))
+                return $"Этот предмет предназначен для класса: {LocalizedClass(item.requiredClass)}.";
+            if (equipmentIndex == (int)EquipmentSlot.OffHand && IsOffHandBlocked)
+                return $"Вторая рука занята двуручным оружием «{Equipment[(int)EquipmentSlot.MainHand].name}».";
+            return null;
+        }
+
+        public static bool IsClassCompatible(ItemInstance item, PlayerController player)
+        {
+            return item == null || player == null || string.IsNullOrEmpty(item.requiredClass) ||
+                   string.Equals(item.requiredClass, player.Hero.heroClass.ToString(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static bool IsTwoHanded(ItemInstance item)
+        {
+            if (item == null || item.kind != ItemKind.Weapon) return false;
+            return item.weaponGrip == WeaponGrip.TwoHanded ||
+                   (item.weaponGrip == WeaponGrip.None && GripFor(item.baseId) == WeaponGrip.TwoHanded);
+        }
+
+        public static string GripName(ItemInstance item) => item?.kind == ItemKind.Weapon
+            ? IsTwoHanded(item) ? "Двуручное" : "Одноручное"
+            : null;
+
+        private static WeaponGrip GripFor(string baseId) => baseId switch
+        {
+            "staff" => WeaponGrip.TwoHanded,
+            "crossbow" => WeaponGrip.TwoHanded,
+            "axe" => WeaponGrip.TwoHanded,
+            "sword" => WeaponGrip.OneHanded,
+            "wand" => WeaponGrip.OneHanded,
+            "dagger" => WeaponGrip.OneHanded,
+            _ => WeaponGrip.None
+        };
+
+        private static void NormalizeLegacyItem(ItemInstance item)
+        {
+            if (item.kind == ItemKind.Accessory)
+                item.kind = item.baseId == "ring" ? ItemKind.Ring : item.baseId == "amulet" ? ItemKind.Amulet : item.kind;
+            if (item.kind == ItemKind.Weapon && item.weaponGrip == WeaponGrip.None)
+                item.weaponGrip = GripFor(item.baseId);
+        }
+
+        private List<int> FreeBackpackDestinations(int sourceIndex, int needed)
+        {
+            var result = new List<int>(needed);
+            if (needed <= 0) return result;
+            result.Add(sourceIndex);
+            for (var i = 0; i < Slots.Length && result.Count < needed; i++)
+                if (i != sourceIndex && Slots[i] == null) result.Add(i);
+            return result;
+        }
+
+        private static void ShowEquipFailure(string message)
+        {
+            if (GameManager.Instance != null) GameManager.Instance.ShowMessage(message);
+        }
+
+        private static string LocalizedClass(string value) => value?.ToLowerInvariant() switch
+        {
+            "mage" => "Маг", "warrior" => "Воин", "rogue" => "Разбойник", _ => value
+        };
 
         public float EquipmentStat(Func<ItemInstance, float> selector)
         {

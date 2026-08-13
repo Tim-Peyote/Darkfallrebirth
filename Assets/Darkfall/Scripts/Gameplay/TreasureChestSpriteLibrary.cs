@@ -19,8 +19,11 @@ namespace Darkfall.Gameplay
             if (texture == null) return null;
             texture.filterMode = FilterMode.Bilinear;
             texture.wrapMode = TextureWrapMode.Clamp;
+            // Every state uses the same 1024 px canvas, pivot and full rectangular mesh. A tight
+            // mesh changes its geometry when the lid opens and caused the opened chest to vanish
+            // or jump on some graphics APIs/build targets.
             sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-                new Vector2(.5f, .072f), 360f, 0, SpriteMeshType.Tight);
+                new Vector2(.5f, .072f), 500f, 0, SpriteMeshType.FullRect);
             Cache[name] = sprite;
             return sprite;
         }

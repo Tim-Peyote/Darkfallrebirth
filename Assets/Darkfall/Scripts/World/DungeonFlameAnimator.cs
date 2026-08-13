@@ -28,8 +28,14 @@ namespace Darkfall.World
             var dungeon = GameManager.Instance?.Dungeon;
             var projectedOwner = GetComponentInParent<IsoVisual>();
             var position = projectedOwner != null ? projectedOwner.LogicalPosition : (Vector2)transform.position;
-            var targetVisibility = dungeon != null && dungeon.IsVisible(
-                Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y)) ? 1f : 0f;
+            var x = Mathf.FloorToInt(position.x);
+            var y = Mathf.FloorToInt(position.y);
+            // A discovered light source must not turn into an inexplicably empty bowl as soon
+            // as it leaves the current visibility polygon. Fog still controls unexplored rooms;
+            // once discovered, the flame and its persistent authored light remain consistent.
+            var targetVisibility = dungeon != null && (dungeon.IsVisible(x, y) || dungeon.IsExplored(x, y))
+                ? 1f
+                : 0f;
             visibility = Mathf.MoveTowards(visibility, targetVisibility, Time.deltaTime * 7f);
             spriteRenderer.color = new Color(1, 1, 1, visibility);
             if (Time.time < nextFrame) return;
