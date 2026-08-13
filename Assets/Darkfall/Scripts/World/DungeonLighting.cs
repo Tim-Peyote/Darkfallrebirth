@@ -779,7 +779,8 @@ namespace Darkfall.World
         {
             light2D = target;
             baseIntensity = target.intensity;
-            amount = Mathf.Clamp(flickerAmount, 0, .10f);
+            // Decorative fire breathes; it never strobes or makes distant walls flash.
+            amount = Mathf.Clamp(flickerAmount, 0, .075f);
             dungeon = data;
             sourcePosition = position;
             seed = Mathf.Abs(transform.position.x * 9.31f + transform.position.y * 5.77f + GetInstanceID());

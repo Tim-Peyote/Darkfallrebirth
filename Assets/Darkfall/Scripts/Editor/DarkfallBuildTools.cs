@@ -83,6 +83,14 @@ namespace Darkfall.Editor
             failures += Require(brazierBody != null, "Canonical Ashen brazier body is missing");
             failures += Require(brazierBody != null && brazierBody.width == 512 && brazierBody.height == 512,
                 "Canonical Ashen brazier body must keep its 512x512 canvas");
+            foreach (var fixture in new[] { "wall-sconce-01", "floor-campfire-01" })
+            {
+                var texture = Resources.Load<Texture2D>(
+                    $"Sprites/Environment/FireFixtures/ashen-catacombs/{fixture}");
+                failures += Require(texture != null, $"Ashen fire fixture is missing: {fixture}");
+                failures += Require(texture != null && texture.width == 362 && texture.height == 362,
+                    $"Ashen fire fixture must keep its 362x362 canvas: {fixture}");
+            }
             foreach (var state in new[] { "closed", "opening-01", "opening-02", "open" })
             {
                 var door = Resources.Load<Texture2D>($"Sprites/Interactables/DungeonDoor/{state}");
@@ -673,26 +681,29 @@ namespace Darkfall.Editor
             var wanted = new HashSet<DungeonMiniSetKind>
             {
                 DungeonMiniSetKind.StatueNiche, DungeonMiniSetKind.Altar,
-                DungeonMiniSetKind.Campfire, DungeonMiniSetKind.Colonnade,
+                DungeonMiniSetKind.Colonnade,
                 DungeonMiniSetKind.SideChapel, DungeonMiniSetKind.HazardBridge
             };
             var balance = GameBalance.RuntimeDefault();
             try
             {
-                for (var seed = 73001; seed < 73501 && wanted.Count > 0; seed++)
+                for (var seed = 73001; seed < 75001 && wanted.Count > 0; seed++)
                 {
-                    var dungeon = DungeonGenerator.Generate(balance, 1, seed);
+                    // Ritual rooms are intentionally uncommon. Search the complete first-biome
+                    // depth band instead of increasing campfire density just to satisfy an audit.
+                    var depth = 1 + (seed - 73001) % 9;
+                    var dungeon = DungeonGenerator.Generate(balance, depth, seed);
                     foreach (var miniSet in dungeon.MiniSets)
                     {
                         if (!wanted.Remove(miniSet.Kind)) continue;
                         var root = new GameObject("Mini Set Variant Audit Root");
-                        root.AddComponent<DungeonView>().Build(dungeon, 1);
+                        root.AddComponent<DungeonView>().Build(dungeon, depth);
                         var ambient = new GameObject("Mini Set Variant Audit Ambient").AddComponent<Light2D>();
                         ambient.lightType = Light2D.LightType.Global;
                         ambient.color = new Color(.40f, .39f, .36f);
                         ambient.intensity = .84f;
                         ambient.shadowsEnabled = false;
-                        CaptureAuditFrame(output, 1,
+                        CaptureAuditFrame(output, depth,
                             $"miniset-target-{miniSet.Kind.ToString().ToLowerInvariant()}-seed-{seed}",
                             miniSet.Anchor, miniSet.Kind == DungeonMiniSetKind.SideChapel ? 4.2f : 3.2f);
                         UnityEngine.Object.DestroyImmediate(ambient.gameObject);
@@ -703,11 +714,80 @@ namespace Darkfall.Editor
                 if (wanted.Count > 0)
                     throw new InvalidOperationException("Missing mini-set audit variants: " +
                                                         string.Join(", ", wanted));
+                CaptureAshenFireFixtureVariants(output, balance);
             }
             finally
             {
                 UnityEngine.Object.DestroyImmediate(balance);
             }
+        }
+
+        private static void CaptureAshenFireFixtureVariants(string output, GameBalance balance)
+        {
+            const int depth = 1;
+            var dungeon = DungeonGenerator.Generate(balance, depth, 73191);
+            var root = new GameObject("Fire Fixture Audit Root");
+            root.AddComponent<DungeonView>().Build(dungeon, depth);
+            var ambient = new GameObject("Fire Fixture Audit Ambient").AddComponent<Light2D>();
+            ambient.lightType = Light2D.LightType.Global;
+            ambient.color = new Color(.40f, .39f, .36f);
+            ambient.intensity = .84f;
+            ambient.shadowsEnabled = false;
+            try
+            {
+                foreach (var candidate in root.GetComponentsInChildren<Transform>(true))
+                {
+                    if (!candidate.name.Contains("Wall Torch", StringComparison.Ordinal)) continue;
+                    CaptureAnimatedFireFrames(output, depth, "fire-wall-sconce", candidate, candidate.position);
+                    break;
+                }
+
+                // Campfires are deliberately rare and ritual-only. Audit their authored body
+                // directly instead of requiring the procedural map to spawn extra fire clutter.
+                var room = dungeon.Rooms[Mathf.Min(1, dungeon.Rooms.Count - 1)];
+                var roomCenter = new Vector2(room.Center.x, room.Center.y);
+                var fixtureRoot = new GameObject("Audit Floor Campfire");
+                fixtureRoot.transform.SetParent(root.transform, false);
+                fixtureRoot.transform.position = new Vector3(roomCenter.x, roomCenter.y, 0f);
+                var visual = new GameObject("Projected Audit Floor Campfire");
+                visual.transform.SetParent(fixtureRoot.transform, false);
+                visual.transform.localScale = Vector3.one * .66f;
+                var renderer = visual.AddComponent<SpriteRenderer>();
+                renderer.sprite = FireFixtureSpriteLibrary.FloorCampfire;
+                DarkfallRenderMaterials.MakeLit(renderer);
+                visual.AddComponent<IsoVisual>().Initialize(fixtureRoot.transform, 0f, 1004);
+                var flame = new GameObject("Animated Flame");
+                flame.transform.SetParent(visual.transform, false);
+                flame.transform.localPosition = new Vector2(0f, .55f);
+                flame.transform.localScale = Vector3.one * .48f;
+                flame.AddComponent<DungeonFlameAnimator>().Initialize(9);
+                CaptureAnimatedFireFrames(output, depth, "fire-floor-campfire", fixtureRoot.transform, roomCenter);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(ambient.gameObject);
+                UnityEngine.Object.DestroyImmediate(root);
+            }
+        }
+
+        private static void CaptureAnimatedFireFrames(string output, int depth, string subject,
+            Transform fixtureRoot, Vector2 focus)
+        {
+            var animator = fixtureRoot.GetComponentInChildren<DungeonFlameAnimator>(true);
+            if (animator == null) throw new InvalidOperationException(subject + " has no flame animator");
+            var fixturePosition = fixtureRoot.position;
+            var fixtureScale = fixtureRoot.localScale;
+            var sprites = new HashSet<Sprite>();
+            for (var frame = 0; frame < 4; frame++)
+            {
+                animator.AdvanceFrameForAudit();
+                sprites.Add(animator.CurrentSpriteForAudit);
+                CaptureAuditFrame(output, depth, $"{subject}-frame-{frame + 1}", focus, 2.25f);
+                if (fixtureRoot.position != fixturePosition || fixtureRoot.localScale != fixtureScale)
+                    throw new InvalidOperationException(subject + " fixture moved or changed scale during animation");
+            }
+            if (sprites.Count != 4)
+                throw new InvalidOperationException(subject + " did not render four distinct flame frames");
         }
 
         [MenuItem("Darkfall/Capture Elevation Variants Audit")]

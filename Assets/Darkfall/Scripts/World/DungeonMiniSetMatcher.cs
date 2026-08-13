@@ -62,7 +62,7 @@ namespace Darkfall.World
                     DungeonMiniSetKind.CollapsedWall };
             else
                 pool = new[] { DungeonMiniSetKind.RuinedCorner, DungeonMiniSetKind.RubbleBlock,
-                    DungeonMiniSetKind.Campfire, DungeonMiniSetKind.CollapsedWall,
+                    DungeonMiniSetKind.CollapsedWall,
                     DungeonMiniSetKind.StatueNiche, DungeonMiniSetKind.Altar,
                     DungeonMiniSetKind.Colonnade, DungeonMiniSetKind.SideChapel };
 

@@ -10,9 +10,11 @@ namespace Darkfall.World
     {
         // One physical and visual standard for every Ashen Catacombs brazier. Room decoration,
         // arena set pieces and the Campfire mini-set must never choose their own scale/body.
-        private const float AshenBrazierScale = .58f;
-        private static readonly Vector2 AshenBrazierFlameOffset = new Vector2(0f, .24f);
-        private const float AshenBrazierFlameScale = .56f;
+        private const float AshenBrazierScale = .34f;
+        private static readonly Vector2 AshenBrazierFlameOffset = new Vector2(0f, .17f);
+        private const float AshenBrazierFlameScale = .30f;
+        private const float AshenWallSconceScale = .78f;
+        private const float AshenCampfireScale = .66f;
         private readonly List<Mesh> meshes = new List<Mesh>();
         private readonly List<Material> materials = new List<Material>();
         private readonly List<Texture2D> runtimeTextures = new List<Texture2D>();
@@ -110,7 +112,9 @@ namespace Darkfall.World
 
         private bool CreateAuthoredAshenMiniSet(DungeonData data, DungeonMiniSet miniSet)
         {
-            var sprite = MiniSetSpriteLibrary.Get(miniSet.Kind);
+            var sprite = miniSet.Kind == DungeonMiniSetKind.Campfire
+                ? FireFixtureSpriteLibrary.FloorCampfire
+                : MiniSetSpriteLibrary.Get(miniSet.Kind);
             if (sprite == null) return false;
             // A colonnade reserves a composed visual mask, but its arch remains traversable.
             // Treating the anchor as a solid obstacle made the art promise a passage while
@@ -120,7 +124,7 @@ namespace Darkfall.World
                          miniSet.Kind != DungeonMiniSetKind.StatueNiche;
             var footprintRadius = miniSet.Kind == DungeonMiniSetKind.Colonnade ? 1.15f :
                 miniSet.Kind == DungeonMiniSetKind.SideChapel ? 1.05f :
-                miniSet.Kind == DungeonMiniSetKind.Campfire ? .48f : .72f;
+                miniSet.Kind == DungeonMiniSetKind.Campfire ? .4f : .72f;
             if (blocks && !data.TryAddObstaclePreservingRoutes(miniSet.Anchor)) return false;
 
             var root = new GameObject("Mini Set · Authored " + miniSet.Kind);
@@ -150,7 +154,7 @@ namespace Darkfall.World
             var scale = miniSet.Mask.width >= 5 ? .78f : .62f;
             if (miniSet.Kind == DungeonMiniSetKind.StatueNiche) scale = .34f;
             else if (miniSet.Kind == DungeonMiniSetKind.Altar) scale = .38f;
-            else if (miniSet.Kind == DungeonMiniSetKind.Campfire) scale = AshenBrazierScale;
+            else if (miniSet.Kind == DungeonMiniSetKind.Campfire) scale = AshenCampfireScale;
             visual.transform.localScale = Vector3.one * scale;
             var renderer = visual.AddComponent<SpriteRenderer>();
             // Campfires and room braziers must share one canonical construction. The previous
@@ -174,9 +178,10 @@ namespace Darkfall.World
             }
             if (miniSet.Kind == DungeonMiniSetKind.Campfire)
             {
-                visual.transform.localScale = Vector3.one * AshenBrazierScale;
-                AddFlame(visual.transform, AshenBrazierFlameOffset, AshenBrazierFlameScale, 9);
-                data.AddLightSource(miniSet.Anchor + new Vector2(0, .18f), profile.FireTint, 4.8f, .14f);
+                visual.transform.localScale = Vector3.one * AshenCampfireScale;
+                AddFlame(visual.transform, new Vector2(0f, .55f), .48f, 9);
+                data.AddLightSource((Vector2)root.transform.position + new Vector2(0f, .12f),
+                    profile.FireTint, 4.2f, .075f);
             }
             RegisterDecor(root.transform.position, footprintRadius);
             return true;
@@ -219,12 +224,8 @@ namespace Darkfall.World
                 switch (setPiece.Kind)
                 {
                     case DungeonSetPieceKind.Entrance:
-                        // Quiet, symmetric vigil around the landing. The centre and the line to
-                        // the safety door remain empty, so these marks orient rather than block.
-                        CreateProp(data, 2, setPiece.Anchor + new Vector2(-1.05f, .82f), .48f,
-                            label + " Vigil", false, lightDecor);
-                        CreateProp(data, 2, setPiece.Anchor + new Vector2(1.05f, .82f), .48f,
-                            label + " Vigil", false, lightDecor);
+                        // Arrival decor owns the wall torch. Do not surround every landing with a
+                        // second pair of floor bowls; the threshold stays open and visually quiet.
                         CreateProp(data, 5, setPiece.Anchor + Vector2.down * .94f, .34f,
                             label + " Threshold Offering", false, clutterDecor);
                         break;
@@ -239,11 +240,10 @@ namespace Darkfall.World
                             label + " Seal", false, structuralDecor);
                         break;
                     case DungeonSetPieceKind.EliteArena:
-                        // Keep the centre clear for the encounter. Four braziers make the arena
-                        // legible from every entrance and provide its own combat-light rhythm.
-                        CreateProp(data, 2, setPiece.Anchor + new Vector2(-1.05f, -.72f), .58f,
+                        // A restrained pair marks the arena without filling combat lanes with bowls.
+                        CreateProp(data, 2, setPiece.Anchor + new Vector2(-1.05f, -.72f), AshenBrazierScale,
                             label + " Brazier", true, lightDecor);
-                        CreateProp(data, 2, setPiece.Anchor + new Vector2(1.05f, -.72f), .58f,
+                        CreateProp(data, 2, setPiece.Anchor + new Vector2(1.05f, -.72f), AshenBrazierScale,
                             label + " Brazier", true, lightDecor);
                         CreateProp(data, 5, setPiece.Anchor + new Vector2(-.92f, .86f), .42f,
                             label + " Remains", false, clutterDecor);
@@ -1530,9 +1530,14 @@ namespace Darkfall.World
                 }
                 if (roomIndex % profile.LightEveryRooms == 1)
                 {
-                    var lightProp = profile.Id == "ashen-catacombs" ? 2 : (roomIndex % 2 == 0 ? 0 : 8);
-                    CreateProp(data, lightProp, new Vector2(bounds.xMin + 1.2f, bounds.yMax - 1.15f),
-                        profile.Id == "ashen-catacombs" ? 1f : .72f, "Biome Light", false, lightDecor);
+                    if (profile.Id == "ashen-catacombs")
+                        CreateAshenWallSconce(data, bounds, hash, "Biome Wall Torch");
+                    else
+                    {
+                        var lightProp = roomIndex % 2 == 0 ? 0 : 8;
+                        CreateProp(data, lightProp, new Vector2(bounds.xMin + 1.2f, bounds.yMax - 1.15f),
+                            .72f, "Biome Light", false, lightDecor);
+                    }
                 }
 
                 // Theme rooms are authored compositions, not circular noise. Most rooms remain
@@ -1893,8 +1898,8 @@ namespace Darkfall.World
                 {
                     case DungeonRoomTheme.Ossuary: return new[] { 5, 6, 7 };
                     case DungeonRoomTheme.Armory: return new[] { 3, 4, 7 };
-                    case DungeonRoomTheme.Ritual: return new[] { 2, 5, 9 };
-                    case DungeonRoomTheme.Shrine: return new[] { 2, 5, 6 };
+                    case DungeonRoomTheme.Ritual: return new[] { 5, 7, 9 };
+                    case DungeonRoomTheme.Shrine: return new[] { 5, 6, 7 };
                     default: return profile.ClutterProps;
                 }
             }
@@ -1938,9 +1943,14 @@ namespace Darkfall.World
             CreateProp(data, shrineIndex, shrinePosition, .72f,
                 "Arrival Shrine · " + profile.Id, false, structuralDecor);
 
-            var lightProp = profile.Id == "ashen-catacombs" ? 2 : ((hash & 1) == 0 ? 0 : 8);
-            CreateProp(data, lightProp, new Vector2(bounds.xMin + 1.05f, bounds.yMin + 1.05f),
-                profile.Id == "ashen-catacombs" ? .76f : .62f, "Arrival Vigil", false, lightDecor);
+            if (profile.Id == "ashen-catacombs")
+                CreateAshenWallSconce(data, bounds, hash, "Arrival Wall Torch");
+            else
+            {
+                var lightProp = (hash & 1) == 0 ? 0 : 8;
+                CreateProp(data, lightProp, new Vector2(bounds.xMin + 1.05f, bounds.yMin + 1.05f),
+                    .62f, "Arrival Vigil", false, lightDecor);
+            }
 
             var offeringIndex = profile.ClutterProps[(hash / 11) % profile.ClutterProps.Length];
             CreateProp(data, offeringIndex, new Vector2(bounds.xMax - 1.05f, bounds.yMin + 1.05f), .5f,
@@ -2000,7 +2010,7 @@ namespace Darkfall.World
             if (canonicalAshenBrazier)
             {
                 AddFlame(visual.transform, AshenBrazierFlameOffset, AshenBrazierFlameScale, 9);
-                data.AddLightSource(position + new Vector2(0, .22f), profile.FireTint, 5.8f, .16f);
+                data.AddLightSource(position + new Vector2(0, .18f), profile.FireTint, 4.8f, .075f);
             }
             else if (customBiomeDecor && index == 0)
             {
@@ -2023,6 +2033,35 @@ namespace Darkfall.World
                 data.AddLightSource(position + new Vector2(0, .2f), profile.FireTint * new Color(1, 1, 1, .62f), 3.6f, .1f);
             }
             RegisterDecor(position, footprintRadius);
+            return true;
+        }
+
+        private bool CreateAshenWallSconce(DungeonData data, RectInt bounds, int hash, string objectName)
+        {
+            var upperWall = (hash & 1) == 0;
+            var x = Mathf.Clamp(bounds.center.x + ((hash / 7) % 3 - 1) * 1.4f,
+                bounds.xMin + 1.5f, bounds.xMax - 1.5f);
+            var y = upperWall ? bounds.yMax - .32f : bounds.yMin + .32f;
+            var position = new Vector2(x, y);
+            if (!data.IsFloor(Mathf.FloorToInt(x), upperWall ? bounds.yMax - 1 : bounds.yMin)) return false;
+            if (!CanPlaceDecor(position, .28f)) return false;
+            var sprite = FireFixtureSpriteLibrary.WallSconce;
+            if (sprite == null) return false;
+
+            var root = new GameObject(objectName);
+            root.transform.SetParent(lightDecor, false);
+            root.transform.position = position;
+            var visual = new GameObject("Projected Wall Sconce");
+            visual.transform.SetParent(root.transform, false);
+            visual.transform.localScale = Vector3.one * AshenWallSconceScale;
+            var renderer = visual.AddComponent<SpriteRenderer>();
+            renderer.sprite = sprite;
+            renderer.flipX = !upperWall;
+            DarkfallRenderMaterials.MakeLit(renderer);
+            visual.AddComponent<IsoVisual>().Initialize(root.transform, .43f, 1110);
+            AddFlame(visual.transform, new Vector2(upperWall ? .13f : -.13f, .67f), .22f, 9);
+            data.AddLightSource(position, profile.FireTint, 3.9f, .07f);
+            RegisterDecor(position, .28f);
             return true;
         }
 

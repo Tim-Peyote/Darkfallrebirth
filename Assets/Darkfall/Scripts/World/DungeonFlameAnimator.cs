@@ -33,10 +33,22 @@ namespace Darkfall.World
             // produced explored bowls with no fire and made duplicated variants appear on screen.
             // Keep the authored flame opaque and let the common fog/light pass hide the composition.
             if (Time.time < nextFrame) return;
-            frame = (frame + 1) % 4;
-            spriteRenderer.sprite = EnvironmentSpriteAtlas.Flame(frame);
+            AdvanceFrame();
             nextFrame = Time.time + frameDuration;
         }
+
+        private void AdvanceFrame()
+        {
+            frame = (frame + 1) % 4;
+            spriteRenderer.sprite = EnvironmentSpriteAtlas.Flame(frame);
+        }
+
+#if UNITY_EDITOR
+        // Visual audits use the exact runtime frame transition without waiting on wall-clock time.
+        // Only the child sprite changes; fixture position and scale remain authored and immutable.
+        public void AdvanceFrameForAudit() => AdvanceFrame();
+        public Sprite CurrentSpriteForAudit => spriteRenderer != null ? spriteRenderer.sprite : null;
+#endif
 
         private void LateUpdate() => RefreshSortingOrder();
 
