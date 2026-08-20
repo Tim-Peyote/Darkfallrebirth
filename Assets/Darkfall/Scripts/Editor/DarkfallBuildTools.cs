@@ -1179,7 +1179,23 @@ namespace Darkfall.Editor
         {
             var failures = 0;
             var baseIds = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var definition in LegacyCatalog.Items) baseIds.Add(definition.baseId);
+            foreach (var definition in LegacyCatalog.Items)
+            {
+                baseIds.Add(definition.baseId);
+                failures += Require(Resources.Load<Texture2D>(
+                        "Sprites/Items/Individual/" + definition.baseId) != null,
+                    $"Loot catalog: {definition.baseId} has no dedicated item icon");
+            }
+            foreach (var heroClass in new[] { HeroClass.Mage, HeroClass.Warrior, HeroClass.Rogue })
+            {
+                var weights = InventorySystem.LootCategoryWeights(heroClass);
+                failures += Require(Mathf.Approximately(weights.x + weights.y + weights.z, 1f),
+                    $"Loot distribution: {heroClass} category weights do not sum to one");
+                var expectedScroll = heroClass == HeroClass.Mage ? .325f :
+                    heroClass == HeroClass.Warrior ? .13f : .1625f;
+                failures += Require(Mathf.Approximately(weights.z, expectedScroll),
+                    $"Loot distribution: {heroClass} scroll weight is not reduced by 35%");
+            }
             var kinds = new HashSet<ItemKind>();
             var rarities = new HashSet<ItemRarity>();
             var previousState = UnityEngine.Random.state;

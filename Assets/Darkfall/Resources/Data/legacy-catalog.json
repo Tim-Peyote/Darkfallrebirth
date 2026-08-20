@@ -982,9 +982,9 @@
       "LEVELS_11_PLUS": 0.25
     },
     "BASE_DROP_RATES": {
-      "EQUIPMENT": 0.3,
-      "SCROLLS": 0.2,
-      "POTIONS": 0.25,
+      "EQUIPMENT": 0.3381818,
+      "SCROLLS": 0.13,
+      "POTIONS": 0.2818182,
       "MISC": 0.1
     },
     "RARITY_RATES": {
@@ -1015,19 +1015,19 @@
     },
     "CLASS_WEIGHTS": {
       "WARRIOR": {
-        "WEAPONS": 0.5,
-        "POTIONS": 0.3,
-        "SCROLLS": 0.2
+        "WEAPONS": 0.54375,
+        "POTIONS": 0.32625,
+        "SCROLLS": 0.13
       },
       "MAGE": {
-        "WEAPONS": 0.2,
-        "POTIONS": 0.3,
-        "SCROLLS": 0.5
+        "WEAPONS": 0.27,
+        "POTIONS": 0.405,
+        "SCROLLS": 0.325
       },
       "ROGUE": {
-        "WEAPONS": 0.4,
-        "POTIONS": 0.35,
-        "SCROLLS": 0.25
+        "WEAPONS": 0.4466667,
+        "POTIONS": 0.3908333,
+        "SCROLLS": 0.1625
       }
     },
     "SPECIAL_ITEMS": {

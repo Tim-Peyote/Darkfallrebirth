@@ -23,8 +23,9 @@ namespace Darkfall.Core
         {
             if (!HasMapping(baseId)) return null;
             if (Cache.TryGetValue(baseId, out var cached)) return cached;
-            var resourceId = baseId == "grimoire" ? "scroll_barrier" : baseId == "orb" ? "amulet" : baseId;
-            var texture = Resources.Load<Texture2D>("Sprites/Items/Individual/" + resourceId);
+            // Every catalog item owns its art. Aliasing a focus to an amulet or a consumable
+            // scroll made distinct loot mechanically correct but visually misleading.
+            var texture = Resources.Load<Texture2D>("Sprites/Items/Individual/" + baseId);
             if (texture == null)
             {
                 Cache[baseId] = null;

@@ -310,12 +310,9 @@ namespace Darkfall.Gameplay
             var definitions = LegacyCatalog.Data.items;
             var playerClass = GameManager.Instance?.SelectedHero ?? HeroClass.Mage;
             var categoryRoll = UnityEngine.Random.value;
-            float equipmentWeight, potionWeight;
-            switch (playerClass)
-            {
-                case HeroClass.Rogue: equipmentWeight = .40f; potionWeight = .35f; break;
-                default: equipmentWeight = .20f; potionWeight = .30f; break;
-            }
+            var weights = LootCategoryWeights(playerClass);
+            var equipmentWeight = weights.x;
+            var potionWeight = weights.y;
             var wanted = categoryRoll < equipmentWeight ? 0 : categoryRoll < equipmentWeight + potionWeight ? 1 : 2;
             var pool = new List<LegacyItem>();
             foreach (var candidate in definitions)
@@ -350,6 +347,21 @@ namespace Darkfall.Gameplay
             ApplyBaseStats(item);
             ApplyAffixes(item, (int)rarity);
             return item;
+        }
+
+        /// <summary>
+        /// Equipment, potion and scroll weights after the global 35% scroll-drop reduction.
+        /// Removed scroll weight is redistributed proportionally between the other two categories,
+        /// so every class keeps its original identity and the total remains exactly one.
+        /// </summary>
+        public static Vector3 LootCategoryWeights(HeroClass heroClass)
+        {
+            return heroClass switch
+            {
+                HeroClass.Warrior => new Vector3(.54375f, .32625f, .13f),
+                HeroClass.Rogue => new Vector3(.4466667f, .3908333f, .1625f),
+                _ => new Vector3(.27f, .405f, .325f)
+            };
         }
 
         public static ItemInstance CreateFromDefinition(LegacyItem definition, int depth, int quantity = 1)

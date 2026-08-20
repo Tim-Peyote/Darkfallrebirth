@@ -657,6 +657,11 @@ namespace Darkfall.World
 
         private void CullParticlesAgainstArchitecture()
         {
+            // Domain reloads and edit/play transitions can keep the component alive for one frame
+            // after its managed buffer was cleared. Never feed a null array into Unity bindings.
+            if (particles == null) return;
+            if (buffer == null || buffer.Length != MaxParticles)
+                buffer = new ParticleSystem.Particle[MaxParticles];
             var count = particles.GetParticles(buffer);
             var playerPosition = (Vector2)player.transform.position;
             var projectedPlayerPosition = (Vector2)transform.position;
